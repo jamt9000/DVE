@@ -97,7 +97,7 @@ class HourglassBlock(nn.Module):
 
 
 class HourglassNet(BaseModel):
-    def __init__(self, block, num_stacks=1, num_blocks=4, planes_conv1=64, planes_block=128, planes_hg=128,
+    def __init__(self, block=ResidualBottleneckPreactivation, num_stacks=1, num_blocks=4, planes_conv1=64, planes_block=128, planes_hg=128,
                  num_output_channels=16):
         super(HourglassNet, self).__init__()
 

@@ -8,18 +8,23 @@ import model.metric as module_metric
 import model.model as module_arch
 from trainer import Trainer
 from utils import Logger
+from utils import tps
+from torch.utils.data import DataLoader
 
 
-def get_instance(module, name, config, *args):
-    return getattr(module, config[name]['type'])(*args, **config[name]['args'])
+def get_instance(module, name, config, *args, **kwargs):
+    return getattr(module, config[name]['type'])(*args, **config[name]['args'], **kwargs)
 
 
 def main(config, resume):
     train_logger = Logger()
 
     # setup data_loader instances
-    data_loader = get_instance(module_data, 'data_loader', config)
-    valid_data_loader = data_loader.split_validation()
+    warper = get_instance(tps, 'warper', config, 100, 100)
+    dataset = get_instance(module_data, 'dataset', config, pair_warper=warper)
+    data_loader = DataLoader(dataset, batch_size=128, shuffle=True, drop_last=True)
+    val_dataset = get_instance(module_data, 'dataset', config, train=False)
+    valid_data_loader = DataLoader(val_dataset, batch_size=128)
 
     # build model architecture
     model = get_instance(module_arch, 'arch', config)

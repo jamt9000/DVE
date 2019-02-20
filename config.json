@@ -1,24 +1,25 @@
 {
-    "name": "Mnist_LeNet",
-    "n_gpu": 1,
-    
+    "name": "CelebA",
+    "n_gpu": 0,
     "arch": {
-        "type": "MnistModel",
+        "type": "HourglassNet",
         "args": {}
     },
-    "data_loader": {
-        "type": "MnistDataLoader",
-        "args":{
-            "data_dir": "data/",
-            "batch_size": 128,
-            "shuffle": true,
-            "validation_split": 0.1,
-            "num_workers": 2
+    "dataset": {
+        "type": "CelebAPrunedAligned_MAFLVal",
+        "args": {
+            "root": "/scratch/shared/nfs1/jdt/celeba"
+        }
+    },
+    "warper": {
+        "type": "Warper",
+        "args": {
+
         }
     },
     "optimizer": {
         "type": "Adam",
-        "args":{
+        "args": {
             "lr": 0.001,
             "weight_decay": 0,
             "amsgrad": true
@@ -26,7 +27,8 @@
     },
     "loss": "nll_loss",
     "metrics": [
-        "my_metric", "my_metric2"
+        "my_metric",
+        "my_metric2"
     ],
     "lr_scheduler": {
         "type": "StepLR",
@@ -40,10 +42,8 @@
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
-        
         "monitor": "min val_loss",
         "early_stop": 10,
-        
         "tensorboardX": true,
         "log_dir": "saved/runs"
     }
