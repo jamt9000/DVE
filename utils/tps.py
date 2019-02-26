@@ -30,6 +30,7 @@ def grid_normalize(grid, H, W):
     x = 2. * x / torch.Tensor([W - 1., H - 1.]).reshape(1, 1, 1, 2) - 1
     return x.reshape(grid.shape)
 
+
 def random_tps_weights(nctrlpts, warpsd_all, warpsd_subset, transsd, scalesd, rotsd):
     W = torch.randn(nctrlpts, 2) * warpsd_all
     subset = torch.rand(W.shape) > 0.5
@@ -68,6 +69,7 @@ class Warper(object):
         self.nctrlpts = self.nc * self.nc
 
         self.grid_pixels = tps_grid(H, W)
+        self.grid_pixels_unnormalized = grid_unnormalize(self.grid_pixels.reshape(1, H, W, 2), self.H, self.W)
         self.grid_ctrlpts = tps_grid(self.nc, self.nc)
         self.U_ctrlpts = tps_U(self.grid_ctrlpts, self.grid_ctrlpts)
         self.U_pixels_ctrlpts = tps_U(self.grid_pixels, self.grid_ctrlpts)
@@ -108,29 +110,18 @@ class Warper(object):
             im1 = im1.squeeze(0)
             im2 = im2.squeeze(0)
 
-        grid_pixels_unnormalized = (self.grid_pixels.reshape(1, self.H, self.W, 2)
-                                    + 1.) / 2. * torch.Tensor([self.W - 1, self.H - 1]).reshape(1, 1, 1, 2)
+        grid = grid2
+        grid_unnormalized = grid_unnormalize(grid, self.H, self.W)
 
-        grid_unnormalized = (grid2 + 1.) / 2. * torch.Tensor([self.W - 1, self.H - 1]).reshape(1, 1, 1, 2)
-
-        flow = grid_unnormalized - grid_pixels_unnormalized
+        flow = grid_unnormalized - self.grid_pixels_unnormalized
 
         if self.crop != 0:
             flow = flow[:, self.crop:-self.crop, self.crop:-self.crop, :]
 
-        grid_pixels_cropped = (tps_grid(self.Hc,self.Wc).reshape(1, self.Hc, self.Wc, 2)
-                                     + 1.) / 2. * torch.Tensor([self.Wc - 1., self.Hc - 1.]).reshape(1, 1, 1, 2)
-        grid_cropped0 = flow + grid_pixels_cropped
-        grid_cropped0 = 2. * grid_cropped0 / torch.Tensor([self.Wc - 1., self.Hc - 1.]).reshape(1, 1, 1, 2) - 1
-
-        if self.crop != 0:
             grid_cropped = grid_unnormalized[:, self.crop:-self.crop, self.crop:-self.crop, :] - self.crop
             grid = grid_normalize(grid_cropped, self.Hc, self.Wc)
 
-            assert (grid - grid_cropped0).abs().max() < 1e-5
-
         kp1 = 0
         kp2 = 0
-
 
         return im1, im2, flow, grid, kp1, kp2
