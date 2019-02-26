@@ -12,6 +12,15 @@ def tps_grid(H, W):
     return grid
 
 
+def spatial_grid_unnormalized(H, W):
+    xi = torch.linspace(0, W - 1, W)
+    yi = torch.linspace(0, H - 1, H)
+
+    yy, xx = torch.meshgrid(yi, xi)
+    grid = torch.stack((xx.reshape(-1), yy.reshape(-1)), 1)
+    return grid.reshape(H, W, 2)
+
+
 def tps_U(grid1, grid2):
     D = grid1.reshape(-1, 1, 2) - grid2.reshape(1, -1, 2)
     D = torch.sum(D ** 2., 2)
@@ -50,7 +59,7 @@ def random_tps_weights(nctrlpts, warpsd_all, warpsd_subset, transsd, scalesd, ro
 
 class Warper(object):
     def __init__(self, H, W, warpsd_all=0.001, warpsd_subset=0.01, transsd=0.1,
-                 scalesd=0.1, rotsd=5, im1_multiplier=0.5, crop=15):
+                 scalesd=0.1, rotsd=5, im1_multiplier=0.5, crop=18):
         self.H = H
         self.W = W
         self.warpsd_all = warpsd_all
@@ -124,4 +133,6 @@ class Warper(object):
         kp1 = 0
         kp2 = 0
 
-        return im1, im2, flow, grid, kp1, kp2
+        # Reverse the order because due to inverse warping the "flow" is in direction im2->im1
+        # and we want to be consistent with optical flow from videos
+        return im2, im1, flow, grid, kp2, kp1

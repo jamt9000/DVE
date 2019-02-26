@@ -68,11 +68,14 @@ class CelebAPrunedAligned_MAFLVal(Dataset):
             im1 = self.transforms(im)
             im2 = self.transforms(im)
 
-            res = self.warper(im1, im2)
+            im1, im2, flow, grid, kp1, kp2 = self.warper(im1, im2)
+            data = torch.stack((im1, im2),0)
+            meta = {'flow': flow[0], 'grid': grid[0]}
         else:
-            res = self.transforms(im),
+            data = self.transforms(im)
+            meta = {}
 
-        return res
+        return data, meta
 
     def __len__(self):
         return len(self.data.index)

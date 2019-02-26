@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
+import pylab
 
 
 class Trainer(BaseTrainer):
@@ -48,12 +49,12 @@ class Trainer(BaseTrainer):
     
         total_loss = 0
         total_metrics = np.zeros(len(self.metrics))
-        for batch_idx, (data, target) in enumerate(self.data_loader):
-            data, target = data.to(self.device), target.to(self.device)
+        for batch_idx, (data, meta) in enumerate(self.data_loader):
+            data = data.to(self.device)
 
             self.optimizer.zero_grad()
             output = self.model(data)
-            loss = self.loss(output, target)
+            loss = self.loss(output, meta, device=self.device)
             loss.backward()
             self.optimizer.step()
 
