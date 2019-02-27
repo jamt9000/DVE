@@ -61,13 +61,13 @@ class Trainer(BaseTrainer):
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
             self.writer.add_scalar('loss', loss.item())
             total_loss += loss.item()
-            total_metrics += self._eval_metrics(output, target)
+            total_metrics += self._eval_metrics(output, meta)
 
             if self.verbosity >= 2 and batch_idx % self.log_step == 0:
                 self.logger.info('Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f}'.format(
                     epoch,
                     batch_idx * self.data_loader.batch_size,
-                    self.data_loader.n_samples,
+                    len(self.data_loader.dataset),
                     100.0 * batch_idx / len(self.data_loader),
                     loss.item()))
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
