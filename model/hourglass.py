@@ -92,7 +92,6 @@ class HourglassBlock(nn.Module):
             x = getattr(self, layer)(x)
             if 'layer' in layer and '_1' in layer:
                 self.outputs[layer] = x
-                print(x.mean())
         return x
 
 

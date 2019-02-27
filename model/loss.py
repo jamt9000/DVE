@@ -20,7 +20,7 @@ def dense_correlation_loss(feats, meta, device, pow=0.5):
 
     stride = H_input // H
 
-    xxyy = tps.spatial_grid_unnormalized(H_input, W_input)
+    xxyy = tps.spatial_grid_unnormalized(H_input, W_input).to(device)
 
     loss = 0.
 

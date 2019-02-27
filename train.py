@@ -16,10 +16,12 @@ import torch.utils.data.dataloader
 def get_instance(module, name, config, *args, **kwargs):
     return getattr(module, config[name]['type'])(*args, **config[name]['args'], **kwargs)
 
+
 def coll(batch):
     b = torch.utils.data.dataloader.default_collate(batch)
     # Flatten to be 4D
-    return [bi.reshape((-1,)+bi.shape[-3:]) if isinstance(bi, torch.Tensor) else bi for bi in b]
+    return [bi.reshape((-1,) + bi.shape[-3:]) if isinstance(bi, torch.Tensor) else bi for bi in b]
+
 
 def main(config, resume):
     train_logger = Logger()
@@ -27,14 +29,14 @@ def main(config, resume):
     # setup data_loader instances
     warper = get_instance(tps, 'warper', config, 100, 100)
     dataset = get_instance(module_data, 'dataset', config, pair_warper=warper)
-    data_loader = DataLoader(dataset, batch_size=128, shuffle=True, drop_last=True, collate_fn=coll)
+    data_loader = DataLoader(dataset, batch_size=64, shuffle=True, drop_last=True, collate_fn=coll)
     val_dataset = get_instance(module_data, 'dataset', config, train=False)
-    valid_data_loader = DataLoader(val_dataset, batch_size=128, collate_fn=coll)
+    valid_data_loader = DataLoader(val_dataset, batch_size=64, collate_fn=coll)
 
     # build model architecture
     model = get_instance(module_arch, 'arch', config)
     print(model)
-    
+
     # get function handles of loss and metrics
     loss = getattr(module_loss, config['loss'])
     metrics = [getattr(module_metric, met) for met in config['metrics']]
@@ -44,7 +46,7 @@ def main(config, resume):
     optimizer = get_instance(torch.optim, 'optimizer', config, trainable_params)
     lr_scheduler = get_instance(torch.optim.lr_scheduler, 'lr_scheduler', config, optimizer)
 
-    trainer = Trainer(model, loss, metrics, optimizer, 
+    trainer = Trainer(model, loss, metrics, optimizer,
                       resume=resume,
                       config=config,
                       data_loader=data_loader,
@@ -54,14 +56,15 @@ def main(config, resume):
 
     trainer.train()
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Template')
     parser.add_argument('-c', '--config', default=None, type=str,
-                           help='config file path (default: None)')
+                        help='config file path (default: None)')
     parser.add_argument('-r', '--resume', default=None, type=str,
-                           help='path to latest checkpoint (default: None)')
+                        help='path to latest checkpoint (default: None)')
     parser.add_argument('-d', '--device', default=None, type=str,
-                           help='indices of GPUs to enable (default: all)')
+                        help='indices of GPUs to enable (default: all)')
     args = parser.parse_args()
 
     if args.config:
@@ -74,7 +77,7 @@ if __name__ == '__main__':
         config = torch.load(args.resume)['config']
     else:
         raise AssertionError("Configuration file need to be specified. Add '-c config.json', for example.")
-    
+
     if args.device:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.device
 

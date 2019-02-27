@@ -50,7 +50,7 @@ class CelebAPrunedAligned_MAFLVal(Dataset):
         else:
             self.data = anno.loc[split[split[1] == 4].index]
 
-        self.filenames = self.data.index.to_list()
+        self.filenames = list(self.data.index)
 
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
         augmentations = [transforms.transforms.ColorJitter(.4, .4, .4),

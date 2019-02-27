@@ -1,14 +1,16 @@
 {
     "name": "CelebA",
-    "n_gpu": 0,
+    "n_gpu": 1,
     "arch": {
         "type": "HourglassNet",
-        "args": {}
+        "args": {
+            "num_output_channels": 3
+        }
     },
     "dataset": {
         "type": "CelebAPrunedAligned_MAFLVal",
         "args": {
-            "root": "/scratch/shared/nfs1/jdt/celeba"
+            "root": "data/celeba"
         }
     },
     "warper": {
