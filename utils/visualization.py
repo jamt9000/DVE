@@ -7,6 +7,8 @@ def sphere_colormap(writer, data, output):
     normed = torch.sqrt(out[:,0]**2. + out[:,1]**2. + out[:,2]**2.)[:,None]
     vis = out / normed / 2 + 0.5
     grid = make_grid(vis, nrow=8)
+    writer.add_image('colormap/0', vis[0])
+    writer.add_image('colormap/1', vis[1])
     writer.add_image('colormap', grid)
 
 
