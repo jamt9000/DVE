@@ -6,6 +6,7 @@ import data_loader.data_loaders as module_data
 import model.loss as module_loss
 import model.metric as module_metric
 import model.model as module_arch
+import utils.visualization as module_visualization
 from trainer import Trainer
 from utils import Logger
 from utils import tps
@@ -40,6 +41,7 @@ def main(config, resume):
     # get function handles of loss and metrics
     loss = getattr(module_loss, config['loss'])
     metrics = [getattr(module_metric, met) for met in config['metrics']]
+    visualizations = [getattr(module_visualization, vis) for vis in config['visualizations']]
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
@@ -52,7 +54,8 @@ def main(config, resume):
                       data_loader=data_loader,
                       valid_data_loader=valid_data_loader,
                       lr_scheduler=lr_scheduler,
-                      train_logger=train_logger)
+                      train_logger=train_logger,
+                      visualizations=visualizations)
 
     trainer.train()
 

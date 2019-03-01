@@ -1,4 +1,13 @@
 import importlib
+import torch
+from torchvision.utils import make_grid
+
+def sphere_colormap(writer, data, output):
+    out = output[0].cpu()
+    normed = torch.sqrt(out[:,0]**2. + out[:,1]**2. + out[:,2]**2.)[:,None]
+    vis = out / normed / 2 + 0.5
+    grid = make_grid(vis, nrow=8)
+    writer.add_image('colormap', grid)
 
 
 class WriterTensorboardX():

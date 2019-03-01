@@ -13,7 +13,7 @@ class Trainer(BaseTrainer):
         Inherited from BaseTrainer.
     """
     def __init__(self, model, loss, metrics, optimizer, resume, config,
-                 data_loader, valid_data_loader=None, lr_scheduler=None, train_logger=None):
+                 data_loader, valid_data_loader=None, lr_scheduler=None, train_logger=None, visualizations=None):
         super(Trainer, self).__init__(model, loss, metrics, optimizer, resume, config, train_logger)
         self.config = config
         self.data_loader = data_loader
@@ -21,6 +21,7 @@ class Trainer(BaseTrainer):
         self.do_validation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
         self.log_step = int(np.sqrt(data_loader.batch_size))
+        self.visualizations = visualizations if visualizations is not None else []
 
     def _eval_metrics(self, output, target):
         acc_metrics = np.zeros(len(self.metrics))
@@ -71,6 +72,9 @@ class Trainer(BaseTrainer):
                     100.0 * batch_idx / len(self.data_loader),
                     loss.item()))
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                for v in self.visualizations:
+                    v(self.writer, data.cpu(), output)
+
 
         log = {
             'loss': total_loss / len(self.data_loader),

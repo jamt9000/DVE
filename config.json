@@ -31,6 +31,9 @@
     "metrics": [
         "my_metric"
     ],
+    "visualizations": [
+        "sphere_colormap"
+    ],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
@@ -46,6 +49,6 @@
         "monitor": "min val_loss",
         "early_stop": 10,
         "tensorboardX": true,
-        "log_dir": "saved/runs"
+        "log_dir": "saved/"
     }
 }
