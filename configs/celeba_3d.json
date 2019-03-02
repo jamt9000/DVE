@@ -32,7 +32,8 @@
 
     ],
     "visualizations": [
-        "sphere_colormap"
+        "sphere_colormap",
+        "sphere_scatter3d"
     ],
     "lr_scheduler": {
         "type": "StepLR",
