@@ -52,14 +52,23 @@ def sphere_scatter3d(writer, data, output):
     z1 = out1[2].reshape(-1)
     c1 = im1.permute(1, 2, 0).reshape(-1, 3)
 
+    axmin = out.min()
+    axmax = out.max()
+
     fig = plt.figure()
     ax = mplot3d.Axes3D(fig)
+    ax.set_xlim(axmin, axmax)
+    ax.set_ylim(axmin, axmax)
+    ax.set_zlim(axmin, axmax)
     ax.scatter3D(x0, y0, z0, c=c0.numpy(), s=40, linewidths=0,
                  depthshade=False)
     writer.add_figure('sphere/0', fig)
 
     fig = plt.figure()
     ax = mplot3d.Axes3D(fig)
+    ax.set_xlim(axmin, axmax)
+    ax.set_ylim(axmin, axmax)
+    ax.set_zlim(axmin, axmax)
     ax.scatter3D(x1, y1, z1, c=c1.numpy(), s=40, linewidths=0,
                  depthshade=False)
     writer.add_figure('sphere/1', fig)

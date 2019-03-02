@@ -114,6 +114,8 @@ class Trainer(BaseTrainer):
                 total_val_loss += loss.item()
                 total_val_metrics += self._eval_metrics(output, meta)
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                for v in self.visualizations:
+                    v(self.writer, data.cpu(), output)
 
         return {
             'val_loss': total_val_loss / len(self.valid_data_loader),
