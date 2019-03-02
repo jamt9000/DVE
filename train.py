@@ -31,7 +31,7 @@ def main(config, resume):
     warper = get_instance(tps, 'warper', config, 100, 100)
     dataset = get_instance(module_data, 'dataset', config, pair_warper=warper)
     data_loader = DataLoader(dataset, batch_size=64, shuffle=True, drop_last=True, collate_fn=coll)
-    val_dataset = get_instance(module_data, 'dataset', config, train=False)
+    val_dataset = get_instance(module_data, 'dataset', config, train=False, pair_warper=warper)
     valid_data_loader = DataLoader(val_dataset, batch_size=64, collate_fn=coll)
 
     # build model architecture

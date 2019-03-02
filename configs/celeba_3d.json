@@ -1,5 +1,5 @@
 {
-    "name": "CelebA",
+    "name": "celeba_3d",
     "n_gpu": 1,
     "arch": {
         "type": "HourglassNet",
@@ -29,7 +29,7 @@
     },
     "loss": "dense_correlation_loss",
     "metrics": [
-        "my_metric"
+
     ],
     "visualizations": [
         "sphere_colormap"

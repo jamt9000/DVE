@@ -103,16 +103,16 @@ class Trainer(BaseTrainer):
         total_val_loss = 0
         total_val_metrics = np.zeros(len(self.metrics))
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                data, target = data.to(self.device), target.to(self.device)
+            for batch_idx, (data, meta) in enumerate(self.valid_data_loader):
+                data = data.to(self.device)
 
                 output = self.model(data)
-                loss = self.loss(output, target)
+                loss = self.loss(output, meta, device=self.device)
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.writer.add_scalar('loss', loss.item())
                 total_val_loss += loss.item()
-                total_val_metrics += self._eval_metrics(output, target)
+                total_val_metrics += self._eval_metrics(output, meta)
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
         return {
