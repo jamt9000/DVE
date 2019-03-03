@@ -1,6 +1,6 @@
 {
     "name": "celeba_3d_evc",
-    "n_gpu": 1,
+    "n_gpu": 8,
     "arch": {
         "type": "HourglassNet",
         "args": {

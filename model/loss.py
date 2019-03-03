@@ -5,6 +5,7 @@ from utils import tps
 
 def dense_correlation_loss(feats, meta, device, pow=0.5):
     feats = feats[0]
+    device = feats.device
 
     grid = meta['grid'].to(device)  # Grid (B,H,W,2): For each pixel in im1, where did it come from in im2
     flow = meta['flow'].to(device)
@@ -58,6 +59,7 @@ def dense_correlation_loss(feats, meta, device, pow=0.5):
 
 def dense_correlation_loss_evc(feats, meta, device, pow=0.5):
     feats = feats[0]
+    device = feats.device
 
     grid = meta['grid'].to(device)  # Grid (B,H,W,2): For each pixel in im1, where did it come from in im2
     flow = meta['flow'].to(device)

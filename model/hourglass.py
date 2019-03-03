@@ -85,13 +85,20 @@ class HourglassBlock(nn.Module):
         setattr(self, self.layernames[-1], nn.Upsample(scale_factor=2))
 
         self.layernames.append('sum%d' % n)
-        setattr(self, self.layernames[-1], lambda x: self.outputs['layer%d_1' % n] + x)
+        #setattr(self, self.layernames[-1], lambda x: self.outputs['layer%d_1' % n] + x)
+        setattr(self, self.layernames[-1], (torch.add, 'layer%d_1' % n))
 
     def forward(self, x):
+        outputs = {}
         for layer in self.layernames:
-            x = getattr(self, layer)(x)
+            layerfn = getattr(self, layer)
+            if isinstance(layerfn, tuple):
+                fn, a = layerfn
+                x = fn(outputs[a], x)
+            else:
+                x = layerfn(x)
             if 'layer' in layer and '_1' in layer:
-                self.outputs[layer] = x
+                outputs[layer] = x
         return x
 
 
