@@ -28,11 +28,12 @@ def main(config, resume):
     train_logger = Logger()
 
     # setup data_loader instances
-    warper = get_instance(tps, 'warper', config, 100, 100)
+    imwidth = config['dataset']['args']['imwidth']
+    warper = get_instance(tps, 'warper', config, imwidth, imwidth)
     dataset = get_instance(module_data, 'dataset', config, pair_warper=warper)
-    data_loader = DataLoader(dataset, batch_size=64, shuffle=True, drop_last=True, collate_fn=coll)
+    data_loader = DataLoader(dataset, batch_size=8, shuffle=True, drop_last=True, collate_fn=coll)
     val_dataset = get_instance(module_data, 'dataset', config, train=False, pair_warper=warper)
-    valid_data_loader = DataLoader(val_dataset, batch_size=64, collate_fn=coll)
+    valid_data_loader = DataLoader(val_dataset, batch_size=8, collate_fn=coll)
 
     # build model architecture
     model = get_instance(module_arch, 'arch', config)

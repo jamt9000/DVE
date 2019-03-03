@@ -1,5 +1,5 @@
 {
-    "name": "celeba_3d",
+    "name": "celeba_3d_evc",
     "n_gpu": 1,
     "arch": {
         "type": "HourglassNet",
@@ -11,13 +11,13 @@
         "type": "CelebAPrunedAligned_MAFLVal",
         "args": {
             "root": "data/celeba",
-            "imwidth": 150
+            "imwidth": 170
         }
     },
     "warper": {
         "type": "Warper",
         "args": {
-            "crop": 11
+            "crop": 21
         }
     },
     "optimizer": {
@@ -28,7 +28,7 @@
             "amsgrad": true
         }
     },
-    "loss": "dense_correlation_loss",
+    "loss": "dense_correlation_loss_evc",
     "metrics": [
 
     ],

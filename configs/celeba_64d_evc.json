@@ -1,23 +1,23 @@
 {
-    "name": "celeba_3d",
+    "name": "celeba_64d_evc",
     "n_gpu": 1,
     "arch": {
         "type": "HourglassNet",
         "args": {
-            "num_output_channels": 3
+            "num_output_channels": 64
         }
     },
     "dataset": {
         "type": "CelebAPrunedAligned_MAFLVal",
         "args": {
             "root": "data/celeba",
-            "imwidth": 150
+            "imwidth": 170
         }
     },
     "warper": {
         "type": "Warper",
         "args": {
-            "crop": 11
+            "crop": 21
         }
     },
     "optimizer": {
@@ -28,13 +28,12 @@
             "amsgrad": true
         }
     },
-    "loss": "dense_correlation_loss",
+    "loss": "dense_correlation_loss_evc",
     "metrics": [
 
     ],
     "visualizations": [
-        "sphere_colormap",
-        "sphere_scatter3d"
+        "sphere_colormap"
     ],
     "lr_scheduler": {
         "type": "StepLR",

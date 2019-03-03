@@ -78,29 +78,33 @@ def dense_correlation_loss_evc(feats, meta, device, pow=0.5):
     loss = 0.
 
     for b in range(B):
-        f1 = feats1[b].reshape(C, H * W) # source
-        f2 = feats2[b].reshape(C, h * w) # target
-        fa = feats1[(b+1) % B].reshape(C, h * w) # auxiliary
+        f1 = feats1[b].reshape(C, H * W).half() # source
+        f2 = feats2[b].reshape(C, h * w).half() # target
+        fa = feats1[(b+1) % B].reshape(C, h * w).half() # auxiliary
 
         corr = torch.matmul(f1.t(), fa)
         corr = corr.reshape(H,W,h,w)
         smcorr = F.softmax(corr.reshape(H,W,-1), dim=2).reshape(corr.shape)
         smcorr_fa = smcorr[...,None] * fa.reshape(H,W,1,1,-1)
+        del smcorr
+
         f1_via_fa = smcorr_fa.sum((2,3)).reshape(C, H * W)
+        del smcorr_fa
 
         corr2 = torch.matmul(f1_via_fa.t(), f2).reshape(corr.shape)
         smcorr2 = F.softmax(corr2.reshape(H,W,-1), dim=2).reshape(corr.shape)
+        del corr2
 
-        grid_u = tps.grid_unnormalize(grid[b], H_input, W_input)
-        diff = grid_u[:, :, None, None, :] - xxyy[None, None, :, :, :]
+        with torch.no_grad():
+            grid_u = tps.grid_unnormalize(grid[b], H_input, W_input).half()
+            diff = grid_u[:, :, None, None, :] - xxyy[None, None, :, :, :].half()
 
-        diff = diff[::stride, ::stride, ::stride, ::stride]
-        diff = (diff * diff).sum(4).sqrt()
-        diff = diff.pow(pow)
-
+            diff = diff[::stride, ::stride, ::stride, ::stride]
+            diff = (diff * diff).sum(4).sqrt()
+            diff = diff.pow(pow)
 
         L = diff * smcorr2
 
-        loss += L.sum()
+        loss += L.float().sum()
 
     return loss / (H*W*B)

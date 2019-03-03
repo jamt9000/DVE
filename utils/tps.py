@@ -59,7 +59,7 @@ def random_tps_weights(nctrlpts, warpsd_all, warpsd_subset, transsd, scalesd, ro
 
 class Warper(object):
     def __init__(self, H, W, warpsd_all=0.001, warpsd_subset=0.01, transsd=0.1,
-                 scalesd=0.1, rotsd=5, im1_multiplier=0.5, crop=18):
+                 scalesd=0.1, rotsd=5, im1_multiplier=0.5, crop=19):
         self.H = H
         self.W = W
         self.warpsd_all = warpsd_all

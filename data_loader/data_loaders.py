@@ -27,9 +27,9 @@ class PcaAug(object):
 
 
 class CelebAPrunedAligned_MAFLVal(Dataset):
-    def __init__(self, root, train=True, pair_warper=None):
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100):
         self.root = root
-        self.imwidth = 100
+        self.imwidth = imwidth
         self.train = train
         self.warper = pair_warper
 
