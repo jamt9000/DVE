@@ -5,6 +5,25 @@ from base import BaseTrainer
 import pylab
 
 
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+
 class Trainer(BaseTrainer):
     """
     Trainer class
@@ -12,6 +31,7 @@ class Trainer(BaseTrainer):
     Note:
         Inherited from BaseTrainer.
     """
+
     def __init__(self, model, loss, metrics, optimizer, resume, config,
                  data_loader, valid_data_loader=None, lr_scheduler=None, train_logger=None, visualizations=None):
         super(Trainer, self).__init__(model, loss, metrics, optimizer, resume, config, train_logger)
@@ -47,8 +67,8 @@ class Trainer(BaseTrainer):
             The metrics in log must have the key 'metrics'.
         """
         self.model.train()
-    
-        total_loss = 0
+
+        avg_loss = AverageMeter()
         total_metrics = np.zeros(len(self.metrics))
         for batch_idx, (data, meta) in enumerate(self.data_loader):
             data = data.to(self.device)
@@ -61,7 +81,7 @@ class Trainer(BaseTrainer):
 
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
             self.writer.add_scalar('loss', loss.item())
-            total_loss += loss.item()
+            avg_loss.update(loss.item(), data.size(0))
             total_metrics += self._eval_metrics(output, meta)
 
             if self.verbosity >= 2 and batch_idx % self.log_step == 0:
@@ -75,11 +95,13 @@ class Trainer(BaseTrainer):
                 for v in self.visualizations:
                     v(self.writer, data.cpu(), output)
 
-
         log = {
-            'loss': total_loss / len(self.data_loader),
+            'loss': avg_loss.avg,
             'metrics': (total_metrics / len(self.data_loader)).tolist()
         }
+
+        self.writer.set_step(epoch, 'train_epoch')
+        self.writer.add_scalar('loss', log['loss'])
 
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
@@ -100,7 +122,7 @@ class Trainer(BaseTrainer):
             The validation metrics in log must have the key 'val_metrics'.
         """
         self.model.eval()
-        total_val_loss = 0
+        avg_val_loss = AverageMeter()
         total_val_metrics = np.zeros(len(self.metrics))
         with torch.no_grad():
             for batch_idx, (data, meta) in enumerate(self.valid_data_loader):
@@ -111,13 +133,18 @@ class Trainer(BaseTrainer):
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.writer.add_scalar('loss', loss.item())
-                total_val_loss += loss.item()
+                avg_val_loss.update(loss.item(), data.size(0))
                 total_val_metrics += self._eval_metrics(output, meta)
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
                 for v in self.visualizations:
                     v(self.writer, data.cpu(), output)
 
-        return {
-            'val_loss': total_val_loss / len(self.valid_data_loader),
+        val_log = {
+            'val_loss': avg_val_loss.avg,
             'val_metrics': (total_val_metrics / len(self.valid_data_loader)).tolist()
         }
+
+        self.writer.set_step(epoch, 'val_epoch')
+        self.writer.add_scalar('val_loss', val_log['val_loss'])
+
+        return val_log
