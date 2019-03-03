@@ -87,10 +87,10 @@ def dense_correlation_loss_evc(feats, meta, device, pow=0.5):
         corr = torch.matmul(f1.t(), fa)
         corr = corr.reshape(H,W,h,w)
         smcorr = F.softmax(corr.reshape(H,W,-1), dim=2).reshape(corr.shape)
-        smcorr_fa = smcorr[...,None] * fa.reshape(H,W,1,1,-1)
+        smcorr_fa = smcorr[None,...] * fa.reshape(-1,1,1,h,w)
         del smcorr
 
-        f1_via_fa = smcorr_fa.sum((2,3)).reshape(C, H * W)
+        f1_via_fa = smcorr_fa.sum((3,4)).reshape(C, H * W)
         del smcorr_fa
 
         corr2 = torch.matmul(f1_via_fa.t(), f2).reshape(corr.shape)
