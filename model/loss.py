@@ -80,9 +80,9 @@ def dense_correlation_loss_evc(feats, meta, device, pow=0.5):
     loss = 0.
 
     for b in range(B):
-        f1 = feats1[b].reshape(C, H * W).half() # source
-        f2 = feats2[b].reshape(C, h * w).half() # target
-        fa = feats1[(b+1) % B].reshape(C, h * w).half() # auxiliary
+        f1 = feats1[b].reshape(C, H * W) # source
+        f2 = feats2[b].reshape(C, h * w) # target
+        fa = feats1[(b+1) % B].reshape(C, h * w) # auxiliary
 
         corr = torch.matmul(f1.t(), fa)
         corr = corr.reshape(H,W,h,w)
@@ -98,8 +98,8 @@ def dense_correlation_loss_evc(feats, meta, device, pow=0.5):
         del corr2
 
         with torch.no_grad():
-            grid_u = tps.grid_unnormalize(grid[b], H_input, W_input).half()
-            diff = grid_u[:, :, None, None, :] - xxyy[None, None, :, :, :].half()
+            grid_u = tps.grid_unnormalize(grid[b], H_input, W_input)
+            diff = grid_u[:, :, None, None, :] - xxyy[None, None, :, :, :]
 
             diff = diff[::stride, ::stride, ::stride, ::stride]
             diff = (diff * diff).sum(4).sqrt()
