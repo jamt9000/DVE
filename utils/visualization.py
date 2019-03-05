@@ -1,6 +1,8 @@
 import importlib
 import torch
+import torch.nn.functional as F
 from torchvision.utils import make_grid
+import numpy as np
 
 import matplotlib.pyplot as plt
 
@@ -32,7 +34,12 @@ def sphere_colormap(writer, data, output):
     writer.add_image('colormap', grid)
 
 
-def sphere_scatter3d(writer, data, output):
+def sphere_norm_scatter3d(writer, data, output):
+    output = [F.normalize(o, p=2, dim=1) for o in output]
+    sphere_scatter3d(writer, data, output, 'spherenorm')
+
+
+def sphere_scatter3d(writer, data, output, tag='sphere'):
     data = norm_range(data)
     out = output[0].cpu().detach().clone()
     out0 = out[0][0:3]
@@ -52,8 +59,8 @@ def sphere_scatter3d(writer, data, output):
     z1 = out1[2].reshape(-1)
     c1 = im1.permute(1, 2, 0).reshape(-1, 3)
 
-    axmin = out.min()
-    axmax = out.max()
+    axmin = np.round(out.min())
+    axmax = np.round(out.max())
 
     fig = plt.figure()
     ax = mplot3d.Axes3D(fig)
@@ -62,7 +69,7 @@ def sphere_scatter3d(writer, data, output):
     ax.set_zlim(axmin, axmax)
     ax.scatter3D(x0, y0, z0, c=c0.numpy(), s=40, linewidths=0,
                  depthshade=False)
-    writer.add_figure('sphere/0', fig)
+    writer.add_figure(tag + '/0', fig)
 
     fig = plt.figure()
     ax = mplot3d.Axes3D(fig)
@@ -71,7 +78,7 @@ def sphere_scatter3d(writer, data, output):
     ax.set_zlim(axmin, axmax)
     ax.scatter3D(x1, y1, z1, c=c1.numpy(), s=40, linewidths=0,
                  depthshade=False)
-    writer.add_figure('sphere/1', fig)
+    writer.add_figure(tag + '/1', fig)
 
 
 class WriterTensorboardX():
