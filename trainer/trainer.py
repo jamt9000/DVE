@@ -141,7 +141,12 @@ class Trainer(BaseTrainer):
                 data = data.to(self.device)
 
                 output = self.model(data)
-                loss = self.loss(output, meta, device=self.device)
+
+                if isinstance(self.model, torch.nn.DataParallel):
+                    loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta)
+                    loss = loss.mean()
+                else:
+                    loss = self.loss(output, meta)
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.writer.add_scalar('loss', loss.item())
