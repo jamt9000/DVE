@@ -2,7 +2,6 @@ import numpy as np
 import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
-import pylab
 
 
 class AverageMeter(object):
@@ -43,6 +42,15 @@ class Trainer(BaseTrainer):
         self.log_step = int(np.sqrt(data_loader.batch_size))
         self.visualizations = visualizations if visualizations is not None else []
 
+        class LossWrapper(torch.nn.Module):
+            def __init__(self, fn):
+                super(LossWrapper, self).__init__()
+                self.fn = fn
+            def __call__(self, *a, **kw):
+                return self.fn(*a,**kw)
+
+        self.loss_wrapper = LossWrapper(self.loss)
+
     def _eval_metrics(self, output, target):
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
@@ -75,7 +83,11 @@ class Trainer(BaseTrainer):
 
             self.optimizer.zero_grad()
             output = self.model(data)
-            loss = self.loss(output, meta, device=self.device)
+            if isinstance(self.model, torch.nn.DataParallel):
+                loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta)
+                loss = loss.mean()
+            else:
+                loss = self.loss(output, meta)
             loss.backward()
             self.optimizer.step()
 
