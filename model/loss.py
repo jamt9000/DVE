@@ -3,7 +3,7 @@ import torch
 from utils import tps
 
 
-def dense_correlation_loss(feats, meta, device, pow=0.5):
+def dense_correlation_loss(feats, meta, pow=0.5):
     feats = feats[0]
     device = feats.device
 
@@ -58,7 +58,7 @@ def dense_correlation_loss(feats, meta, device, pow=0.5):
     return loss / (H * W * B)
 
 
-def dense_correlation_loss_evc(feats, meta, device, pow=0.5):
+def dense_correlation_loss_evc(feats, meta, pow=0.5):
     feats = feats[0]
     device = feats.device
 

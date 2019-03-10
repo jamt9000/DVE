@@ -4,6 +4,7 @@ from torch.utils.data.dataset import Dataset
 import torch
 from utils import tps
 
+import numpy as np
 import pandas as pd
 import os
 from PIL import Image
@@ -50,30 +51,46 @@ class CelebAPrunedAligned_MAFLVal(Dataset):
         else:
             self.data = anno.loc[split[split[1] == 4].index]
 
+        # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ; leftmouth_x leftmouth_y ; rightmouth_x rightmouth_y
+        self.keypoints = np.array(self.data, dtype=np.float32).reshape(-1, 5, 2)
+        self.eye_kp_idxs = [0, 1]
+
         self.filenames = list(self.data.index)
+
+        # Move head up a bit
+        initial_crop = lambda im: transforms.functional.crop(im, 30, 0, 178, 178)
+        self.keypoints[:, :, 1] -= 30
+        self.keypoints *= self.imwidth / 178.
 
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
         augmentations = [transforms.transforms.ColorJitter(.4, .4, .4),
                          transforms.ToTensor(), PcaAug()] if train else [transforms.ToTensor()]
         self.transforms = transforms.Compose(
-            [transforms.Resize(self.imwidth),
-             transforms.CenterCrop(self.imwidth)]
+            [initial_crop,
+             transforms.Resize(self.imwidth)]
             + augmentations +
             [normalize])
 
     def __getitem__(self, index):
         im = Image.open(os.path.join(self.root, 'Img', 'img_align_celeba', self.filenames[index]))
+        kp = self.keypoints[index]
 
         if self.warper is not None:
             im1 = self.transforms(im)
             im2 = self.transforms(im)
 
-            im1, im2, flow, grid, kp1, kp2 = self.warper(im1, im2)
-            data = torch.stack((im1, im2),0)
+            im1, im2, flow, grid, kp1, kp2 = self.warper(im1, im2, keypts=kp)
+            data = torch.stack((im1, im2), 0)
             meta = {'flow': flow[0], 'grid': grid[0]}
+
+            # f = pyplot.figure()
+            # pyplot.imshow(im1.permute(1, 2, 0) + 0.5)
+            # pyplot.scatter(kp1[:, 0], kp1[:, 1])
+            # pyplot.savefig('/tmp/fig.pdf')
+
         else:
             data = self.transforms(im)
-            meta = {}
+            meta = {'keypts': kp}
 
         return data, meta
 
@@ -84,9 +101,9 @@ class CelebAPrunedAligned_MAFLVal(Dataset):
 if __name__ == '__main__':
     import pylab
 
-    dataset = CelebAPrunedAligned_MAFLVal('/scratch/shared/nfs1/jdt/celeba', True, pair_warper=tps.Warper(100,100))
+    dataset = CelebAPrunedAligned_MAFLVal('data/celeba', True, pair_warper=tps.Warper(100, 100))
 
-    x = dataset[123]
+    x, meta = dataset[6]
     print(x[0].shape)
     pylab.imshow(x[0].permute(1, 2, 0) + 0.5)
     pylab.figure()

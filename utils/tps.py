@@ -2,7 +2,6 @@ import torch
 import torch.nn.functional as F
 import math
 
-
 def tps_grid(H, W):
     xi = torch.linspace(-1, 1, W)
     yi = torch.linspace(-1, 1, H)
@@ -89,6 +88,8 @@ class Warper(object):
         if im2 is None:
             im2 = im1
 
+        kp1 = kp2 = 0
+
         unsqueezed = False
         if len(im1.shape) == 3:
             im1 = im1.unsqueeze(0)
@@ -102,6 +103,9 @@ class Warper(object):
                                       a * self.scalesd, a * self.rotsd)
 
         grid1 = torch.matmul(self.F, weights1).reshape(1, self.H, self.W, 2)
+        grid1_unnormalized = grid_unnormalize(grid1, self.H, self.W)
+        if keypts is not None:
+            kp1 = self.warp_keypoints(keypts, grid1_unnormalized)
 
         im1 = F.grid_sample(im1, grid1)
         im2 = F.grid_sample(im2, grid1)
@@ -122,6 +126,9 @@ class Warper(object):
         grid = grid2
         grid_unnormalized = grid_unnormalize(grid, self.H, self.W)
 
+        if keypts is not None:
+            kp2 = self.warp_keypoints(kp1, grid_unnormalized)
+
         flow = grid_unnormalized - self.grid_pixels_unnormalized
 
         if self.crop != 0:
@@ -130,9 +137,19 @@ class Warper(object):
             grid_cropped = grid_unnormalized[:, self.crop:-self.crop, self.crop:-self.crop, :] - self.crop
             grid = grid_normalize(grid_cropped, self.Hc, self.Wc)
 
-        kp1 = 0
-        kp2 = 0
+            if keypts is not None:
+                kp1 -= self.crop
+                kp2 -= self.crop
 
         # Reverse the order because due to inverse warping the "flow" is in direction im2->im1
         # and we want to be consistent with optical flow from videos
         return im2, im1, flow, grid, kp2, kp1
+
+    def warp_keypoints(self, keypoints, grid_unnormalized):
+        from scipy.spatial.kdtree import KDTree
+        warp_grid = grid_unnormalized.reshape(-1, 2)
+        regular_grid = self.grid_pixels_unnormalized.reshape(-1,2)
+        kd = KDTree(warp_grid)
+        dists, idxs = kd.query(keypoints)
+        new_keypoints = regular_grid[idxs]
+        return new_keypoints
