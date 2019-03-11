@@ -31,8 +31,22 @@ def main(config, resume):
     imwidth = config['dataset']['args']['imwidth']
     warper = get_instance(tps, 'warper', config, imwidth, imwidth)
     dataset = get_instance(module_data, 'dataset', config, pair_warper=warper)
-    data_loader = DataLoader(dataset, batch_size=27, shuffle=True, drop_last=True, collate_fn=coll)
-    val_dataset = get_instance(module_data, 'dataset', config, train=False, pair_warper=warper)
+    data_loader = DataLoader(
+        dataset,
+        batch_size=config["batch_size"],
+        num_workers=8,
+        shuffle=True,
+        drop_last=True,
+        pin_memory=True,
+        collate_fn=coll,
+    )
+    val_dataset = get_instance(
+        module_data,
+        'dataset',
+        config,
+        train=False,
+        pair_warper=warper,
+    )
     valid_data_loader = DataLoader(val_dataset, batch_size=32, collate_fn=coll)
 
     # build model architecture
@@ -70,9 +84,11 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--device', default=None, type=str,
                         help='indices of GPUs to enable (default: all)')
     parser.add_argument('-f', '--folded_correlation', default=0, type=int,
-                        help='whether to use folded correlation (reduces memory)')
+                        help='whether to use folded correlation (reduce mem)')
     parser.add_argument('-p', '--profile', default=0, type=int,
-                        help='whether to use print out profiling information')
+                        help='whether to print out profiling information')
+    parser.add_argument('-b', '--batch_size', default=20, type=int,
+                        help='the size of each minibatch')
     args = parser.parse_args()
 
     if args.config:
@@ -85,7 +101,8 @@ if __name__ == '__main__':
         config = torch.load(args.resume)['config']
     else:
         raise AssertionError("Configuration file need to be specified. Add '-c config.json', for example.")
-    config["folded_correlation"] = args.folded_correlation
+    config["fold_corr"] = args.folded_correlation
+    config["batch_size"] = args.batch_size
     config["profile"] = args.profile
 
     if args.device:

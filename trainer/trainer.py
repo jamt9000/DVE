@@ -159,6 +159,13 @@ class Trainer(BaseTrainer):
                 if profile:
                     timings["vis"] = time.time() - tic
 
+            """Do some aggressive reference clearning to ensure that we don't
+            hang onto memory while fetching the next minibatch."""
+            # For safety, disabling this for now
+            # del data
+            # del loss
+            # del output
+
             if profile:
                 timings["minibatch"] = time.time() - batch_tic
 
@@ -173,6 +180,7 @@ class Trainer(BaseTrainer):
             'loss': avg_loss.avg,
             'metrics': (total_metrics / len(self.data_loader)).tolist()
         }
+
 
         self.writer.set_step(epoch, 'train_epoch')
         self.writer.add_scalar('loss', log['loss'])

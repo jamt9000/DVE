@@ -3,7 +3,7 @@ import time
 import torch
 from utils import tps
 
-from dense_corr_back import DenseCorr
+from model.folded_correlation import DenseCorr
 
 
 def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False):
@@ -33,7 +33,7 @@ def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False):
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
         dense_corr = DenseCorr.apply
-        res = dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
+        return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
 
     loss = 0.
     for b in range(B):
@@ -72,9 +72,7 @@ def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False):
 
         loss += L.sum()
 
-    loss = loss / (H * W * B)
-    import ipdb; ipdb.set_trace()
-    return loss
+    return loss / (H * W * B)
 
 
 def estimate_mem(x):
@@ -89,19 +87,18 @@ def estimate_mem(x):
     return torch.numel(x) * nbytes / (1024) ** 3
 
 
-def dense_correlation_loss_evc(feats, meta, pow=0.5):
+def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False):
     feats = feats[0]
     device = feats.device
 
-    grid = meta['grid'].to(device)  # Grid (B,H,W,2): For each pixel in im1, where did it come from in im2
-    # flow = meta['flow'].to(device)
+    # Grid (B,H,W,2): For each pixel in im1, where did it come from in im2
+    grid = meta['grid'].to(device)
 
     H_input = grid.shape[1]
     W_input = grid.shape[2]
 
     feats1 = feats[0::2]
     feats2 = feats[1::2]
-    import ipdb; ipdb.set_trace()
 
     B, C, H, W = feats1.shape
     h, w = H, W
@@ -109,20 +106,8 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5):
     stride = H_input // H
 
     xxyy = tps.spatial_grid_unnormalized(H_input, W_input).to(device)
-
-    tic = time.time()
     batch_grid_u = tps.grid_unnormalize(grid, H_input, W_input)
     batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
-    # import ipdb; ipdb.set_trace()
-    # diff = batch_grid_u[:, :, :, None, None, :] - xxyy[None, None, None, :, :, :]
-    # diff = diff[:, ::stride, ::stride, ::stride, ::stride]
-    # diff = batch_grid_u[:, ::stride, ::stride, None, None, :] \
-            # - xxyy[None, None, None, ::stride, ::stride, :]
-    # diff = diff[:, ::stride, ::stride, ::stride, ::stride]
-    # diff = (diff * diff).sum(5).sqrt()
-    # diff = diff.pow(pow)
-    # timings["batch-grid"] = time.time() - tic
-
 
     loss = 0.
     for b in range(B):
@@ -156,13 +141,5 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5):
         L = diff * smcorr2
 
         loss += L.float().sum()
-
-        xx = locals()
-        for name, value in xx.items():
-            if hasattr(value, "shape"):
-                mem = estimate_mem(value)
-                print("{} -> {} {:.3f}GiB".format(name, value.shape, mem))
-        import ipdb; ipdb.set_trace()
-
 
     return loss / (H * W * B)
