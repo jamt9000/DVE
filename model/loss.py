@@ -5,19 +5,11 @@ from utils import tps
 
 from dense_corr_back import DenseCorr
 
-USE_HALF = False
 
-
-def dense_correlation_loss(feats, meta, pow=0.5):
+def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False):
     feats = feats[0]
     device = feats.device
-
-
     grid = meta['grid']
-
-    if USE_HALF:
-        grid = grid.half()
-        feats = feats.half()
 
     # Grid (B,H,W,2): For each pixel in im1, where did it come from in im2
     grid = grid.to(device)
@@ -36,53 +28,53 @@ def dense_correlation_loss(feats, meta, pow=0.5):
     batch_grid_u = tps.grid_unnormalize(grid, H_input, W_input)
     batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
     xxyy = tps.spatial_grid_unnormalized(H_input, W_input).to(device)
-    if USE_HALF:
-        xxyy = xxyy.half()
 
-    if True:
+    if fold_corr:
+        """This function computes the gradient explicitly to avoid the memory
+        issues with using autorgrad in a for loop."""
         dense_corr = DenseCorr.apply
-        loss = dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
-        return loss
-        # import ipdb; ipdb.set_trace()
-    else:
-        loss = 0.
-        for b in range(B):
-            f1 = feats1[b].reshape(C, H * W)  # source
-            f2 = feats2[b].reshape(C, h * w)  # target
+        res = dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
 
-            corr = torch.matmul(f1.t(), f2)
-            corr = corr.reshape(H, W, h, w)
+    loss = 0.
+    for b in range(B):
+        f1 = feats1[b].reshape(C, H * W)  # source
+        f2 = feats2[b].reshape(C, h * w)  # target
 
-            with torch.no_grad():
-                diff = batch_grid_u[b, :, :, None, None, :] - \
-                        xxyy[None, None, ::stride, ::stride, :]
-                diff = (diff * diff).sum(4).sqrt()
-                diff = diff.pow(pow)
+        corr = torch.matmul(f1.t(), f2)
+        corr = corr.reshape(H, W, h, w)
 
-            # grid_u = tps.grid_unnormalize(grid[b], H_input, W_input)
-            # diff = grid_u[:, :, None, None, :] - xxyy[None, None, :, :, :]
+        with torch.no_grad():
+            diff = batch_grid_u[b, :, :, None, None, :] - \
+                    xxyy[None, None, ::stride, ::stride, :]
+            diff = (diff * diff).sum(4).sqrt()
+            diff = diff.pow(pow)
 
-            # Equivalent to this
-            #
-            # diff = torch.zeros(H_input, W_input, H_input, W_input, 2)
-            # for I in range(H_input):
-            #     for J in range(W_input):
-            #         for i in range(H_input):
-            #             for j in range(W_input):
-            #                 diff[I, J, i, j, 0] = J + flow[b, I, J, 0] - j
-            #                 diff[I, J, i, j, 1] = I + flow[b, I, J, 1] - i
+        # grid_u = tps.grid_unnormalize(grid[b], H_input, W_input)
+        # diff = grid_u[:, :, None, None, :] - xxyy[None, None, :, :, :]
 
-            # diff = diff[::stride, ::stride, ::stride, ::stride]
-            # diff = (diff * diff).sum(4).sqrt()
-            # diff = diff.pow(pow)
+        # Equivalent to this
+        #
+        # diff = torch.zeros(H_input, W_input, H_input, W_input, 2)
+        # for I in range(H_input):
+        #     for J in range(W_input):
+        #         for i in range(H_input):
+        #             for j in range(W_input):
+        #                 diff[I, J, i, j, 0] = J + flow[b, I, J, 0] - j
+        #                 diff[I, J, i, j, 1] = I + flow[b, I, J, 1] - i
 
-            smcorr = F.softmax(corr.reshape(H, W, -1), dim=2).reshape(corr.shape)
+        # diff = diff[::stride, ::stride, ::stride, ::stride]
+        # diff = (diff * diff).sum(4).sqrt()
+        # diff = diff.pow(pow)
 
-            L = diff * smcorr
+        smcorr = F.softmax(corr.reshape(H, W, -1), dim=2).reshape(corr.shape)
 
-            loss += L.sum()
+        L = diff * smcorr
 
-        return loss / (H * W * B)
+        loss += L.sum()
+
+    loss = loss / (H * W * B)
+    import ipdb; ipdb.set_trace()
+    return loss
 
 
 def estimate_mem(x):

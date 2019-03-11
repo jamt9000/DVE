@@ -69,6 +69,10 @@ if __name__ == '__main__':
                         help='path to latest checkpoint (default: None)')
     parser.add_argument('-d', '--device', default=None, type=str,
                         help='indices of GPUs to enable (default: all)')
+    parser.add_argument('-f', '--folded_correlation', default=0, type=int,
+                        help='whether to use folded correlation (reduces memory)')
+    parser.add_argument('-p', '--profile', default=0, type=int,
+                        help='whether to use print out profiling information')
     args = parser.parse_args()
 
     if args.config:
@@ -81,6 +85,8 @@ if __name__ == '__main__':
         config = torch.load(args.resume)['config']
     else:
         raise AssertionError("Configuration file need to be specified. Add '-c config.json', for example.")
+    config["folded_correlation"] = args.folded_correlation
+    config["profile"] = args.profile
 
     if args.device:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.device

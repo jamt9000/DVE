@@ -33,8 +33,10 @@ class Trainer(BaseTrainer):
     """
 
     def __init__(self, model, loss, metrics, optimizer, resume, config,
-                 data_loader, valid_data_loader=None, lr_scheduler=None, train_logger=None, visualizations=None):
-        super(Trainer, self).__init__(model, loss, metrics, optimizer, resume, config, train_logger)
+                 data_loader, valid_data_loader=None, lr_scheduler=None,
+                 train_logger=None, visualizations=None):
+        super(Trainer, self).__init__(model, loss, metrics, optimizer, resume,
+            config, train_logger)
         self.config = config
         self.data_loader = data_loader
         self.valid_data_loader = valid_data_loader
@@ -84,45 +86,63 @@ class Trainer(BaseTrainer):
         total_metrics = np.zeros(len(self.metrics))
         seen_tic = time.time()
         seen = 0
+        profile = self.config["profile"]
         for batch_idx, (data, meta) in enumerate(self.data_loader):
-            timings = {}
-            batch_tic = time.time()
+            if profile:
+                timings = {}
+                batch_tic = time.time()
+
             data = data.to(self.device)
             seen += data.shape[0]
-            timings["data transfer"] = time.time() - batch_tic
 
-            tic = time.time()
+            if profile:
+                timings["data transfer"] = time.time() - batch_tic
+                tic = time.time()
+
             self.optimizer.zero_grad()
             output = self.model(data)
-            timings["fwd"] = time.time() - tic
 
-            tic = time.time()
+            if profile:
+                timings["fwd"] = time.time() - tic
+                tic = time.time()
+
             if isinstance(self.model, torch.nn.DataParallel):
-                loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta)
+                mod = torch.nn.DataParallel(
+                    self.loss_wrapper,
+                    device_ids=self.model.device_ids,
+                )
+                loss = mod(output, meta, fold_corr=self.config["fold_corr"])
                 loss = loss.mean()
             else:
-                loss = self.loss(output, meta)
-            timings["loss-fwd"] = time.time() - tic
+                loss = self.loss(output, meta,
+                                 fold_corr=self.config["fold_corr"])
+            if profile:
+                timings["loss-fwd"] = time.time() - tic
+                tic = time.time()
 
-            tic = time.time()
             loss.backward()
-            timings["loss-back"] = time.time() - tic
 
-            tic = time.time()
+            if profile:
+                timings["loss-back"] = time.time() - tic
+                tic = time.time()
+
             self.optimizer.step()
-            timings["optim-step"] = time.time() - tic
+            if profile:
+                timings["optim-step"] = time.time() - tic
+                tic = time.time()
 
-            tic = time.time()
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
             self.writer.add_scalar('loss', loss.item())
             avg_loss.update(loss.item(), data.size(0))
             total_metrics += self._eval_metrics(output, meta)
-            timings["metrics"] = time.time() - tic
+
+            if profile:
+                timings["metrics"] = time.time() - tic
 
             if self.verbosity >= 2 and batch_idx % self.log_step == 0:
                 toc = time.time() - seen_tic
                 tic = time.time()
-                msg ='Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f} Hz: {:.2f}'
+                msg = "Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f} Hz: {:.2f}"
                 self.logger.info(msg.format(
                     epoch,
                     batch_idx * self.data_loader.batch_size,
@@ -130,20 +150,24 @@ class Trainer(BaseTrainer):
                     100.0 * batch_idx / len(self.data_loader),
                     loss.item(),
                     seen / max(toc, 1E-5)))
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                im = make_grid(data.cpu(), nrow=8, normalize=True)
+                self.writer.add_image('input', im)
                 for v in self.visualizations:
                     v(self.writer, data.cpu(), output)
                 seen_tic = time.time()
                 seen = 0
-                timings["vis"] = time.time() - tic
+                if profile:
+                    timings["vis"] = time.time() - tic
 
-            timings["minibatch"] = time.time() - batch_tic
+            if profile:
+                timings["minibatch"] = time.time() - batch_tic
 
-            print("==============")
-            for key in timings:
-                ratio = 100 * timings[key] / timings["minibatch"]
-                print("{:.3f} ({:.2f}%) >>> {}".format(timings[key], ratio, key))
-            print("==============")
+                print("==============")
+                for key in timings:
+                    ratio = 100 * timings[key] / timings["minibatch"]
+                    msg = "{:.3f} ({:.2f}%) >>> {}"
+                    print(msg.format(timings[key], ratio, key))
+                print("==============")
 
         log = {
             'loss': avg_loss.avg,
