@@ -5,13 +5,22 @@ from utils import tps
 
 from dense_corr_back import DenseCorr
 
+USE_HALF = False
+
 
 def dense_correlation_loss(feats, meta, pow=0.5):
     feats = feats[0]
     device = feats.device
 
-    grid = meta['grid'].to(device)  # Grid (B,H,W,2): For each pixel in im1, where did it come from in im2
-    # flow = meta['flow'].to(device)
+
+    grid = meta['grid']
+
+    if USE_HALF:
+        grid = grid.half()
+        feats = feats.half()
+
+    # Grid (B,H,W,2): For each pixel in im1, where did it come from in im2
+    grid = grid.to(device)
 
     H_input = grid.shape[1]
     W_input = grid.shape[2]
@@ -26,8 +35,9 @@ def dense_correlation_loss(feats, meta, pow=0.5):
 
     batch_grid_u = tps.grid_unnormalize(grid, H_input, W_input)
     batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
-
     xxyy = tps.spatial_grid_unnormalized(H_input, W_input).to(device)
+    if USE_HALF:
+        xxyy = xxyy.half()
 
     if True:
         dense_corr = DenseCorr.apply
@@ -36,7 +46,6 @@ def dense_correlation_loss(feats, meta, pow=0.5):
         # import ipdb; ipdb.set_trace()
     else:
         loss = 0.
-
         for b in range(B):
             f1 = feats1[b].reshape(C, H * W)  # source
             f2 = feats2[b].reshape(C, h * w)  # target

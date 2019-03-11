@@ -150,8 +150,12 @@ class DenseCorr(torch.autograd.Function):
 
             if feats1.is_cuda:
                 # TODO: clean up types here
-                grad_feats1 = torch.cuda.FloatTensor(B, C, H, W).fill_(0)
-                grad_feats2 = torch.cuda.FloatTensor(B, C, H, W).fill_(0)
+                if feats1.dtype == torch.float32:
+                    grad_feats1 = torch.cuda.FloatTensor(B, C, H, W).fill_(0)
+                    grad_feats2 = torch.cuda.FloatTensor(B, C, H, W).fill_(0)
+                elif feats1.dtype == torch.float16:
+                    grad_feats1 = torch.cuda.HalfTensor(B, C, H, W).fill_(0)
+                    grad_feats2 = torch.cuda.HalfTensor(B, C, H, W).fill_(0)
             else:
                 grad_feats1 = torch.zeros((B, C, H, W), dtype=feats1.dtype)
                 grad_feats2 = torch.zeros((B, C, H, W), dtype=feats2.dtype)
@@ -292,8 +296,6 @@ class DenseCorr(torch.autograd.Function):
 
                 grad_feats1[b] = grad_f1.reshape((C, H, W))
                 grad_feats2[b] = grad_f2.reshape((C, H, W))
-                # grad_feats1 += grad_f1.reshape(grad_feats1.shape)
-                # grad_feats2 += grad_f2.reshape(grad_feats2.shape)
                 timings["feat-assign"] += time.time() - tic
 
             """Distribute the gradients back among the input tensor features that
@@ -329,24 +331,19 @@ class DenseCorr(torch.autograd.Function):
                     )
                     rel_diff(grad_feats1, grad_f1_num, "full-loop f2")
                     rel_diff(grad_feats2, grad_f2_num, "full-loop f2")
-                    # num_diff_f1 = (grad_feats1 - grad_f1_num).sum() / grad_f1_num.sum()
-                    # print("num diff for corr->f1: {}".format(num_diff_f1))
-                    # num_diff_f2 = (grad_feats2 - grad_f2_num).sum() / grad_f2_num.sum()
-                    # print("num diff for corr->f2: {}".format(num_diff_f2))
-            # timings["assign"] += time.time() - tic
             tic = time.time()
 
             """Must clear up all intermediate structures to avoid an autograd
             implosion."""
-            if True:
-                del grad_loss_b
-                del b
-                del grad_f1
-                del grad_f2
-                del smcorr
-                del corr
-                del diff
-                del params
+            # if True:
+                # del grad_loss_b
+                # del b
+                # del grad_f1
+                # del grad_f2
+                # del smcorr
+                # del corr
+                # del diff
+                # del params
             timings["cleanup"] += time.time() - tic
 
             # del f2

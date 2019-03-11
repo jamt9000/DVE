@@ -102,6 +102,8 @@ class Trainer(BaseTrainer):
                 loss = loss.mean()
             else:
                 loss = self.loss(output, meta)
+            timings["loss-fwd"] = time.time() - tic
+
             tic = time.time()
             loss.backward()
             timings["loss-back"] = time.time() - tic

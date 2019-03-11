@@ -26,10 +26,16 @@ def tps_U(grid1, grid2):
     U = D * torch.log(D + 1e-5)
     return U
 
+# def grid_unnormalize(grid, H, W):
+    # x = grid.reshape(-1, H, W, 2)
+    # x = (x + 1.) / 2. * torch.Tensor([W - 1., H - 1.]).reshape(1, 1, 1, 2).to(x.device)
+    # return x.reshape(grid.shape)
 
 def grid_unnormalize(grid, H, W):
     x = grid.reshape(-1, H, W, 2)
-    x = (x + 1.) / 2. * torch.Tensor([W - 1., H - 1.]).reshape(1, 1, 1, 2).to(x.device)
+    constants = torch.tensor([W - 1., H - 1.], dtype=x.dtype)
+    constants = constants.reshape(1, 1, 1, 2).to(x.device)
+    x = (x + 1.) / 2. * constants
     return x.reshape(grid.shape)
 
 
