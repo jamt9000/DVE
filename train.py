@@ -33,7 +33,7 @@ def main(config, resume):
     dataset = get_instance(module_data, 'dataset', config, pair_warper=warper)
     data_loader = DataLoader(
         dataset,
-        batch_size=config["batch_size"],
+        batch_size=int(config["batch_size"]),
         num_workers=8,
         shuffle=True,
         drop_last=True,
@@ -87,7 +87,7 @@ if __name__ == '__main__':
                         help='whether to use folded correlation (reduce mem)')
     parser.add_argument('-p', '--profile', default=0, type=int,
                         help='whether to print out profiling information')
-    parser.add_argument('-b', '--batch_size', default=20, type=int,
+    parser.add_argument('-b', '--batch_size', default=None, type=int,
                         help='the size of each minibatch')
     args = parser.parse_args()
 
@@ -102,7 +102,8 @@ if __name__ == '__main__':
     else:
         raise AssertionError("Configuration file need to be specified. Add '-c config.json', for example.")
     config["fold_corr"] = args.folded_correlation
-    config["batch_size"] = args.batch_size
+    if args.batch_size is not None:
+        config["batch_size"] = args.batch_size
     config["profile"] = args.profile
 
     if args.device:

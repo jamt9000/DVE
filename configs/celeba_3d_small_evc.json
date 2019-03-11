@@ -1,6 +1,7 @@
 {
     "name": "celeba_3d_small_evc",
     "n_gpu": 8,
+    "batch_size": 32,
     "arch": {
         "type": "HourglassNet",
         "args": {
