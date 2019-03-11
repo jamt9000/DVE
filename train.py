@@ -31,13 +31,13 @@ def main(config, resume):
     imwidth = config['dataset']['args']['imwidth']
     warper = get_instance(tps, 'warper', config, imwidth, imwidth)
     dataset = get_instance(module_data, 'dataset', config, pair_warper=warper)
-    data_loader = DataLoader(dataset, batch_size=32, shuffle=True, drop_last=True, collate_fn=coll)
+    data_loader = DataLoader(dataset, batch_size=24, shuffle=True, drop_last=True, collate_fn=coll)
     val_dataset = get_instance(module_data, 'dataset', config, train=False, pair_warper=warper)
     valid_data_loader = DataLoader(val_dataset, batch_size=32, collate_fn=coll)
 
     # build model architecture
     model = get_instance(module_arch, 'arch', config)
-    print(model)
+    # print(model)
 
     # get function handles of loss and metrics
     loss = getattr(module_loss, config['loss'])

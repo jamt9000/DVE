@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import time
 from torchvision.utils import make_grid
 from base import BaseTrainer
 
@@ -58,6 +59,9 @@ class Trainer(BaseTrainer):
             self.writer.add_scalar(f'{metric.__name__}', acc_metrics[i])
         return acc_metrics
 
+    def printer(self, msg):
+        print("{:.3f} >>> {}".format(time.time() - self.tic, msg))
+
     def _train_epoch(self, epoch):
         """
         Training logic for an epoch
@@ -78,34 +82,66 @@ class Trainer(BaseTrainer):
 
         avg_loss = AverageMeter()
         total_metrics = np.zeros(len(self.metrics))
+        seen_tic = time.time()
+        seen = 0
         for batch_idx, (data, meta) in enumerate(self.data_loader):
+            timings = {}
+            batch_tic = time.time()
             data = data.to(self.device)
+            seen += data.shape[0]
+            timings["data transfer"] = time.time() - batch_tic
 
+            tic = time.time()
             self.optimizer.zero_grad()
             output = self.model(data)
+            timings["fwd"] = time.time() - tic
+
+            tic = time.time()
             if isinstance(self.model, torch.nn.DataParallel):
                 loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta)
                 loss = loss.mean()
             else:
                 loss = self.loss(output, meta)
+            tic = time.time()
             loss.backward()
-            self.optimizer.step()
+            timings["loss-back"] = time.time() - tic
 
+            tic = time.time()
+            self.optimizer.step()
+            timings["optim-step"] = time.time() - tic
+
+            tic = time.time()
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
             self.writer.add_scalar('loss', loss.item())
             avg_loss.update(loss.item(), data.size(0))
             total_metrics += self._eval_metrics(output, meta)
+            timings["metrics"] = time.time() - tic
 
             if self.verbosity >= 2 and batch_idx % self.log_step == 0:
-                self.logger.info('Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f}'.format(
+                toc = time.time() - seen_tic
+                tic = time.time()
+                msg ='Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f} Hz: {:.2f}'
+                self.logger.info(msg.format(
                     epoch,
                     batch_idx * self.data_loader.batch_size,
                     len(self.data_loader.dataset),
                     100.0 * batch_idx / len(self.data_loader),
-                    loss.item()))
+                    loss.item(),
+                    seen / max(toc, 1E-5)))
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
                 for v in self.visualizations:
                     v(self.writer, data.cpu(), output)
+                seen_tic = time.time()
+                seen = 0
+                timings["vis"] = time.time() - tic
+
+            timings["minibatch"] = time.time() - batch_tic
+
+            print("==============")
+            for key in timings:
+                ratio = 100 * timings[key] / timings["minibatch"]
+                print("{:.3f} ({:.2f}%) >>> {}".format(timings[key], ratio, key))
+            print("==============")
 
         log = {
             'loss': avg_loss.avg,

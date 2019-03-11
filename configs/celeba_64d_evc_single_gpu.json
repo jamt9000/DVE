@@ -1,0 +1,55 @@
+{
+    "name": "celeba_64d_evc",
+    "n_gpu": 1,
+    "arch": {
+        "type": "HourglassNet",
+        "args": {
+            "num_output_channels": 64
+        }
+    },
+    "dataset": {
+        "type": "CelebAPrunedAligned_MAFLVal",
+        "args": {
+            "root": "data/celeba",
+            "imwidth": 170
+        }
+    },
+    "warper": {
+        "type": "Warper",
+        "args": {
+            "crop": 21
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args": {
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "loss": "dense_correlation_loss_evc",
+    "metrics": [
+
+    ],
+    "visualizations": [
+        "sphere_colormap"
+    ],
+    "lr_scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 50,
+            "gamma": 0.1
+        }
+    },
+    "trainer": {
+        "epochs": 100,
+        "save_dir": "saved/",
+        "save_period": 1,
+        "verbosity": 2,
+        "monitor": "min val_loss",
+        "early_stop": 10,
+        "tensorboardX": true,
+        "log_dir": "saved/"
+    }
+}
