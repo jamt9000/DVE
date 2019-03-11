@@ -325,7 +325,63 @@ class DenseCorrEvc(torch.autograd.Function):
 
     @staticmethod
     def forward(ctx, feats1, feats2, xxyy, batch_grid_u, stride, pow=0.5):
-        raise NotImplementedError()
+        """Compute the folded dense correlation loss forward pass.
+
+        Args:
+            feats1 (torch.Tensor): N x C x h x h tensor of features
+            feats2 (torch.Tensor): N x C x h x w tensor of features
+            xxyy (torch.Tensor): H x W x 2 grid of uniform sampling locations.
+            batch_grid_u (torch.Tensor): N x h x w x 2 grid of sampling
+                locations.
+            stride (int): the stride to be applied to the image grid to match
+                the spatial dimensions of the features (so that
+                `H = h * stride`).
+            pow (float :: 0.5): power by which to raise the root distances
+                between pixel locations.
+
+        Returns:
+            (torch.Tensor): The total loss for the given minibatch of inputs.
+        """
+        with torch.no_grad():
+            B, C, H, W = feats1.shape
+            params = torch.IntTensor([B, C, H, W, stride])
+            pow_tensor = torch.FloatTensor([pow])
+            ctx.save_for_backward(feats1, feats2, xxyy, batch_grid_u,
+                                  params, pow_tensor)
+
+            loss = 0.
+            for b in range(B):
+                f1 = feats1[b].reshape(C, H * W)  # source
+                f2 = feats2[b].reshape(C, H * W)  # target
+                fa = feats1[(b + 1) % B].reshape(C, H * W)  # auxiliary
+
+                f1 = F.normalize(f1, p=2, dim=0) * 20
+                f2 = F.normalize(f2, p=2, dim=0) * 20
+                fa = F.normalize(fa, p=2, dim=0) * 20
+
+                corr = torch.matmul(f1.t(), fa)
+                corr = corr.reshape(H, W, H, W)
+                smcorr = F.softmax(corr.reshape(H, W, -1), dim=2).reshape(corr.shape)
+                smcorr_fa = smcorr[None, ...] * fa.reshape(-1, 1, 1, H, W)
+                del smcorr
+
+                f1_via_fa = smcorr_fa.sum((3, 4)).reshape(C, H * W)
+                del smcorr_fa
+
+                corr2 = torch.matmul(f1_via_fa.t(), f2).reshape(corr.shape)
+                smcorr2 = F.softmax(corr2.reshape(H, W, -1), dim=2).reshape(corr.shape)
+                del corr2
+
+                with torch.no_grad():
+                    diff = batch_grid_u[b, :, :, None, None, :] - \
+                            xxyy[None, None, ::stride, ::stride, :]
+                    diff = (diff * diff).sum(4).sqrt()
+                    diff = diff.pow(pow)
+
+                L = diff * smcorr2
+
+                loss += L.float().sum()
+        return loss / (H * W * B)
 
     @staticmethod
     def backward(ctx, grad_output):
@@ -381,6 +437,7 @@ def main():
         dense_corr_check()
     elif args.func_name == "dense_corr_evc":
         dense_corr_evc_check()
+        raise NotImplementedError()
 
 if __name__ == "__main__":
     main()
