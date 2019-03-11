@@ -36,21 +36,22 @@ class Trainer(BaseTrainer):
                  data_loader, valid_data_loader=None, lr_scheduler=None,
                  train_logger=None, visualizations=None):
         super(Trainer, self).__init__(model, loss, metrics, optimizer, resume,
-            config, train_logger)
+                                      config, train_logger)
         self.config = config
         self.data_loader = data_loader
         self.valid_data_loader = valid_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = int(np.sqrt(data_loader.batch_size))
+        self.log_step = 10 * int(np.sqrt(data_loader.batch_size))
         self.visualizations = visualizations if visualizations is not None else []
 
         class LossWrapper(torch.nn.Module):
             def __init__(self, fn):
                 super(LossWrapper, self).__init__()
                 self.fn = fn
+
             def __call__(self, *a, **kw):
-                return self.fn(*a,**kw)
+                return self.fn(*a, **kw)
 
         self.loss_wrapper = LossWrapper(self.loss)
 
@@ -161,7 +162,7 @@ class Trainer(BaseTrainer):
 
             """Do some aggressive reference clearning to ensure that we don't
             hang onto memory while fetching the next minibatch."""
-            # For safety, disabling this for now
+            #  For safety, disabling this for now
             # del data
             # del loss
             # del output
@@ -180,7 +181,6 @@ class Trainer(BaseTrainer):
             'loss': avg_loss.avg,
             'metrics': (total_metrics / len(self.data_loader)).tolist()
         }
-
 
         self.writer.set_step(epoch, 'train_epoch')
         self.writer.add_scalar('loss', log['loss'])
@@ -203,10 +203,12 @@ class Trainer(BaseTrainer):
         Note:
             The validation metrics in log must have the key 'val_metrics'.
         """
+        cached_state = torch.get_rng_state()
         self.model.eval()
         avg_val_loss = AverageMeter()
         total_val_metrics = np.zeros(len(self.metrics))
         with torch.no_grad():
+            torch.manual_seed(0)
             for batch_idx, (data, meta) in enumerate(self.valid_data_loader):
                 data = data.to(self.device)
 
@@ -226,12 +228,41 @@ class Trainer(BaseTrainer):
                 for v in self.visualizations:
                     v(self.writer, data.cpu(), output)
 
+        # Run without using saved batchnorm statistics, to check bn is working
+        for md in self.model.modules():
+            if isinstance(md, torch.nn.BatchNorm2d):
+                md.track_running_stats = False
+
+        avg_val_loss_trainbn = AverageMeter()
+        with torch.no_grad():
+            torch.manual_seed(0)
+            for batch_idx, (data, meta) in enumerate(self.valid_data_loader):
+                data = data.to(self.device)
+
+                output = self.model(data)
+
+                if isinstance(self.model, torch.nn.DataParallel):
+                    loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta)
+                    loss = loss.mean()
+                else:
+                    loss = self.loss(output, meta)
+
+                avg_val_loss_trainbn.update(loss.item(), data.size(0))
+
+        for md in self.model.modules():
+            if isinstance(md, torch.nn.BatchNorm2d):
+                md.track_running_stats = True
+
         val_log = {
             'val_loss': avg_val_loss.avg,
+            'val_loss_trainbn': avg_val_loss_trainbn.avg,
             'val_metrics': (total_val_metrics / len(self.valid_data_loader)).tolist()
         }
 
         self.writer.set_step(epoch, 'val_epoch')
         self.writer.add_scalar('val_loss', val_log['val_loss'])
+        self.writer.add_scalar('val_loss_trainbn', val_log['val_loss_trainbn'])
+
+        torch.set_rng_state(cached_state)
 
         return val_log
