@@ -3,6 +3,7 @@ import torch
 import time
 from torchvision.utils import make_grid
 from base import BaseTrainer
+from torch.nn.modules.batchnorm import _BatchNorm
 
 
 class AverageMeter(object):
@@ -230,7 +231,7 @@ class Trainer(BaseTrainer):
 
         # Run without using saved batchnorm statistics, to check bn is working
         for md in self.model.modules():
-            if isinstance(md, torch.nn.BatchNorm2d):
+            if isinstance(md, _BatchNorm):
                 md.track_running_stats = False
 
         avg_val_loss_trainbn = AverageMeter()
@@ -250,7 +251,7 @@ class Trainer(BaseTrainer):
                 avg_val_loss_trainbn.update(loss.item(), data.size(0))
 
         for md in self.model.modules():
-            if isinstance(md, torch.nn.BatchNorm2d):
+            if isinstance(md, _BatchNorm):
                 md.track_running_stats = True
 
         val_log = {
