@@ -15,17 +15,20 @@ class IntermediateKeypointPredictor(nn.Module):
                                                     num_annotated_points,
                                                     num_intermediate_points))
 
+        self.linear = nn.Linear(num_intermediate_points*2, 2, bias=False)
+
     def forward(self, input):
-        input = input.detach()
+        input = input[0].detach()
         B, C, H, W = input.shape
 
         assert self.descriptor_dimension == C
 
-        xi = torch.linspace(-1, 1, W)
-        yi = torch.linspace(-1, 1, H)
+        xi = torch.linspace(-1, 1, W, device=input.device)
+        yi = torch.linspace(-1, 1, H, device=input.device)
         yy, xx = torch.meshgrid(yi, xi)
 
-        out = torch.zeros(B, self.nA, self.nI, 2)
+
+        intermediate = torch.zeros(B, self.nA, self.nI, 2, device=input.device)
 
         for b in range(B):
             f1 = self.descriptors.reshape(C, -1)  # source
@@ -42,19 +45,21 @@ class IntermediateKeypointPredictor(nn.Module):
             xpred = (smcorr * xx.view(1, 1, H, W)).sum(dim=(2, 3)) / smcorr.sum(dim=(2, 3))
             ypred = (smcorr * yy.view(1, 1, H, W)).sum(dim=(2, 3)) / smcorr.sum(dim=(2, 3))
 
-            out[b, :, :, 0] = xpred
-            out[b, :, :, 1] = ypred
+            intermediate[b, :, :, 0] = xpred
+            intermediate[b, :, :, 1] = ypred
 
             # for a in range(self.nA):
             #     for i in range(self.nI):
             #         real_argmax = torch.argmax(smcorr[a,i])
             #         rx = xx.reshape(-1)[real_argmax]
             #         ry = yy.reshape(-1)[real_argmax]
-            #         sx = xpred[i,a]
-            #         sy = ypred[i,a]
+            #         sx = xpred[a,i]
+            #         sy = ypred[a,i]
             #         print("[%d,%d] soft (%f,%f) real (%f,%f)" % (a,i,sx,sy,rx,ry))
 
-        return out
+        pred = self.linear(intermediate.reshape(B,self.nA,-1)).reshape(B,self.nA,2)
+
+        return pred, intermediate
 
 
 if __name__ == '__main__':
