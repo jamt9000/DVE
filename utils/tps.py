@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 import math
 
+
 def tps_grid(H, W):
     xi = torch.linspace(-1, 1, W)
     yi = torch.linspace(-1, 1, H)
@@ -26,10 +27,11 @@ def tps_U(grid1, grid2):
     U = D * torch.log(D + 1e-5)
     return U
 
+
 # def grid_unnormalize(grid, H, W):
-    # x = grid.reshape(-1, H, W, 2)
-    # x = (x + 1.) / 2. * torch.Tensor([W - 1., H - 1.]).reshape(1, 1, 1, 2).to(x.device)
-    # return x.reshape(grid.shape)
+# x = grid.reshape(-1, H, W, 2)
+# x = (x + 1.) / 2. * torch.Tensor([W - 1., H - 1.]).reshape(1, 1, 1, 2).to(x.device)
+# return x.reshape(grid.shape)
 
 def grid_unnormalize(grid, H, W):
     x = grid.reshape(-1, H, W, 2)
@@ -64,6 +66,7 @@ def random_tps_weights(nctrlpts, warpsd_all, warpsd_subset, transsd, scalesd, ro
 
 class Warper(object):
     returns_pairs = True
+
     def __init__(self, H, W, warpsd_all=0.001, warpsd_subset=0.01, transsd=0.1,
                  scalesd=0.1, rotsd=5, im1_multiplier=0.5, crop=19):
         self.H = H
@@ -74,10 +77,6 @@ class Warper(object):
         self.scalesd = scalesd
         self.rotsd = rotsd
         self.im1_multiplier = im1_multiplier
-        self.crop = crop  # pixels to crop on all sides after warping
-
-        self.Hc = H - crop - crop
-        self.Wc = W - crop - crop
 
         self.npixels = H * W
         self.nc = 10
@@ -90,7 +89,10 @@ class Warper(object):
         self.U_pixels_ctrlpts = tps_U(self.grid_pixels, self.grid_ctrlpts)
         self.F = torch.cat((self.U_pixels_ctrlpts, torch.ones(self.npixels, 1), self.grid_pixels), 1)
 
-    def __call__(self, im1, im2=None, keypts=None):
+    def __call__(self, im1, im2=None, keypts=None, crop=0):
+        Hc = self.H - crop - crop
+        Wc = self.W - crop - crop
+
         # im2 should be a copy of im1 with different colour jitter
         if im2 is None:
             im2 = im1
@@ -122,9 +124,9 @@ class Warper(object):
         grid2 = torch.matmul(self.F, weights2).reshape(1, self.H, self.W, 2)
         im2 = F.grid_sample(im2, grid2)
 
-        if self.crop != 0:
-            im1 = im1[:, :, self.crop:-self.crop, self.crop:-self.crop]
-            im2 = im2[:, :, self.crop:-self.crop, self.crop:-self.crop]
+        if crop != 0:
+            im1 = im1[:, :, crop:-crop, crop:-crop]
+            im2 = im2[:, :, crop:-crop, crop:-crop]
 
         if unsqueezed:
             im1 = im1.squeeze(0)
@@ -138,15 +140,15 @@ class Warper(object):
 
         flow = grid_unnormalized - self.grid_pixels_unnormalized
 
-        if self.crop != 0:
-            flow = flow[:, self.crop:-self.crop, self.crop:-self.crop, :]
+        if crop != 0:
+            flow = flow[:, crop:-crop, crop:-crop, :]
 
-            grid_cropped = grid_unnormalized[:, self.crop:-self.crop, self.crop:-self.crop, :] - self.crop
+            grid_cropped = grid_unnormalized[:, crop:-crop, crop:-crop, :] - crop
             grid = grid_normalize(grid_cropped, self.Hc, self.Wc)
 
             if keypts is not None:
-                kp1 -= self.crop
-                kp2 -= self.crop
+                kp1 -= crop
+                kp2 -= crop
 
         # Reverse the order because due to inverse warping the "flow" is in direction im2->im1
         # and we want to be consistent with optical flow from videos
@@ -155,18 +157,18 @@ class Warper(object):
     def warp_keypoints(self, keypoints, grid_unnormalized):
         from scipy.spatial.kdtree import KDTree
         warp_grid = grid_unnormalized.reshape(-1, 2)
-        regular_grid = self.grid_pixels_unnormalized.reshape(-1,2)
+        regular_grid = self.grid_pixels_unnormalized.reshape(-1, 2)
         kd = KDTree(warp_grid)
         dists, idxs = kd.query(keypoints)
         new_keypoints = regular_grid[idxs]
         return new_keypoints
 
 
-
 class WarperSingle(object):
     returns_pairs = False
+
     def __init__(self, H, W, warpsd_all=0.0005, warpsd_subset=0.0, transsd=0.02,
-                 scalesd=0.02, rotsd=2, crop=19):
+                 scalesd=0.02, rotsd=2):
         self.H = H
         self.W = W
         self.warpsd_all = warpsd_all
@@ -174,10 +176,6 @@ class WarperSingle(object):
         self.transsd = transsd
         self.scalesd = scalesd
         self.rotsd = rotsd
-        self.crop = crop  # pixels to crop on all sides after warping
-
-        self.Hc = H - crop - crop
-        self.Wc = W - crop - crop
 
         self.npixels = H * W
         self.nc = 10
@@ -190,7 +188,7 @@ class WarperSingle(object):
         self.U_pixels_ctrlpts = tps_U(self.grid_pixels, self.grid_ctrlpts)
         self.F = torch.cat((self.U_pixels_ctrlpts, torch.ones(self.npixels, 1), self.grid_pixels), 1)
 
-    def __call__(self, im1, keypts=None):
+    def __call__(self, im1, keypts=None, crop=0):
         kp1 = 0
 
         unsqueezed = False
@@ -211,15 +209,14 @@ class WarperSingle(object):
 
         im1 = F.grid_sample(im1, grid1)
 
-        if self.crop != 0:
-            im1 = im1[:, :, self.crop:-self.crop, self.crop:-self.crop]
+        if crop != 0:
+            im1 = im1[:, :, crop:-crop, crop:-crop]
 
         if unsqueezed:
             im1 = im1.squeeze(0)
 
-
-        if self.crop != 0 and keypts is not None:
-                kp1 -= self.crop
+        if crop != 0 and keypts is not None:
+            kp1 -= crop
 
         # Reverse the order because due to inverse warping the "flow" is in direction im2->im1
         # and we want to be consistent with optical flow from videos
@@ -228,7 +225,7 @@ class WarperSingle(object):
     def warp_keypoints(self, keypoints, grid_unnormalized):
         from scipy.spatial.kdtree import KDTree
         warp_grid = grid_unnormalized.reshape(-1, 2)
-        regular_grid = self.grid_pixels_unnormalized.reshape(-1,2)
+        regular_grid = self.grid_pixels_unnormalized.reshape(-1, 2)
         kd = KDTree(warp_grid)
         dists, idxs = kd.query(keypoints)
         new_keypoints = regular_grid[idxs]

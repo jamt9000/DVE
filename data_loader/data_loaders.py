@@ -37,11 +37,12 @@ def kp_normalize(H, W, kp):
 class CelebAPrunedAligned_MAFLVal(Dataset):
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, root, train=True, pair_warper=None, imwidth=100):
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18):
         self.root = root
         self.imwidth = imwidth
         self.train = train
         self.warper = pair_warper
+        self.crop = crop
 
         anno = pd.read_csv(os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt'), header=1,
                            delim_whitespace=True)
@@ -81,26 +82,32 @@ class CelebAPrunedAligned_MAFLVal(Dataset):
 
     def __getitem__(self, index):
         im = Image.open(os.path.join(self.root, 'Img', 'img_align_celeba', self.filenames[index]))
-        kp = self.keypoints[index]
+        kp = self.keypoints[index].copy()
 
         if self.warper is not None:
             if self.warper.returns_pairs:
                 im1 = self.transforms(im)
                 im2 = self.transforms(im)
 
-                im1, im2, flow, grid, kp1, kp2 = self.warper(im1, im2, keypts=kp)
+                im1, im2, flow, grid, kp1, kp2 = self.warper(im1, im2, keypts=kp, crop=self.crop)
                 C, H, W = im1.shape
                 data = torch.stack((im1, im2), 0)
                 meta = {'flow': flow[0], 'grid': grid[0], 'kp1': kp1, 'kp2': kp2}
             else:
                 im1 = self.transforms(im)
-                im1, kp = self.warper(im1, keypts=kp)
+                im1, kp = self.warper(im1, keypts=kp, crop=self.crop)
                 C, H, W = im1.shape
                 data = im1
                 meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
 
         else:
             data = self.transforms(im)
+
+            if self.crop != 0:
+                data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+                kp = kp - self.crop
+                kp = torch.tensor(kp)
+
             C, H, W = data.shape
             meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
 

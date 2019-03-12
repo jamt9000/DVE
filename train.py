@@ -41,12 +41,14 @@ def main(config, resume):
         pin_memory=True,
         collate_fn=coll,
     )
+
+    warp_val = config.get('warp_val', True)
     val_dataset = get_instance(
         module_data,
         'dataset',
         config,
         train=False,
-        pair_warper=warper,
+        pair_warper=warper if warp_val else None,
     )
     valid_data_loader = DataLoader(val_dataset, batch_size=32, collate_fn=coll)
 

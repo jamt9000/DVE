@@ -12,7 +12,8 @@
         "type": "CelebAPrunedAligned_MAFLVal",
         "args": {
             "root": "data/celeba",
-            "imwidth": 150
+            "imwidth": 170,
+            "crop": 21
         }
     },
     "keypoint_regressor": {
@@ -25,9 +26,9 @@
     "warper": {
         "type": "WarperSingle",
         "args": {
-            "crop": 11
         }
     },
+    "warp_val": false,
     "optimizer": {
         "type": "Adam",
         "args": {
