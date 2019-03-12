@@ -2,12 +2,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from base import BaseModel
-import encoding
+#import encoding
 
 
 def make_bn(*args, **kwargs):
-    #return nn.BatchNorm2d(*args, momentum=0.2, **kwargs)
-    return encoding.nn.SyncBatchNorm(*args, **kwargs)
+    return nn.BatchNorm2d(*args, momentum=0.3, **kwargs)
+    #return encoding.nn.SyncBatchNorm(*args, **kwargs)
 
 
 class ResidualBottleneckPreactivation(nn.Module):
