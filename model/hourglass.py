@@ -4,18 +4,22 @@ import torch.nn.functional as F
 from base import BaseModel
 
 
+def make_bn(*args, **kwargs):
+    return nn.BatchNorm2d(*args, momentum=0.2, **kwargs)
+
+
 class ResidualBottleneckPreactivation(nn.Module):
     expansion = 2
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(ResidualBottleneckPreactivation, self).__init__()
 
-        self.bn1 = nn.BatchNorm2d(inplanes)
+        self.bn1 = make_bn(inplanes)
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=True)
-        self.bn2 = nn.BatchNorm2d(planes)
+        self.bn2 = make_bn(planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
                                padding=1, bias=True)
-        self.bn3 = nn.BatchNorm2d(planes)
+        self.bn3 = make_bn(planes)
         self.conv3 = nn.Conv2d(planes, planes * 2, kernel_size=1, bias=True)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
@@ -118,7 +122,7 @@ class HourglassNet(BaseModel):
 
         self.conv1 = nn.Conv2d(3, planes_conv1, kernel_size=7, stride=2, padding=3,
                                bias=True)
-        self.bn1 = nn.BatchNorm2d(planes_conv1)
+        self.bn1 = make_bn(planes_conv1)
         self.relu = nn.ReLU(inplace=True)
         self.layer1 = self._make_blocks(planes_conv1, planes_conv1, 1)  # 64 -> 64 -> 128
         self.layer2 = self._make_blocks(planes_conv1 * block.expansion, planes_block, 1)  # 128 -> 128 -> 256
@@ -132,7 +136,7 @@ class HourglassNet(BaseModel):
         for i in range(num_stacks):
             hg.append(HourglassBlock(block, num_blocks, self.planes_hg, self.depth_hg))
             res = self._make_blocks(nch, self.planes_hg, self.num_blocks)
-            bn = nn.BatchNorm2d(nch)
+            bn = make_bn(nch)
             conv = nn.Conv2d(nch, nch, kernel_size=1)
             outlayer = nn.Conv2d(nch, self.num_output_channels, kernel_size=1)
             output_layers.append(nn.Sequential(res, conv, bn, self.relu, outlayer))
