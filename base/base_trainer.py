@@ -84,6 +84,7 @@ class BaseTrainer:
         """
         Full training logic
         """
+        not_improved_count = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
             
@@ -126,7 +127,7 @@ class BaseTrainer:
 
                 if not_improved_count > self.early_stop:
                     self.logger.info("Validation performance didn\'t improve for {} epochs. Training stops.".format(self.early_stop))
-                    break
+                    #break
 
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
