@@ -47,6 +47,9 @@ def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False):
         f1 = feats1[b].reshape(C, H * W)  # source
         f2 = feats2[b].reshape(C, h * w)  # target
 
+        f1 = F.normalize(f1, p=2, dim=0) * 20
+        f2 = F.normalize(f2, p=2, dim=0) * 20
+
         corr = torch.matmul(f1.t(), f2)
         corr = corr.reshape(H, W, h, w)
 
