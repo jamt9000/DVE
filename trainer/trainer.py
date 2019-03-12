@@ -43,7 +43,7 @@ class Trainer(BaseTrainer):
         self.valid_data_loader = valid_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = 10 * int(np.sqrt(data_loader.batch_size))
+        self.log_step = 50 * int(np.sqrt(data_loader.batch_size))
         self.visualizations = visualizations if visualizations is not None else []
 
         class LossWrapper(torch.nn.Module):
@@ -155,7 +155,7 @@ class Trainer(BaseTrainer):
                 im = make_grid(data.cpu(), nrow=8, normalize=True)
                 self.writer.add_image('input', im)
                 for v in self.visualizations:
-                    v(self.writer, data.cpu(), output)
+                    v(self.writer, data.cpu(), output, meta)
                 seen_tic = time.time()
                 seen = 0
                 if profile:
@@ -227,7 +227,7 @@ class Trainer(BaseTrainer):
                 total_val_metrics += self._eval_metrics(output, meta)
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
                 for v in self.visualizations:
-                    v(self.writer, data.cpu(), output)
+                    v(self.writer, data.cpu(), output, meta)
 
         # Run without using saved batchnorm statistics, to check bn is working
         for md in self.model.modules():

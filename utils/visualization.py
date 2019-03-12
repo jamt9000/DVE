@@ -24,7 +24,39 @@ def norm_range(t, range=None):
     return t
 
 
-def sphere_colormap(writer, data, output):
+def keypoints_intermediate(writer, data, output, meta):
+    img = norm_range(data)[0].permute(1, 2, 0)
+    imH,imW,imC = img.shape
+
+    preds,intermediates = output
+
+    pred = preds[0].detach().cpu().clone()
+    inter = intermediates[0].detach().cpu().clone()
+
+    gt = meta['keypts'][0]
+
+    pred[...,0] = (pred[...,0] + 1.) / 2. * (imW-1)
+    pred[...,1] = (pred[..., 1] + 1.) / 2. * (imH - 1)
+
+    inter[...,0] = (inter[...,0] + 1.) / 2. * (imW - 1)
+    inter[...,1] = (inter[...,1] + 1.) / 2. * (imH - 1)
+
+    fig, ax = plt.subplots()
+    ax.imshow(img)
+    ax.scatter(pred[:,0], pred[:,1], c='b')
+    ax.scatter(gt[:, 0], gt[:, 1], c='g')
+    writer.add_figure('keypoints', fig)
+
+    fig, ax = plt.subplots()
+    ax.imshow(img)
+    for i in range(inter.shape[0]):
+        ax.scatter(inter[i,:,0], inter[i,:,1])
+    writer.add_figure('keypoints_intermediate', fig)
+
+
+
+
+def sphere_colormap(writer, data, output, meta):
     out = output[0].cpu()[:, 0:3]
     normed = torch.sqrt(out[:, 0] ** 2. + out[:, 1] ** 2. + out[:, 2] ** 2.)[:, None]
     vis = out / normed / 2 + 0.5
@@ -34,12 +66,12 @@ def sphere_colormap(writer, data, output):
     writer.add_image('colormap', grid)
 
 
-def sphere_norm_scatter3d(writer, data, output):
+def sphere_norm_scatter3d(writer, data, output, meta):
     output = [F.normalize(o, p=2, dim=1) for o in output]
-    sphere_scatter3d(writer, data, output, 'spherenorm')
+    sphere_scatter3d(writer, data, output, meta, 'spherenorm')
 
 
-def sphere_scatter3d(writer, data, output, tag='sphere'):
+def sphere_scatter3d(writer, data, output, meta, tag='sphere'):
     data = norm_range(data)
     out = output[0].cpu().detach().clone()
     out0 = out[0][0:3]

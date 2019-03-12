@@ -27,7 +27,16 @@ class PcaAug(object):
         return im + rgb.reshape(3, 1, 1)
 
 
+def kp_normalize(H, W, kp):
+    kp = kp.clone()
+    kp[..., 0] = 2. * kp[..., 0] / (W - 1) - 1
+    kp[..., 1] = 2. * kp[..., 1] / (H - 1) - 1
+    return kp
+
+
 class CelebAPrunedAligned_MAFLVal(Dataset):
+    eye_kp_idxs = [0, 1]
+
     def __init__(self, root, train=True, pair_warper=None, imwidth=100):
         self.root = root
         self.imwidth = imwidth
@@ -53,7 +62,6 @@ class CelebAPrunedAligned_MAFLVal(Dataset):
 
         # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ; leftmouth_x leftmouth_y ; rightmouth_x rightmouth_y
         self.keypoints = np.array(self.data, dtype=np.float32).reshape(-1, 5, 2)
-        self.eye_kp_idxs = [0, 1]
 
         self.filenames = list(self.data.index)
 
@@ -76,21 +84,25 @@ class CelebAPrunedAligned_MAFLVal(Dataset):
         kp = self.keypoints[index]
 
         if self.warper is not None:
-            im1 = self.transforms(im)
-            im2 = self.transforms(im)
+            if self.warper.returns_pairs:
+                im1 = self.transforms(im)
+                im2 = self.transforms(im)
 
-            im1, im2, flow, grid, kp1, kp2 = self.warper(im1, im2, keypts=kp)
-            data = torch.stack((im1, im2), 0)
-            meta = {'flow': flow[0], 'grid': grid[0]}
-
-            # f = pyplot.figure()
-            # pyplot.imshow(im1.permute(1, 2, 0) + 0.5)
-            # pyplot.scatter(kp1[:, 0], kp1[:, 1])
-            # pyplot.savefig('/tmp/fig.pdf')
+                im1, im2, flow, grid, kp1, kp2 = self.warper(im1, im2, keypts=kp)
+                C, H, W = im1.shape
+                data = torch.stack((im1, im2), 0)
+                meta = {'flow': flow[0], 'grid': grid[0], 'kp1': kp1, 'kp2': kp2}
+            else:
+                im1 = self.transforms(im)
+                im1, kp = self.warper(im1, keypts=kp)
+                C, H, W = im1.shape
+                data = im1
+                meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
 
         else:
             data = self.transforms(im)
-            meta = {'keypts': kp}
+            C, H, W = data.shape
+            meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
 
         return data, meta
 

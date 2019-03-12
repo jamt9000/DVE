@@ -1,9 +1,16 @@
 import torch.nn.functional as F
 import time
 import torch
+import torch.nn.functional as F
 from utils import tps
 
 from model.folded_correlation import DenseCorr
+
+def regression_loss(prediction_normalized, meta, **kwargs):
+    pred = prediction_normalized[0]
+    kp = meta['keypts_normalized'].to(pred.device)
+    B, nA, _ = pred.shape
+    return F.smooth_l1_loss(pred, kp)
 
 
 def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False):

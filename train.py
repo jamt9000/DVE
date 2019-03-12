@@ -10,6 +10,7 @@ import utils.visualization as module_visualization
 from trainer import Trainer
 from utils import Logger
 from utils import tps
+import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.utils.data.dataloader
 
@@ -34,7 +35,7 @@ def main(config, resume):
     data_loader = DataLoader(
         dataset,
         batch_size=int(config["batch_size"]),
-        num_workers=8,
+        num_workers=max(8, int(config['n_gpu']) * 2),
         shuffle=True,
         drop_last=True,
         pin_memory=True,
@@ -51,7 +52,16 @@ def main(config, resume):
 
     # build model architecture
     model = get_instance(module_arch, 'arch', config)
-    # print(model)
+
+    if 'finetune_from' in config.keys():
+        checkpoint = torch.load(config['finetune_from'])
+        model.load_state_dict(checkpoint['state_dict'])
+        print('Finetuning from %s' % config['finetune_from'])
+
+    if 'keypoint_regressor' in config.keys():
+        descdim = config['arch']['args']['num_output_channels']
+        kp_regressor = get_instance(module_arch, 'keypoint_regressor', config, descriptor_dimension=descdim)
+        model = nn.Sequential(model, kp_regressor)
 
     # get function handles of loss and metrics
     loss = getattr(module_loss, config['loss'])
