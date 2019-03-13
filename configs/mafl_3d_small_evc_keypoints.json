@@ -1,5 +1,5 @@
 {
-    "name": "celeba_3d_small_evc_keypoints",
+    "name": "mafl_3d_small_evc_keypoints",
     "n_gpu": 8,
     "finetune_from": "saved/celeba_3d_small_evc/0305_152849/checkpoint-epoch19.pth",
     "batch_size": 32,
@@ -10,7 +10,7 @@
         }
     },
     "dataset": {
-        "type": "CelebAPrunedAligned_MAFLVal",
+        "type": "MAFLAligned",
         "args": {
             "root": "data/celeba",
             "imwidth": 100,
