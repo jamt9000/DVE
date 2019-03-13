@@ -1,5 +1,5 @@
 {
-    "name": "celeba_64d_evc",
+    "name": "celeba_64d_evc_b48",
     "n_gpu": 4,
     "batch_size": 48,
     "arch": {
