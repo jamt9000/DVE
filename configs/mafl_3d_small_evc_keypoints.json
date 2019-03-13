@@ -1,26 +1,35 @@
 {
-    "name": "celeba_64d_evc",
+    "name": "mafl_3d_small_evc_keypoints",
     "n_gpu": 8,
+    "finetune_from": "saved/celeba_3d_small_evc/0305_152849/checkpoint-epoch19.pth",
     "batch_size": 32,
     "arch": {
         "type": "HourglassNet",
         "args": {
-            "num_output_channels": 64
+            "num_output_channels": 3
         }
     },
     "dataset": {
-        "type": "CelebAPrunedAligned_MAFLVal",
+        "type": "MAFLAligned",
         "args": {
             "root": "data/celeba",
-            "imwidth": 170,
-            "crop": 21
+            "imwidth": 100,
+            "crop": 18
+        }
+    },
+    "keypoint_regressor": {
+        "type": "IntermediateKeypointPredictor",
+        "args": {
+            "num_annotated_points": 5,
+            "num_intermediate_points": 10
         }
     },
     "warper": {
-        "type": "Warper",
+        "type": "WarperSingle",
         "args": {
         }
     },
+    "warp_val": false,
     "optimizer": {
         "type": "Adam",
         "args": {
@@ -29,12 +38,12 @@
             "amsgrad": true
         }
     },
-    "loss": "dense_correlation_loss_evc",
+    "loss": "regression_loss",
     "metrics": [
-
+        "inter_ocular_error"
     ],
     "visualizations": [
-        "sphere_colormap"
+        "keypoints_intermediate"
     ],
     "lr_scheduler": {
         "type": "StepLR",

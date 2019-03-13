@@ -59,7 +59,7 @@ class Trainer(BaseTrainer):
     def _eval_metrics(self, output, target):
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
-            acc_metrics[i] += metric(output, target)
+            acc_metrics[i] += metric(output, target, self.data_loader.dataset, self.config)
             self.writer.add_scalar(f'{metric.__name__}', acc_metrics[i])
         return acc_metrics
 
@@ -85,7 +85,7 @@ class Trainer(BaseTrainer):
         self.model.train()
 
         avg_loss = AverageMeter()
-        total_metrics = np.zeros(len(self.metrics))
+        total_metrics = [AverageMeter() for a in range(len(self.metrics))]
         seen_tic = time.time()
         seen = 0
         profile = self.config["profile"]
@@ -136,7 +136,9 @@ class Trainer(BaseTrainer):
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
             self.writer.add_scalar('loss', loss.item())
             avg_loss.update(loss.item(), data.size(0))
-            total_metrics += self._eval_metrics(output, meta)
+
+            for i, m in enumerate(self._eval_metrics(output, meta)):
+                total_metrics[i].update(m, data.size(0))
 
             if profile:
                 timings["metrics"] = time.time() - tic
@@ -180,11 +182,14 @@ class Trainer(BaseTrainer):
 
         log = {
             'loss': avg_loss.avg,
-            'metrics': (total_metrics / len(self.data_loader)).tolist()
+            'metrics': [a.avg for a in total_metrics]
         }
 
         self.writer.set_step(epoch, 'train_epoch')
         self.writer.add_scalar('loss', log['loss'])
+
+        for i, metric in enumerate(self.metrics):
+            self.writer.add_scalar(f'{metric.__name__}', log['metrics'][i])
 
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
@@ -207,7 +212,7 @@ class Trainer(BaseTrainer):
         cached_state = torch.get_rng_state()
         self.model.eval()
         avg_val_loss = AverageMeter()
-        total_val_metrics = np.zeros(len(self.metrics))
+        total_val_metrics = [AverageMeter() for a in range(len(self.metrics))]
         with torch.no_grad():
             torch.manual_seed(0)
             for batch_idx, (data, meta) in enumerate(self.valid_data_loader):
@@ -224,7 +229,8 @@ class Trainer(BaseTrainer):
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.writer.add_scalar('loss', loss.item())
                 avg_val_loss.update(loss.item(), data.size(0))
-                total_val_metrics += self._eval_metrics(output, meta)
+                for i, m in enumerate(self._eval_metrics(output, meta)):
+                    total_val_metrics[i].update(m, data.size(0))
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
                 for v in self.visualizations:
                     v(self.writer, data.cpu(), output, meta)
@@ -257,12 +263,15 @@ class Trainer(BaseTrainer):
         val_log = {
             'val_loss': avg_val_loss.avg,
             'val_loss_trainbn': avg_val_loss_trainbn.avg,
-            'val_metrics': (total_val_metrics / len(self.valid_data_loader)).tolist()
+            'val_metrics': [a.avg for a in total_val_metrics]
         }
 
         self.writer.set_step(epoch, 'val_epoch')
         self.writer.add_scalar('val_loss', val_log['val_loss'])
         self.writer.add_scalar('val_loss_trainbn', val_log['val_loss_trainbn'])
+
+        for i, metric in enumerate(self.metrics):
+            self.writer.add_scalar(f'{metric.__name__}', val_log['val_metrics'][i])
 
         torch.set_rng_state(cached_state)
 

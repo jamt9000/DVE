@@ -12,13 +12,13 @@
         "type": "CelebAPrunedAligned_MAFLVal",
         "args": {
             "root": "data/celeba",
-            "imwidth": 100
+            "imwidth": 100,
+            "crop": 18
         }
     },
     "warper": {
         "type": "Warper",
         "args": {
-            "crop": 18
         }
     },
     "optimizer": {
