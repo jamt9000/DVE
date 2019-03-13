@@ -144,7 +144,7 @@ class Warper(object):
             flow = flow[:, crop:-crop, crop:-crop, :]
 
             grid_cropped = grid_unnormalized[:, crop:-crop, crop:-crop, :] - crop
-            grid = grid_normalize(grid_cropped, self.Hc, self.Wc)
+            grid = grid_normalize(grid_cropped, Hc, Wc)
 
             if keypts is not None:
                 kp1 -= crop
