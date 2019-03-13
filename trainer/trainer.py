@@ -97,7 +97,7 @@ class Trainer(BaseTrainer):
                 batch_tic = time.time()
 
             data = data.to(self.device)
-            seen += data.shape[0]
+            seen += data.shape[0] // 2
 
             if profile:
                 timings["data transfer"] = time.time() - batch_tic
