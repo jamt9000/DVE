@@ -173,7 +173,7 @@ class MAFLAligned(CelebABase):
             [normalize])
 
     def __len__(self):
-        return 1000#len(self.data.index)
+        return len(self.data.index)
 
 
 if __name__ == '__main__':
