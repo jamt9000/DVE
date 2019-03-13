@@ -68,7 +68,7 @@ class Warper(object):
     returns_pairs = True
 
     def __init__(self, H, W, warpsd_all=0.001, warpsd_subset=0.01, transsd=0.1,
-                 scalesd=0.1, rotsd=5, im1_multiplier=0.5, crop=19):
+                 scalesd=0.1, rotsd=5, im1_multiplier=0.5):
         self.H = H
         self.W = W
         self.warpsd_all = warpsd_all

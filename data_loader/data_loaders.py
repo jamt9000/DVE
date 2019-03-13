@@ -73,7 +73,7 @@ class CelebABase(Dataset):
 class CelebAPrunedAligned_MAFLVal(CelebABase):
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18):
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18, do_augmentations=True):
         self.root = root
         self.imwidth = imwidth
         self.train = train
@@ -109,7 +109,7 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
 
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
         augmentations = [transforms.transforms.ColorJitter(.4, .4, .4),
-                         transforms.ToTensor(), PcaAug()] if train else [transforms.ToTensor()]
+                         transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
         self.transforms = transforms.Compose(
             [initial_crop,
              transforms.Resize(self.imwidth)]
@@ -123,7 +123,7 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
 class MAFLAligned(CelebABase):
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18):
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18, do_augmentations=True):
         self.root = root
         self.imwidth = imwidth
         self.train = train
@@ -165,7 +165,7 @@ class MAFLAligned(CelebABase):
 
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
         augmentations = [transforms.transforms.ColorJitter(.4, .4, .4),
-                         transforms.ToTensor(), PcaAug()] if train else [transforms.ToTensor()]
+                         transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
         self.transforms = transforms.Compose(
             [initial_crop,
              transforms.Resize(self.imwidth)]
