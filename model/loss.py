@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from utils import tps
 
 from model.folded_correlation import DenseCorr
+from model.folded_correlation_evc import DenseCorrEvc
 
 def regression_loss(prediction_normalized, meta, **kwargs):
     pred = prediction_normalized[0]
@@ -118,6 +119,12 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False):
     xxyy = tps.spatial_grid_unnormalized(H_input, W_input).to(device)
     batch_grid_u = tps.grid_unnormalize(grid, H_input, W_input)
     batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
+
+    if fold_corr:
+        """This function computes the gradient explicitly to avoid the memory
+        issues with using autorgrad in a for loop."""
+        dense_corr = DenseCorrEvc.apply
+        return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
 
     loss = 0.
     for b in range(B):
