@@ -7,10 +7,40 @@ import time
 from collections import defaultdict
 from torch.autograd import gradcheck
 
-LOCAL_CHECKS = True
 PROFILE = False
-JDT_FACTOR = 1
+PRINT_MEM = False
+OLD_METHOD = False
+LOCAL_CHECKS = 0
+LOCAL_CHECKS_INNER_LOOP = 0
+
+# NOTE: To pass numerical tests with double precision, this value needs to
+# be mega low, but for single precision machine-epsilon is around 2**(-23), so
+# we need some buffer to help avoid division by zero errors.
 EPS = 1E-8
+
+# Risk appetite
+ATOL = 1E-4
+
+# NOTE: Without a very high JDT factor, the numerical tests will not pass for
+# a large EVC dimension (e.g. 1E3)
+# JDT_FACTOR = 1E3
+JDT_FACTOR = 20
+
+
+def estimate_mem(x):
+    if x.dtype == torch.float64:
+        nbytes = 8
+    elif x.dtype == torch.float32:
+        nbytes = 4
+    elif x.dtype == torch.int32:
+        nbytes = 4
+    elif x.dtype == torch.float16:
+        nbytes = 2
+    elif x.dtype == torch.int8:
+        nbytes = 1
+    else:
+        import ipdb; ipdb.set_trace()
+    return torch.numel(x) * nbytes / (1024) ** 3
 
 
 class DenseCorrEvc(torch.autograd.Function):
@@ -179,6 +209,8 @@ class DenseCorrEvc(torch.autograd.Function):
                             grad_outputs=grad_loss_b_,
                         )
                         rel_diff(grad_smcorr2, d_smcorr[0], "smax")
+                        if torch.any(torch.isnan(grad_smcorr2[0])):
+                            import ipdb; ipdb.set_trace()
 
 
                 if PROFILE:
@@ -209,18 +241,27 @@ class DenseCorrEvc(torch.autograd.Function):
 
                 smcorr = F.softmax(corr.view(H, W, -1), dim=2)
                 smcorr = smcorr.view(corr.shape)
-                smcorr_fa = smcorr[None, ...] * fa_.view(-1, 1, 1, h, w)
+                if LOCAL_CHECKS:
+                    # cache a copy of the mega tensor for numerical checks
+                    smcorr_fa = smcorr[None, ...] * fa_norm.view(-1, 1, 1, h, w)
+                    f1_via_fa = smcorr_fa.sum((3, 4))
+                else:
+                    """This is one of the largest tensors....."""
+                    f1_via_fa = (smcorr[None, ...] *
+                        fa_norm.view(-1, 1, 1, h, w)).sum((3, 4))
 
-                f1_via_fa = smcorr_fa.sum((3, 4))
                 f1_via_fa = f1_via_fa.view(C, H * W)
 
                 # Main correlation computation
-                corr2 = torch.matmul(f1_via_fa.t(), f2_).view(corr.shape)
+                corr2 = torch.matmul(f1_via_fa.t(), f2_norm).view(corr.shape)
 
                 # Direct backward pass for second softmax
                 smcorr2 = F.softmax(corr2.view(H, W, -1), dim=2)
                 sum_term = torch.sum(grad_smcorr2 * smcorr2, dim=2, keepdim=True)
                 grad_corr2 = smcorr2 * (grad_smcorr2 - sum_term)
+
+                if not LOCAL_CHECKS:
+                    del smcorr2
 
                 if PROFILE:
                     timings["softmax"] += time.time() - tic
@@ -244,6 +285,9 @@ class DenseCorrEvc(torch.autograd.Function):
                 grad_f1_via_fa = torch.matmul(grad_corr2, f2_norm.t()).t()
                 grad_f2_norm = torch.matmul(f1_via_fa, grad_corr2)
 
+                if not LOCAL_CHECKS:
+                    del grad_corr2
+
                 if PROFILE:
                     timings["corr-back"] += time.time() - tic
                     tic = time.time()
@@ -263,50 +307,134 @@ class DenseCorrEvc(torch.autograd.Function):
                         rel_diff(grad_f2_norm, grad_f2_norm_num,
                                 "corr->f2-norm")
 
-                grad_f1_via_fa = grad_f1_via_fa.view(-1, H, W, 1, 1)
+                if OLD_METHOD:
+                    # (may be able to collapse all this later)
+                    grad_f1_via_fa = grad_f1_via_fa.view(-1, H, W, 1, 1)
 
-                # (may be able to collapse all this later)
-                grad_smcorr_fa = grad_f1_via_fa.repeat(1, 1, 1, h, w)
+                    # This tensor is crashing the GPU
+                    grad_smcorr_fa = grad_f1_via_fa.repeat(1, 1, 1, h, w)
 
-                # safety checks over the summation
-                if LOCAL_CHECKS:
-                    with torch.enable_grad():
+                    # safety checks over the summation
+                    if LOCAL_CHECKS:
+                        with torch.enable_grad():
 
-                        smcorr_fa_num = smcorr_fa.clone().requires_grad_()
-                        f1_via_fa_num = smcorr_fa_num.sum((3, 4))
-                        # f1_via_fa_num = f1_via_fa_num.view(C, H * W)
+                            smcorr_fa_num = smcorr_fa.clone().requires_grad_()
+                            f1_via_fa_num = smcorr_fa_num.sum((3, 4))
+                            # f1_via_fa_num = f1_via_fa_num.view(C, H * W)
 
-                        grad_smcorr_fa_num = torch.autograd.grad(
-                            outputs=f1_via_fa_num,
-                            inputs=(smcorr_fa_num,),
-                            grad_outputs=grad_f1_via_fa.view(-1, H, w),
-                        )
-                        rel_diff(grad_smcorr_fa, grad_smcorr_fa_num[0],
-                                 "summation of grad_smcorr-fa")
+                            grad_smcorr_fa_num = torch.autograd.grad(
+                                outputs=f1_via_fa_num,
+                                inputs=(smcorr_fa_num,),
+                                grad_outputs=grad_f1_via_fa.view(-1, H, w),
+                            )
+                            rel_diff(grad_smcorr_fa, grad_smcorr_fa_num[0],
+                                     "summation of grad_smcorr-fa")
 
-                # smcorr_fa = smcorr[None, ...] * fa_.view(-1, 1, 1, h, w)
-                grad_smcorr = (grad_smcorr_fa * fa_.view(-1, 1, 1, h, w)).sum(0)
-                grad_fa_ = (grad_smcorr_fa * smcorr[None, ...]).sum(1).sum(1)
-                grad_fa_ = grad_fa_.reshape(C, h * w)
+                    # smcorr_fa = smcorr[None, ...] * fa_.view(-1, 1, 1, h, w)
+                    grad_smcorr = (grad_smcorr_fa * fa_norm.view(-1, 1, 1, h, w)).sum(0)
+                    grad_fa_ = (grad_smcorr_fa * smcorr[None, ...]).sum(1).sum(1)
+                    grad_fa_ = grad_fa_.reshape(C, h * w)
 
-                # safety checks over the weighted sum
-                if LOCAL_CHECKS:
-                    with torch.enable_grad():
+                    # safety checks over the weighted sum
+                    if LOCAL_CHECKS:
+                        with torch.enable_grad():
 
-                        smcorr_num = smcorr.clone().requires_grad_()
-                        fa_num = fa_.clone().requires_grad_()
-                        smcorr_fa_num = smcorr_num[None, ...] \
-                                * fa_num.view(-1, 1, 1, h, w)
+                            smcorr_num = smcorr.clone().requires_grad_()
+                            fa_norm_num = fa_norm.clone().requires_grad_()
+                            smcorr_fa_num = smcorr_num[None, ...] \
+                                    * fa_norm_num.view(-1, 1, 1, h, w)
 
-                        (grad_smcorr_num, grad_fa_num) = torch.autograd.grad(
-                            outputs=smcorr_fa_num,
-                            inputs=(smcorr_num, fa_num),
-                            grad_outputs=grad_smcorr_fa,
-                        )
-                        rel_diff(grad_fa_, grad_fa_num,
-                                 "product of grad_fa_")
-                        rel_diff(grad_smcorr, grad_smcorr_num,
-                                 "product of grad_smcor")
+                            (grad_smcorr_num, grad_fa_num) = torch.autograd.grad(
+                                outputs=smcorr_fa_num,
+                                inputs=(smcorr_num, fa_norm_num),
+                                grad_outputs=grad_smcorr_fa,
+                            )
+                            rel_diff(grad_fa_, grad_fa_num,
+                                     "product of grad_fa_")
+                            rel_diff(grad_smcorr, grad_smcorr_num,
+                                     "product of grad_smcor")
+                else:
+                    # -------------------------------------------------------
+                    # Collapsed summation method
+                    # -------------------------------------------------------
+                    # Fwd ops ->
+                    # smcorr_fa = smcorr[None, ...] * fa.reshape(-1, 1, 1, h, w)
+                    # f1_via_fa = smcorr_fa.sum((3, 4)).reshape(C, H * w)
+
+                    # Given gradient ->
+                    # (grad_f1_via_fa)
+
+                    # Desired gradients ->
+                    # (grad_fa_, grad_smcorr)
+
+                    grad_f1_via_fa = grad_f1_via_fa.view(-1, H, W, 1, 1)
+
+                    # safety checks over the summation
+                    if LOCAL_CHECKS:
+                        # This tensor is crashing the GPU, so should only be
+                        # used for numerical checks
+                        grad_smcorr_fa = grad_f1_via_fa.repeat(1, 1, 1, h, w)
+                        with torch.enable_grad():
+
+                            smcorr_fa_num = smcorr_fa.clone().requires_grad_()
+                            f1_via_fa_num = smcorr_fa_num.sum((3, 4))
+                            # f1_via_fa_num = f1_via_fa_num.view(C, H * W)
+
+                            grad_smcorr_fa_num = torch.autograd.grad(
+                                outputs=f1_via_fa_num,
+                                inputs=(smcorr_fa_num,),
+                                grad_outputs=grad_f1_via_fa.view(-1, H, w),
+                            )
+                            rel_diff(grad_smcorr_fa, grad_smcorr_fa_num[0],
+                                     "summation of grad_smcorr-fa")
+
+                    # Use for-loop over EVC dimension to avoid memory issues
+                    if feats1.is_cuda:
+                        if grad_f1_via_fa.dtype == torch.float64:
+                            grad_smcorr =  torch.cuda.DoubleTensor(H, W, h, w).fill_(0)
+                            grad_fa_ =  torch.cuda.DoubleTensor(C, h, w).fill_(0)
+                        else:
+                            grad_smcorr =  torch.cuda.FloatTensor(H, W, h, w).fill_(0)
+                            grad_fa_ =  torch.cuda.FloatTensor(C, h, w).fill_(0)
+                    else:
+                        grad_smcorr =  torch.zeros((H, W, h, w), dtype=feats1.dtype)
+                        grad_fa_ =  torch.zeros((C, h, w), dtype=feats1.dtype)
+
+                    for cc in range(C):
+                        grad_smcorr += (grad_f1_via_fa[cc] * fa_norm[cc].view(1, 1, h, w))
+                        grad_fa_[cc] = (grad_f1_via_fa[cc] * smcorr).sum((0, 1))
+                    grad_fa_ = grad_fa_.reshape(C, h * w)
+
+                    # safety checks over the weighted sum
+                    if LOCAL_CHECKS:
+                        with torch.enable_grad():
+
+                            smcorr_num = smcorr.clone().requires_grad_()
+                            fa_norm_num = fa_norm.clone().requires_grad_()
+                            smcorr_fa_num = smcorr_num[None, ...] \
+                                    * fa_norm_num.view(-1, 1, 1, h, w)
+
+                            (grad_smcorr_num, grad_fa_num) = torch.autograd.grad(
+                                outputs=smcorr_fa_num,
+                                inputs=(smcorr_num, fa_norm_num),
+                                grad_outputs=grad_smcorr_fa,
+                            )
+                            rel_diff(grad_fa_, grad_fa_num,
+                                     "product of grad_fa_")
+                            rel_diff(grad_smcorr, grad_smcorr_num,
+                                     "product of grad_smcor")
+
+                    if PRINT_MEM:
+                        key = None
+                        val = None
+                        shape_mems = {}
+                        for key, val in locals().items():
+                            if hasattr(val, "shape"):
+                                shape_mems[key] = estimate_mem(val)
+
+                        sorted_mems = sorted(shape_mems.items(), key=lambda kv: -kv[1])
+                        for key, val in sorted_mems:
+                            print("{}: {:.4f} GiB".format(key, val))
 
                 # Direct backward pass for first softmax
                 # smcorr = F.softmax(corr.view(H, W, -1), dim=2)
@@ -314,6 +442,12 @@ class DenseCorrEvc(torch.autograd.Function):
                 smcorr = smcorr.view(H, W, -1)
                 sum_term = torch.sum(grad_smcorr * smcorr, dim=2, keepdim=True)
                 grad_corr = smcorr * (grad_smcorr - sum_term)
+
+                if not LOCAL_CHECKS:
+                    del grad_smcorr
+                    del grad_smcorr2
+                    del smcorr
+                    del corr
 
                 if LOCAL_CHECKS:
                     with torch.enable_grad():
@@ -334,6 +468,10 @@ class DenseCorrEvc(torch.autograd.Function):
                 grad_f1_norm = torch.matmul(grad_corr, fa_norm.t()).t()
                 grad_fa_norm = torch.matmul(f1_norm, grad_corr)
 
+                if not LOCAL_CHECKS:
+                    del grad_corr
+
+
                 if LOCAL_CHECKS:
                     with torch.enable_grad():
                         f1_norm_num = f1_norm.clone().requires_grad_()
@@ -346,6 +484,10 @@ class DenseCorrEvc(torch.autograd.Function):
                         )
                         rel_diff(grad_f1_norm, grad_f1_norm_num, "corr->f1n-orm")
                         rel_diff(grad_fa_norm, grad_fa_norm_num, "corr->fa-norm")
+
+                # Combine gradients for two ops using aux features
+                grad_fa_norm = grad_fa_norm + grad_fa_
+
 
                 # Back through the norms
                 # [Fwd op] -> `f1_norm = F.normalize(f1_, p=2, dim=0) * JDT_FACTOR`
@@ -367,17 +509,22 @@ class DenseCorrEvc(torch.autograd.Function):
                 f1_norm_val = torch.norm(f1_, p=2, dim=0).clamp(min=EPS)
                 f2_norm_val = torch.norm(f2_, p=2, dim=0).clamp(min=EPS)
                 fa_norm_val = torch.norm(fa_, p=2, dim=0).clamp(min=EPS)
+                max_val_f1 = torch.max(f1_norm_val)
+                max_val_f2 = torch.max(f2_norm_val)
+                max_val_fa = torch.max(fa_norm_val)
+                if max_val_f1 + max_val_f2 + max_val_fa > 1E8:
+                    import ipdb; ipdb.set_trace()
 
                 grad_f1_norm_ = grad_f1_norm / f1_norm_val
-                grad_f1 = (grad_f1_norm_ -
+                grad_f1 = JDT_FACTOR * (grad_f1_norm_ -
                   (grad_f1_norm_ * f1_).sum(0) * (f1_ / (f1_norm_val ** 2)))
 
                 grad_f2_norm_ = grad_f2_norm / f2_norm_val
-                grad_f2 = (grad_f2_norm_ -
+                grad_f2 = JDT_FACTOR * (grad_f2_norm_ -
                    (grad_f2_norm_ * f2_).sum(0) * (f2_ / (f2_norm_val ** 2)))
 
                 grad_fa_norm_ = grad_fa_norm / fa_norm_val
-                grad_fa = (grad_fa_norm_ -
+                grad_fa = JDT_FACTOR * (grad_fa_norm_ -
                   (grad_fa_norm_ * fa_).sum(0) * (fa_ / (fa_norm_val ** 2)))
 
                 if LOCAL_CHECKS:
@@ -409,13 +556,29 @@ class DenseCorrEvc(torch.autograd.Function):
                         rel_diff(grad_f2, grad_f2_num[0], "norm-f2")
                         rel_diff(grad_fa, grad_fa_num[0], "norm-fa")
 
+
+                if PRINT_MEM:
+                    key = None
+                    val = None
+                    shape_mems = {}
+                    print("=======================")
+                    for key, val in locals().items():
+                        if hasattr(val, "shape"):
+                            shape_mems[key] = estimate_mem(val)
+
+                    sorted_mems = sorted(shape_mems.items(), key=lambda kv: -kv[1])
+                    for key, val in sorted_mems:
+                        print("{}: {:.4f} GiB".format(key, val))
+                    import ipdb; ipdb.set_trace()
+
+
                 # safety checks over the whole inner loop
                 if LOCAL_CHECKS:
                     with torch.enable_grad():
 
                         f1_num = feats1[b].clone().detach().requires_grad_().reshape(C, H * W)
-                        f2_num = feats2[b].clone().detach().requires_grad_().reshape(C, H * W)
-                        fa_num = feats1[(b + 1) % B].clone().detach().requires_grad_().reshape(C, H * W)
+                        f2_num = feats2[b].clone().detach().requires_grad_().reshape(C, h * w)
+                        fa_num = feats1[(b + 1) % B].clone().detach().requires_grad_().reshape(C, h * w)
 
                         f1_norm_num = F.normalize(f1_num, p=2, dim=0) * JDT_FACTOR
                         f2_norm_num = F.normalize(f2_num, p=2, dim=0) * JDT_FACTOR
@@ -426,85 +589,104 @@ class DenseCorrEvc(torch.autograd.Function):
                         corr_num = corr_num.reshape(H, W, H, W)
                         smcorr_num = F.softmax(corr_num.reshape(H, W, -1), dim=2)
                         smcorr_num = smcorr_num.reshape(corr_num.shape)
-                        smcorr_fa_num = smcorr_num[None, ...] * fa_norm_num.reshape(-1, 1, 1, H, W)
-                        # del smcorr
                         # BLock 1 ------------------------------------------
 
+
                         # BLock 2 ------------------------------------------
-                        f1_via_fa_num = smcorr_fa_num.sum((3, 4)).reshape(C, H * W)
-                        # del smcorr_fa
+                        smcorr_fa_num = smcorr_num[None, ...] * \
+                                fa_norm_num.reshape(-1, 1, 1, h, w)
                         # BLock 2 ------------------------------------------
 
+
                         # BLock 3 ------------------------------------------
+                        f1_via_fa_num = smcorr_fa_num.sum((3, 4)).reshape(C, H * W)
+                        # BLock 3 ------------------------------------------
+
+                        # BLock 4 ------------------------------------------
                         corr2_num = torch.matmul(f1_via_fa_num.t(), f2_norm_num)
                         corr2_num = corr2_num.reshape(corr_num.shape)
                         smcorr2_num = F.softmax(corr2_num.reshape(H, W, -1), dim=2)
-                        # smcorr2_num = smcorr2_num.reshape(corr_num.shape)
-                        # del corr2
-                        # BLock 3 ------------------------------------------
+                        smcorr2_num = smcorr2_num.reshape(corr_num.shape)
+                        # BLock 4 ------------------------------------------
 
-                        grad_f1_num, grad_f2_num, grad_fa_num = torch.autograd.grad(
-                            outputs=smcorr2_num,
-                            inputs=(f1_num, f2_num, fa_num),
-                            grad_outputs=grad_smcorr2,
+                        grad_f1_num, grad_fa_num, grad_f2_num = torch.autograd.grad(
+                            outputs=(smcorr2_num,),
+                            inputs=(f1_num, fa_num, f2_num),
+                            grad_outputs=(grad_smcorr2.view(corr_num.shape)),
                         )
 
                         rel_diff(grad_f1, grad_f1_num, "df1_")
                         rel_diff(grad_f2, grad_f2_num, "df2_")
                         rel_diff(grad_fa, grad_fa_num, "dfa_")
-                import ipdb; ipdb.set_trace()
 
-                grad_feats1[b] = grad_f1.reshape((C, H, W))
-                grad_feats2[b] = grad_f2.reshape((C, H, W))
+                """Distribute the gradients back among the input tensor
+                features that require them."""
+                grad_feats1[b] += grad_f1.reshape((C, H, W))
+                grad_feats1[(b + 1) % B] += grad_fa.reshape((C, h, w))
+                grad_feats2[b] += grad_f2.reshape((C, h, w))
+
                 if PROFILE:
                     timings["feat-assign"] += time.time() - tic
 
-            """Distribute the gradients back among the input tensor features that
-            require them."""
-            # grad_feats1 = grad_feats1.unsqueeze(0).repeat(B, 1, 1, 1)
-            # grad_feats2 = grad_feats2.unsqueeze(0).repeat(B, 1, 1, 1)
 
-            if LOCAL_CHECKS:
+            if LOCAL_CHECKS_INNER_LOOP:
                 with torch.enable_grad():
                     loss = 0.
                     grad_loss_ = grad_loss * (H * W * B)  # unscale
                     for b in range(B):
                         f1 = feats1[b].reshape(C, H * W)  # source
-                        f2 = feats2[b].reshape(C, H * W)  # target
+                        f2 = feats2[b].reshape(C, h * w)  # target
+                        fa = feats1[(b + 1) % B].reshape(C, h * w)  # auxiliary
 
-                        corr = torch.matmul(f1.t(), f2)
-                        corr = corr.reshape(H, W, H, W)
+                        f1 = F.normalize(f1, p=2, dim=0) * JDT_FACTOR
+                        f2 = F.normalize(f2, p=2, dim=0) * JDT_FACTOR
+                        fa = F.normalize(fa, p=2, dim=0) * JDT_FACTOR
+
+                        corr = torch.matmul(f1.t(), fa)
+                        corr = corr.reshape(H, W, h, w)
+                        smcorr = F.softmax(corr.reshape(H, W, -1), dim=2).reshape(corr.shape)
+                        smcorr_fa = smcorr[None, ...] * fa.reshape(-1, 1, 1, h, w)
+                        # del smcorr
+
+                        f1_via_fa = smcorr_fa.sum((3, 4)).reshape(C, H * w)
+                        # del smcorr_fa
+
+                        corr2 = torch.matmul(f1_via_fa.t(), f2).reshape(corr.shape)
+                        smcorr2 = F.softmax(corr2.reshape(H, W, -1), dim=2).reshape(corr.shape)
+                        # del corr2
 
                         with torch.no_grad():
                             diff = batch_grid_u[b, :, :, None, None, :] - \
                                 xxyy[None, None, ::stride, ::stride, :]
                             diff = (diff * diff).sum(4).sqrt()
                             diff = diff.pow(pow)
+                        L = diff * smcorr2
+                        loss += L.float().sum()
 
-                        smcorr = F.softmax(corr.reshape(H, W, -1), dim=2).reshape(corr.shape)
-                        L = diff * smcorr
-                        loss += L.sum()
                     loss = loss / (H * W * B)
                     grad_f1_num, grad_f2_num = torch.autograd.grad(
                         outputs=loss,
                         inputs=(feats1, feats2),
                         grad_outputs=grad_loss_,
                     )
+
                     rel_diff(grad_feats1, grad_f1_num, "full-loop f2")
                     rel_diff(grad_feats2, grad_f2_num, "full-loop f2")
+
             if PROFILE:
                 tic = time.time()
 
-            """Clear up all intermediate structures to avoid autograd
-            implosions."""
-            del grad_loss_b
-            del b
-            del grad_f1
-            del grad_f2
-            del smcorr
-            del corr
-            del diff
-            del params
+            if PRINT_MEM:
+                key = None
+                val = None
+                shape_mems = {}
+                for key, val in locals().items():
+                    if hasattr(val, "shape"):
+                        shape_mems[key] = estimate_mem(val)
+
+                sorted_mems = sorted(shape_mems.items(), key=lambda kv: -kv[1])
+                for key, val in sorted_mems:
+                    print("{}: {:.4f} GiB".format(key, val))
 
             if PROFILE:
                 timings["cleanup"] += time.time() - tic
@@ -527,7 +709,7 @@ class DenseCorrEvc(torch.autograd.Function):
 
 
 def rel_diff(x1, x2, name):
-    out = torch.abs(x1 - x2).sum() / torch.abs(x2).mean()
+    out = torch.abs(x1 - x2).sum() / torch.abs(x2).mean().clamp(EPS)
     print("rel diff for {}: {}".format(name, out))
 
 
@@ -544,8 +726,10 @@ def dense_corr_check(use_evc=False):
     feats1 = torch.randn(B, C, H, W, **common)
     feats2 = torch.randn(B, C, H, W, **common)
 
-    batch_grid_u = torch.randn(B, H, W, 2, dtype=torch.double,
-                               requires_grad=False)
+    batch_grid_u = torch.randn(B, H, W, 2,
+        dtype=torch.double,
+        requires_grad=False,
+    )
 
     H_input = H * stride
     W_input = W * stride
@@ -557,7 +741,8 @@ def dense_corr_check(use_evc=False):
     feats2.cuda()
     xxyy.cuda()
     batch_grid_u.cuda()
-    test = gradcheck(dense_corr, args, eps=1e-6, atol=1e-4)
+    test = gradcheck(dense_corr, args, eps=1e-6, atol=ATOL,
+                     raise_exception=True)
     print("passed test: {}".format(test))
 
 
