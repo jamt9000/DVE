@@ -20,6 +20,7 @@ class BaseTrainer:
         self.device, device_ids = self._prepare_device(config['n_gpu'])
         self.model = model.to(self.device)
         if len(device_ids) > 1:
+            print("Using DataParallel for loss")
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
 
         self.loss = loss
@@ -43,7 +44,7 @@ class BaseTrainer:
 
             self.mnt_best = math.inf if self.mnt_mode == 'min' else -math.inf
             self.early_stop = cfg_trainer.get('early_stop', math.inf)
-        
+
         self.start_epoch = 1
 
         # setup directory for checkpoint saving
@@ -64,11 +65,11 @@ class BaseTrainer:
 
         if resume:
             self._resume_checkpoint(resume)
-    
+
     def _prepare_device(self, n_gpu_use):
-        """ 
+        """
         setup GPU device if available, move model into configured device
-        """ 
+        """
         n_gpu = torch.cuda.device_count()
         if n_gpu_use > 0 and n_gpu == 0:
             self.logger.warning("Warning: There\'s no GPU available on this machine, training will be performed on CPU.")
@@ -87,7 +88,7 @@ class BaseTrainer:
         not_improved_count = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
-            
+
             # save logged informations into log dict
             log = {'epoch': epoch}
             for key, value in result.items():
@@ -131,7 +132,7 @@ class BaseTrainer:
 
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
-            
+
 
     def _train_epoch(self, epoch):
         """
@@ -184,12 +185,12 @@ class BaseTrainer:
                                 'This may yield an exception while state_dict is being loaded.')
         self.model.load_state_dict(checkpoint['state_dict'])
 
-        # load optimizer state from checkpoint only when optimizer type is not changed. 
+        # load optimizer state from checkpoint only when optimizer type is not changed.
         if checkpoint['config']['optimizer']['type'] != self.config['optimizer']['type']:
             self.logger.warning('Warning: Optimizer type given in config file is different from that of checkpoint. ' + \
                                 'Optimizer parameters not being resumed.')
         else:
             self.optimizer.load_state_dict(checkpoint['optimizer'])
-    
+
         self.train_logger = checkpoint['logger']
         self.logger.info("Checkpoint '{}' (epoch {}) loaded".format(resume_path, self.start_epoch))

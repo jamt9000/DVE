@@ -101,6 +101,8 @@ if __name__ == '__main__':
                         help='whether to print out profiling information')
     parser.add_argument('-b', '--batch_size', default=None, type=int,
                         help='the size of each minibatch')
+    parser.add_argument('-g', '--n_gpu', default=None, type=int,
+                        help='if given, override the numb')
     args = parser.parse_args()
 
     if args.config:
@@ -116,6 +118,8 @@ if __name__ == '__main__':
     config["fold_corr"] = args.folded_correlation
     if args.batch_size is not None:
         config["batch_size"] = args.batch_size
+    if args.n_gpu is not None:
+        config["n_gpu"] = args.n_gpu
     config["profile"] = args.profile
 
     if args.device:

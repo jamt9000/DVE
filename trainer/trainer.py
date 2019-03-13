@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import time
+import datetime
 from torchvision.utils import make_grid
 from base import BaseTrainer
 from torch.nn.modules.batchnorm import _BatchNorm
@@ -43,7 +44,7 @@ class Trainer(BaseTrainer):
         self.valid_data_loader = valid_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = 50 * int(np.sqrt(data_loader.batch_size))
+        self.log_step = 2 * int(np.sqrt(data_loader.batch_size))
         self.visualizations = visualizations if visualizations is not None else []
 
         class LossWrapper(torch.nn.Module):
@@ -89,6 +90,7 @@ class Trainer(BaseTrainer):
         seen_tic = time.time()
         seen = 0
         profile = self.config["profile"]
+        totaL_batches = len(self.data_loader)
         for batch_idx, (data, meta) in enumerate(self.data_loader):
             if profile:
                 timings = {}
@@ -145,15 +147,21 @@ class Trainer(BaseTrainer):
 
             if self.verbosity >= 2 and batch_idx % self.log_step == 0:
                 toc = time.time() - seen_tic
+                rate = seen / max(toc, 1E-5)
                 tic = time.time()
-                msg = "Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f} Hz: {:.2f}"
+                msg = "Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f} "
+                msg += "Hz: {:.2f}, ETA: {}"
+                batches_left = totaL_batches - batch_idx
+                remaining = batches_left * self.data_loader.batch_size / rate
+                eta_str = str(datetime.timedelta(seconds=remaining))
                 self.logger.info(msg.format(
                     epoch,
                     batch_idx * self.data_loader.batch_size,
                     len(self.data_loader.dataset),
                     100.0 * batch_idx / len(self.data_loader),
                     loss.item(),
-                    seen / max(toc, 1E-5)))
+                    rate,
+                    eta_str))
                 im = make_grid(data.cpu(), nrow=8, normalize=True)
                 self.writer.add_image('input', im)
                 for v in self.visualizations:
