@@ -21,7 +21,7 @@
         "type": "IntermediateKeypointPredictor",
         "args": {
             "num_annotated_points": 5,
-            "num_intermediate_points": 10
+            "num_intermediate_points": 50
         }
     },
     "warper": {
