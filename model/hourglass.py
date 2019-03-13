@@ -5,15 +5,13 @@ from base import BaseModel
 #import encoding
 
 
-def make_bn(*args, **kwargs):
-    return nn.BatchNorm2d(*args, momentum=0.3, **kwargs)
-    #return encoding.nn.SyncBatchNorm(*args, **kwargs)
-
+def make_gn(*args, **kwargs):
+    return nn.GroupNorm(16, *args, **kwargs)
 
 class ResidualBottleneckPreactivation(nn.Module):
     expansion = 2
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, make_bn=None):
         super(ResidualBottleneckPreactivation, self).__init__()
 
         self.bn1 = make_bn(inplanes)
@@ -51,20 +49,21 @@ class ResidualBottleneckPreactivation(nn.Module):
 
 
 class HourglassBlock(nn.Module):
-    def __init__(self, block, num_blocks, planes, depth):
+    def __init__(self, block, num_blocks, planes, depth, make_bn):
         super(HourglassBlock, self).__init__()
         self.block = block
         self.layernames = []
         self.num_blocks = num_blocks
         self.planes = planes
         self.outputs = {}
+        self.make_bn = make_bn
 
         self._hour_glass_layers(depth)
 
     def _make_blocks(self):
         layers = []
         for i in range(0, self.num_blocks):
-            layers.append(self.block(self.planes * self.block.expansion, self.planes))
+            layers.append(self.block(self.planes * self.block.expansion, self.planes, make_bn = self.make_bn))
         return nn.Sequential(*layers)
 
     def _hour_glass_layers(self, n):
@@ -110,7 +109,7 @@ class HourglassBlock(nn.Module):
 
 class HourglassNet(BaseModel):
     def __init__(self, block=ResidualBottleneckPreactivation, num_stacks=1, num_blocks=4, planes_conv1=64, planes_block=128, planes_hg=128,
-                 num_output_channels=16):
+                 num_output_channels=16, use_group_norm=False):
         super(HourglassNet, self).__init__()
 
         self.block = block
@@ -121,14 +120,19 @@ class HourglassNet(BaseModel):
         self.planes_hg = planes_hg
         self.depth_hg = 4
         self.num_output_channels = num_output_channels
+        if use_group_norm:
+            self.make_bn = make_gn
+        else:
+            self.make_bn = nn.BatchNorm2d
 
         self.conv1 = nn.Conv2d(3, planes_conv1, kernel_size=7, stride=2, padding=3,
                                bias=True)
-        self.bn1 = make_bn(planes_conv1)
+        self.bn1 = self.make_bn(planes_conv1)
         self.relu = nn.ReLU(inplace=True)
         self.layer1 = self._make_blocks(planes_conv1, planes_conv1, 1)  # 64 -> 64 -> 128
         self.layer2 = self._make_blocks(planes_conv1 * block.expansion, planes_block, 1)  # 128 -> 128 -> 256
         self.layer3 = self._make_blocks(planes_block * block.expansion, planes_hg, 1)  # 256 -> 128 -> 256
+
 
         nch = self.planes_hg * block.expansion
 
@@ -136,9 +140,9 @@ class HourglassNet(BaseModel):
         output_layers = []
 
         for i in range(num_stacks):
-            hg.append(HourglassBlock(block, num_blocks, self.planes_hg, self.depth_hg))
+            hg.append(HourglassBlock(block, num_blocks, self.planes_hg, self.depth_hg, make_bn=self.make_bn))
             res = self._make_blocks(nch, self.planes_hg, self.num_blocks)
-            bn = make_bn(nch)
+            bn = self.make_bn(nch)
             conv = nn.Conv2d(nch, nch, kernel_size=1)
             outlayer = nn.Conv2d(nch, self.num_output_channels, kernel_size=1)
             output_layers.append(nn.Sequential(res, conv, bn, self.relu, outlayer))
@@ -154,7 +158,7 @@ class HourglassNet(BaseModel):
             downsample = nn.Conv2d(inplanes, planes * self.block.expansion, kernel_size=1, stride=1)
 
         for i in range(0, num_blocks):
-            layers.append(self.block(inplanes, planes, 1, downsample if i == 0 else None))
+            layers.append(self.block(inplanes, planes, 1, downsample if i == 0 else None, make_bn=self.make_bn))
             if i == 0:
                 inplanes = planes * self.block.expansion
 
@@ -175,12 +179,15 @@ class HourglassNet(BaseModel):
             y = self.output_layers[i](x)
             out.append(y)
 
+        # XXX just return last output
+        out = [out[-1]]
+
         return out
 
 
 if __name__ == '__main__':
     torch.manual_seed(123)
-    hg = HourglassNet(ResidualBottleneckPreactivation)
+    hg = HourglassNet(ResidualBottleneckPreactivation, use_group_norm=False, num_stacks=2)
     torch.manual_seed(123)
     x = hg.forward(torch.randn(1, 3, 128, 128))
     print(x[0].sum(), x[0].shape)

@@ -5,7 +5,8 @@
     "arch": {
         "type": "HourglassNet",
         "args": {
-            "num_output_channels": 64
+            "num_output_channels": 64,
+            "use_group_norm": true
         }
     },
     "dataset": {

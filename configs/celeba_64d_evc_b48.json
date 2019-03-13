@@ -1,7 +1,7 @@
 {
     "name": "celeba_64d_evc",
     "n_gpu": 4,
-    "batch_size": 32,
+    "batch_size": 48,
     "arch": {
         "type": "HourglassNet",
         "args": {
