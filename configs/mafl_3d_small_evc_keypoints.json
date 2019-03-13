@@ -1,8 +1,8 @@
 {
     "name": "mafl_3d_small_evc_keypoints",
-    "n_gpu": 8,
+    "n_gpu": 1,
     "finetune_from": "saved/celeba_3d_small_evc/0305_152849/checkpoint-epoch19.pth",
-    "batch_size": 32,
+    "batch_size": 128,
     "arch": {
         "type": "HourglassNet",
         "args": {
