@@ -15,6 +15,7 @@ from utils.visualization import norm_range
 import torch.nn.functional as F
 from utils.tps import *
 
+
 def coll(batch):
     b = torch.utils.data.dataloader.default_collate(batch)
     # Flatten to be 4D
@@ -22,20 +23,22 @@ def coll(batch):
 
 
 def find_descriptor(x, y, source_descs, target_descs, stride):
-    C,H,W = source_descs.shape
+    C, H, W = source_descs.shape
 
-    x = int(np.round(x/stride))
-    y = int(np.round(y/stride))
+    x = int(np.round(x / stride))
+    y = int(np.round(y / stride))
 
-    query_desc = source_descs[:,y,x]
+    x = min(W-1,max(x,0))
+    y = min(H-1,max(y,0))
 
-    corr = torch.matmul(query_desc.reshape(-1,C), target_descs.reshape(C,H*W))
+    query_desc = source_descs[:, y, x]
+
+    corr = torch.matmul(query_desc.reshape(-1, C), target_descs.reshape(C, H * W))
     maxidx = corr.argmax()
-    grid = spatial_grid_unnormalized(H,W).reshape(-1,2) * stride
-    x,y = grid[maxidx]
+    grid = spatial_grid_unnormalized(H, W).reshape(-1, 2) * stride
+    x, y = grid[maxidx]
 
     return x.item(), y.item()
-
 
 
 def main(config, resume):
@@ -49,10 +52,12 @@ def main(config, resume):
                         scalesd=0.1, rotsd=5, im1_multiplier=0.5)
 
     warper1 = tps.WarperSingle(imwidth, imwidth, warpsd_all=0.0, warpsd_subset=0.0, transsd=0.05,
-                        scalesd=0.01, rotsd=2)
+                               scalesd=0.01, rotsd=2)
 
-    train_dataset = module_data.MAFLAligned(root='data/celeba', imwidth=imwidth, crop=crop, train=True, pair_warper=warper1, do_augmentations=False)
-    val_dataset = module_data.MAFLAligned(root='data/celeba', imwidth=imwidth, crop=crop, train=False, pair_warper=warper)
+    train_dataset = module_data.MAFLAligned(root='data/celeba', imwidth=imwidth, crop=crop, train=True,
+                                            pair_warper=warper1, do_augmentations=False)
+    val_dataset = module_data.MAFLAligned(root='data/celeba', imwidth=imwidth, crop=crop, train=False,
+                                          pair_warper=warper)
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=False)
     data_loader = DataLoader(val_dataset, batch_size=2, collate_fn=coll, shuffle=False)
@@ -81,7 +86,6 @@ def main(config, resume):
         for m in bns:
             m.reset_running_stats()
 
-
         train_loader_it = iter(train_loader)
         with torch.no_grad():
             for i in range(20):
@@ -90,10 +94,9 @@ def main(config, resume):
 
                 data, meta = next(train_loader_it)
                 data = data.to(device)
-                print('data checksum',float(data.sum()))
+                print('data checksum', float(data.sum()))
                 output = model(data)
-                print('bn checksum',float(bns[0].running_mean.sum()))
-
+                print('bn checksum', float(bns[0].running_mean.sum()))
 
     # prepare model for testing
     model.eval()
@@ -101,14 +104,19 @@ def main(config, resume):
     same_errs = []
     diff_errs = []
 
+    torch.manual_seed(0)
     with torch.no_grad():
         for i, (data, meta) in enumerate(tqdm(data_loader)):
             data = data.to(device)
+            if i == 0:
+                # Checksum to make sure warps are deterministic
+                assert float(data.sum()) == -553.9221801757812
+
             output = model(data)
 
             descs = output[0]
-            descs1 = descs[0::2] # 1st in pair (more warped)
-            descs2 = descs[1::2] # 2nd in pair
+            descs1 = descs[0::2]  # 1st in pair (more warped)
+            descs2 = descs[1::2]  # 2nd in pair
             ims1 = data[0::2]
             ims2 = data[1::2]
             kp1 = meta['kp1']
@@ -118,14 +126,13 @@ def main(config, resume):
             im_same = ims2[0]
             im_diff = ims2[1]
 
-            C,imH,imW = im_source.shape
-            B,C,H,W = descs1.shape
-            stride = imW/W
+            C, imH, imW = im_source.shape
+            B, C, H, W = descs1.shape
+            stride = imW / W
 
             desc_source = descs1[0]
             desc_same = descs2[0]
             desc_diff = descs2[1]
-
 
             kp_source = kp1[0]
             kp_same = kp2[0]
@@ -136,33 +143,33 @@ def main(config, resume):
             ax2 = fig.add_subplot(1, 3, 2)
             ax3 = fig.add_subplot(1, 3, 3)
 
-            ax1.imshow(norm_range(im_source).permute(1,2,0))
-            ax1.scatter(kp_source[:,0], kp_source[:,1], c='g')
+            ax1.imshow(norm_range(im_source).permute(1, 2, 0))
+            ax1.scatter(kp_source[:, 0], kp_source[:, 1], c='g')
 
-            ax2.imshow(norm_range(im_same).permute(1,2,0))
-            ax2.scatter(kp_same[:,0], kp_same[:,1], c='g')
+            ax2.imshow(norm_range(im_same).permute(1, 2, 0))
+            ax2.scatter(kp_same[:, 0], kp_same[:, 1], c='g')
 
-            ax3.imshow(norm_range(im_diff).permute(1,2,0))
-            ax3.scatter(kp_diff[:,0], kp_diff[:,1], c='g')
-
+            ax3.imshow(norm_range(im_diff).permute(1, 2, 0))
+            ax3.scatter(kp_diff[:, 0], kp_diff[:, 1], c='g')
 
             fsrc = F.normalize(desc_source, p=2, dim=0)
             fsame = F.normalize(desc_same, p=2, dim=0)
             fdiff = F.normalize(desc_diff, p=2, dim=0)
 
-            for kp in kp_source:
-                x, y = kp
-                x = float(x)
-                y = float(y)
+            for ki, kp in enumerate(kp_source):
+                x, y = np.array(kp)
+                gt_samex, gt_samey = np.array(kp_same[ki])
+                gt_diffx, gt_diffy = np.array(kp_diff[ki])
+
                 samex, samey = find_descriptor(x, y, fsrc, fsame, stride)
                 ax2.scatter(samex, samey, c='b')
 
-                same_errs.append(np.sqrt((x - samex)**2 + (y-samey)**2))
+                same_errs.append(np.sqrt((gt_samex - samex) ** 2 + (gt_samey - samey) ** 2))
 
                 diffx, diffy = find_descriptor(x, y, fsrc, fdiff, stride)
                 ax3.scatter(diffx, diffy, c='b')
 
-                diff_errs.append(np.sqrt((x - diffx) ** 2 + (y - diffy) ** 2))
+                diff_errs.append(np.sqrt((gt_diffx - diffx) ** 2 + (gt_diffy - diffy) ** 2))
 
             fig.savefig('/tmp/matching.pdf')
 
@@ -174,15 +181,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Template')
 
     parser.add_argument('-r', '--resume', default=None, type=str,
-                           help='path to latest checkpoint (default: None)')
+                        help='path to latest checkpoint (default: None)')
     parser.add_argument('-d', '--device', default=None, type=str,
-                           help='indices of GPUs to enable (default: all)')
+                        help='indices of GPUs to enable (default: all)')
 
     args = parser.parse_args()
 
     if args.resume:
         config = torch.load(args.resume)['config']
     if args.device:
-        os.environ["CUDA_VISIBLE_DEVICES"]=args.device
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.device
 
     main(config, args.resume)
