@@ -57,7 +57,16 @@ def main(config, resume):
 
     if 'finetune_from' in config.keys():
         checkpoint = torch.load(config['finetune_from'])
-        model.load_state_dict(checkpoint['state_dict'])
+        state_dict = checkpoint['state_dict']
+
+        from collections import OrderedDict
+        new_state_dict = OrderedDict()
+        for k, v in state_dict.items():
+            if k[7:] == 'module.':
+                k = k[7:]  # remove `module.`
+            new_state_dict[k] = v
+
+        model.load_state_dict(new_state_dict)
         print('Finetuning from %s' % config['finetune_from'])
 
     if 'keypoint_regressor' in config.keys():
