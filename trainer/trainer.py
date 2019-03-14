@@ -46,6 +46,7 @@ class Trainer(BaseTrainer):
         self.lr_scheduler = lr_scheduler
         self.log_step = 2 * int(np.sqrt(data_loader.batch_size))
         self.visualizations = visualizations if visualizations is not None else []
+        self.loss_args = config.get('loss_args', {})
 
         class LossWrapper(torch.nn.Module):
             def __init__(self, fn):
@@ -119,7 +120,7 @@ class Trainer(BaseTrainer):
                 loss = loss.mean()
             else:
                 loss = self.loss(output, meta,
-                                 fold_corr=self.config["fold_corr"])
+                                 fold_corr=self.config["fold_corr"], **self.loss_args)
             if profile:
                 timings["loss-fwd"] = time.time() - tic
                 tic = time.time()
@@ -232,7 +233,7 @@ class Trainer(BaseTrainer):
                     loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta)
                     loss = loss.mean()
                 else:
-                    loss = self.loss(output, meta)
+                    loss = self.loss(output, meta, **self.loss_args)
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.writer.add_scalar('loss', loss.item())

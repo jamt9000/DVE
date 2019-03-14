@@ -14,7 +14,7 @@ def regression_loss(prediction_normalized, meta, **kwargs):
     return F.smooth_l1_loss(pred, kp)
 
 
-def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False):
+def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):
     feats = feats[0]
     device = feats.device
     grid = meta['grid']
@@ -37,6 +37,9 @@ def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False):
     batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
     xxyy = tps.spatial_grid_unnormalized(H_input, W_input).to(device)
 
+    if not normalize_vectors:
+        assert fold_corr == False
+
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
@@ -48,8 +51,9 @@ def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False):
         f1 = feats1[b].reshape(C, H * W)  # source
         f2 = feats2[b].reshape(C, h * w)  # target
 
-        f1 = F.normalize(f1, p=2, dim=0) * 20
-        f2 = F.normalize(f2, p=2, dim=0) * 20
+        if normalize_vectors:
+            f1 = F.normalize(f1, p=2, dim=0) * 20
+            f2 = F.normalize(f2, p=2, dim=0) * 20
 
         corr = torch.matmul(f1.t(), f2)
         corr = corr.reshape(H, W, h, w)
@@ -98,7 +102,7 @@ def estimate_mem(x):
     return torch.numel(x) * nbytes / (1024) ** 3
 
 
-def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False):
+def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):
     feats = feats[0]
     device = feats.device
 
@@ -120,6 +124,9 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False):
     batch_grid_u = tps.grid_unnormalize(grid, H_input, W_input)
     batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
 
+    if not normalize_vectors:
+        assert fold_corr == False
+
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
@@ -132,9 +139,10 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False):
         f2 = feats2[b].reshape(C, h * w)  # target
         fa = feats1[(b + 1) % B].reshape(C, h * w)  # auxiliary
 
-        f1 = F.normalize(f1, p=2, dim=0) * 20
-        f2 = F.normalize(f2, p=2, dim=0) * 20
-        fa = F.normalize(fa, p=2, dim=0) * 20
+        if normalize_vectors:
+            f1 = F.normalize(f1, p=2, dim=0) * 20
+            f2 = F.normalize(f2, p=2, dim=0) * 20
+            fa = F.normalize(fa, p=2, dim=0) * 20
 
         corr = torch.matmul(f1.t(), fa)
         corr = corr.reshape(H, W, h, w)
