@@ -42,9 +42,8 @@ class CelebABase(Dataset):
 
         if self.warper is not None:
             if self.warper.returns_pairs:
-
-
-                im1 = TF.to_tensor(im)*255
+                im1 = self.initial_transforms(im)
+                im1 = TF.to_tensor(im1)*255
 
                 im1, im2, flow, grid, kp1, kp2 = self.warper(im1, keypts=kp, crop=self.crop)
 
@@ -61,14 +60,21 @@ class CelebABase(Dataset):
                 data = torch.stack((im1, im2), 0)
                 meta = {'flow': flow[0], 'grid': grid[0], 'kp1': kp1, 'kp2': kp2}
             else:
-                im1 = self.transforms(im)
+                im1 = self.initial_transforms(im)
+                im1 = TF.to_tensor(im1)*255
+
                 im1, kp = self.warper(im1, keypts=kp, crop=self.crop)
+
+                im1 = im1.to(torch.uint8)
+                im1 = TF.to_pil_image(im1)
+                im1 = self.transforms(im1)
+
                 C, H, W = im1.shape
                 data = im1
                 meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
 
         else:
-            data = self.transforms(im)
+            data = self.transforms(self.initial_transforms(im))
 
             if self.crop != 0:
                 data = data[:, self.crop:-self.crop, self.crop:-self.crop]
@@ -122,11 +128,9 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
         augmentations = [transforms.transforms.ColorJitter(.4, .4, .4),
                          transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
-        self.transforms = transforms.Compose(
-            [initial_crop,
-             transforms.Resize(self.imwidth)]
-            + augmentations +
-            [normalize])
+
+        self.initial_transforms = transforms.Compose([initial_crop, transforms.Resize(self.imwidth)])
+        self.transforms = transforms.Compose( augmentations + [normalize])
 
     def __len__(self):
         return len(self.data.index)
@@ -178,11 +182,9 @@ class MAFLAligned(CelebABase):
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
         augmentations = [transforms.transforms.ColorJitter(.4, .4, .4),
                          transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
-        self.transforms = transforms.Compose(
-            [initial_crop,
-             transforms.Resize(self.imwidth)]
-            + augmentations +
-            [normalize])
+
+        self.initial_transforms = transforms.Compose([initial_crop, transforms.Resize(self.imwidth)])
+        self.transforms = transforms.Compose(augmentations + [normalize])
 
     def __len__(self):
         return len(self.data.index)
