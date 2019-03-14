@@ -1,4 +1,5 @@
 from torchvision import datasets, transforms
+import torchvision.transforms.functional as TF
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 import torch
@@ -41,10 +42,21 @@ class CelebABase(Dataset):
 
         if self.warper is not None:
             if self.warper.returns_pairs:
-                im1 = self.transforms(im)
-                im2 = self.transforms(im)
 
-                im1, im2, flow, grid, kp1, kp2 = self.warper(im1, im2, keypts=kp, crop=self.crop)
+
+                im1 = TF.to_tensor(im)*255
+
+                im1, im2, flow, grid, kp1, kp2 = self.warper(im1, keypts=kp, crop=self.crop)
+
+                im1 = im1.to(torch.uint8)
+                im2 = im2.to(torch.uint8)
+
+                im1 = TF.to_pil_image(im1)
+                im2 = TF.to_pil_image(im2)
+
+                im1 = self.transforms(im1)
+                im2 = self.transforms(im2)
+
                 C, H, W = im1.shape
                 data = torch.stack((im1, im2), 0)
                 meta = {'flow': flow[0], 'grid': grid[0], 'kp1': kp1, 'kp2': kp2}
