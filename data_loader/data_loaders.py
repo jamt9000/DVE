@@ -50,8 +50,19 @@ class CelebABase(Dataset):
                 im1 = im1.to(torch.uint8)
                 im2 = im2.to(torch.uint8)
 
+                C,H,W = im1.shape
+
                 im1 = TF.to_pil_image(im1)
                 im2 = TF.to_pil_image(im2)
+
+                rW = max(W,int(W * (1+0.5*torch.randn([]))))
+                im1 = TF.resize(im1, (rW,rW))
+
+                rW = max(W,int(W * (1+0.5*torch.randn([]))))
+                im2 = TF.resize(im2, (rW,rW))
+
+                im1 = TF.resize(im1, (H,W))
+                im2 = TF.resize(im2, (H,W))
 
                 im1 = self.transforms(im1)
                 im2 = self.transforms(im2)
