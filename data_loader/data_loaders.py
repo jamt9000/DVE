@@ -59,14 +59,14 @@ class CelebABase(Dataset):
                 rW = max(int(0.8*W),int(W * (1+0.5*torch.randn([]))))
                 im1 = TF.resize(im1, (rW,rW))
                 buf = BytesIO()
-                im1.save(buf, format='JPEG', quality=torch.randint(50, 99, []).item())
+                im1.save(buf, format='JPEG', quality=torch.randint(30, 99, []).item())
                 im1 = Image.open(buf)
 
 
                 rW = max(int(0.8*W),int(W * (1+0.5*torch.randn([]))))
                 im2 = TF.resize(im2, (rW,rW))
                 buf = BytesIO()
-                im2.save(buf, format='JPEG', quality=torch.randint(50, 99, []).item())
+                im2.save(buf, format='JPEG', quality=torch.randint(30, 99, []).item())
                 im2 = Image.open(buf)
 
                 im1 = TF.resize(im1, (H,W))
