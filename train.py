@@ -62,7 +62,7 @@ def main(config, resume):
         from collections import OrderedDict
         new_state_dict = OrderedDict()
         for k, v in state_dict.items():
-            if k[7:] == 'module.':
+            if k[:7] == 'module.':
                 k = k[7:]  # remove `module.`
             new_state_dict[k] = v
 
