@@ -54,6 +54,25 @@ def keypoints_intermediate(writer, data, output, meta):
     writer.add_figure('keypoints_intermediate', fig)
 
 
+def sphere_rand_proj_colormap(writer, data, output, meta):
+    """Use a random projection to visualise high-dimensional embeddings
+    in RGB space.
+    """
+    N, C, H, W = output[0].shape
+    outs = output[0].clone().cpu()
+    # move channels to last dimension for BMM
+    outs = outs.permute((0, 2, 3, 1))
+    outs = outs.reshape(N, -1, C)
+    proj = torch.randn([1, C, 3]).repeat(N, 1, 1)
+    projected = torch.bmm(outs, proj)
+    out = projected.reshape(N, H, W, 3).permute((0, 3, 1, 2))
+    normed = torch.sqrt(out[:, 0] ** 2. + out[:, 1] ** 2. + out[:, 2] ** 2.)[:, None]
+    vis = out / normed / 2 + 0.5
+    grid = make_grid(vis, nrow=8)
+    writer.add_image('rand_proj_colormap/0', vis[0])
+    writer.add_image('rand_proj_colormap/1', vis[1])
+    writer.add_image('rand_proj_colormap', grid)
+
 
 
 def sphere_colormap(writer, data, output, meta):
