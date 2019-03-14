@@ -48,6 +48,8 @@ class Trainer(BaseTrainer):
         self.visualizations = visualizations if visualizations is not None else []
         self.loss_args = config.get('loss_args', {})
 
+        print('Loss args', self.loss_args)
+
         class LossWrapper(torch.nn.Module):
             def __init__(self, fn):
                 super(LossWrapper, self).__init__()
@@ -261,7 +263,7 @@ class Trainer(BaseTrainer):
                     loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta)
                     loss = loss.mean()
                 else:
-                    loss = self.loss(output, meta)
+                    loss = self.loss(output, meta, **self.loss_args)
 
                 avg_val_loss_trainbn.update(loss.item(), data.size(0))
 

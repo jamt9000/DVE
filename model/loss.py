@@ -37,12 +37,10 @@ def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False, normalize_vect
     batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
     xxyy = tps.spatial_grid_unnormalized(H_input, W_input).to(device)
 
-    if not normalize_vectors:
-        assert fold_corr == False
-
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
+        assert not normalize_vectors
         dense_corr = DenseCorr.apply
         return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
 
@@ -124,12 +122,10 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False, normalize_
     batch_grid_u = tps.grid_unnormalize(grid, H_input, W_input)
     batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
 
-    if not normalize_vectors:
-        assert fold_corr == False
-
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
+        assert not normalize_vectors
         dense_corr = DenseCorrEvc.apply
         return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
 
