@@ -10,6 +10,7 @@ import pandas as pd
 import os
 from PIL import Image
 
+from io import BytesIO
 
 class PcaAug(object):
     _eigval = torch.Tensor([0.2175, 0.0188, 0.0045])
@@ -55,11 +56,18 @@ class CelebABase(Dataset):
                 im1 = TF.to_pil_image(im1)
                 im2 = TF.to_pil_image(im2)
 
-                rW = max(W,int(W * (1+0.5*torch.randn([]))))
+                rW = max(int(0.8*W),int(W * (1+0.5*torch.randn([]))))
                 im1 = TF.resize(im1, (rW,rW))
+                buf = BytesIO()
+                im1.save(buf, format='JPEG', quality=torch.randint(50, 99, []).item())
+                im1 = Image.open(buf)
 
-                rW = max(W,int(W * (1+0.5*torch.randn([]))))
+
+                rW = max(int(0.8*W),int(W * (1+0.5*torch.randn([]))))
                 im2 = TF.resize(im2, (rW,rW))
+                buf = BytesIO()
+                im2.save(buf, format='JPEG', quality=torch.randint(50, 99, []).item())
+                im2 = Image.open(buf)
 
                 im1 = TF.resize(im1, (H,W))
                 im2 = TF.resize(im2, (H,W))
