@@ -42,10 +42,11 @@ def find_descriptor(x, y, source_descs, target_descs, stride):
 
 
 def main(config, resume):
-    config['n_gpu'] = 0
+    device = 'cuda'
+
     # setup data_loader instances
     imwidth = config['dataset']['args']['imwidth']
-    crop = config['dataset']['args'].get('crop', config['warper']['args']['crop'])
+    crop = config['dataset']['args'].get('crop', config['warper']['args'].get('crop',None))
 
     # Want explicit pair warper
     warper = tps.Warper(imwidth, imwidth, warpsd_all=0.001, warpsd_subset=0.01, transsd=0.1,
@@ -73,8 +74,6 @@ def main(config, resume):
         model = torch.nn.DataParallel(model)
     model.load_state_dict(state_dict)
 
-    device = 'cpu'
-
     model = model.to(device)
     model.train()
 
@@ -88,15 +87,15 @@ def main(config, resume):
 
         train_loader_it = iter(train_loader)
         with torch.no_grad():
-            for i in range(20):
+            for i in range(100):
                 torch.manual_seed(0)
                 np.random.seed(0)
 
                 data, meta = next(train_loader_it)
                 data = data.to(device)
-                print('data checksum', float(data.sum()))
+                print(i, 'data checksum', float(data.sum()))
                 output = model(data)
-                print('bn checksum', float(bns[0].running_mean.sum()))
+                print(i, 'bn checksum', float(bns[0].running_mean.sum()))
 
     # prepare model for testing
     model.eval()
@@ -107,18 +106,23 @@ def main(config, resume):
     torch.manual_seed(0)
     with torch.no_grad():
         for i, (data, meta) in enumerate(tqdm(data_loader)):
-            data = data.to(device)
             if i == 0:
                 # Checksum to make sure warps are deterministic
-                assert float(data.sum()) == -553.9221801757812
+                if data.shape[2] == 64:
+                    assert float(data.sum()) == -553.9221801757812
+                elif data.shape[2] == 128:
+                    assert float(data.sum()) == 2724.149658203125
+
+            data = data.to(device)
+
 
             output = model(data)
 
             descs = output[0]
             descs1 = descs[0::2]  # 1st in pair (more warped)
             descs2 = descs[1::2]  # 2nd in pair
-            ims1 = data[0::2]
-            ims2 = data[1::2]
+            ims1 = data[0::2].cpu()
+            ims2 = data[1::2].cpu()
             kp1 = meta['kp1']
             kp2 = meta['kp2']
 
