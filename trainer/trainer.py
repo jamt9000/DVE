@@ -58,7 +58,8 @@ class Trainer(BaseTrainer):
             def __call__(self, *a, **kw):
                 return self.fn(*a, **kw)
 
-        self.loss_wrapper = torch.nn.DataParallel(LossWrapper(self.loss), device_ids=self.model.device_ids)
+        if isinstance(self.model, torch.nn.DataParallel):
+            self.loss_wrapper = torch.nn.DataParallel(LossWrapper(self.loss), device_ids=self.model.device_ids)
 
     def _eval_metrics(self, output, target):
         acc_metrics = np.zeros(len(self.metrics))

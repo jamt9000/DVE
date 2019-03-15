@@ -122,6 +122,33 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False, normalize_
     batch_grid_u = tps.grid_unnormalize(grid, H_input, W_input)
     batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
 
+    if False:
+        import matplotlib.pyplot as plt
+
+        vis1 = meta['im1'][0].clone()
+        vis2 = meta['im2'][0].clone()
+        visgrid = tps.grid_unnormalize(grid, H_input, W_input)[0]
+
+        fig = plt.figure()  # a new figure window
+        ax1 = fig.add_subplot(1, 3, 1)
+        ax2 = fig.add_subplot(1, 3, 2)
+        ax3 = fig.add_subplot(1, 3, 3)
+
+        ax1.imshow(vis1.permute(1,2,0)+0.5)
+        ax2.imshow(vis2.permute(1,2,0)+0.5)
+
+        for i in range(H_input):
+            for j in range(W_input):
+                if torch.rand([]) < 0.01:
+                    ax1.scatter(j,i)
+                    jj,ii = visgrid[i,j]
+                    ax2.scatter(jj,ii)
+
+        dists = (batch_grid_u[0] - xxyy[::stride,::stride]).pow(2).sum(2).sqrt()
+        ax3.imshow(dists/dists.max())
+        fig.savefig('/tmp/lossvis.pdf')
+        fig.clf()
+
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""

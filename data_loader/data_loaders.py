@@ -77,7 +77,7 @@ class CelebABase(Dataset):
 
                 C, H, W = im1.shape
                 data = torch.stack((im1, im2), 0)
-                meta = {'flow': flow[0], 'grid': grid[0], 'kp1': kp1, 'kp2': kp2}
+                meta = {'flow': flow[0], 'grid': grid[0], 'kp1': kp1, 'kp2': kp2, 'im1': im1, 'im2': im2}
             else:
                 im1 = self.initial_transforms(im)
                 im1 = TF.to_tensor(im1)*255

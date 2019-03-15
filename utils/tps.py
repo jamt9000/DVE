@@ -146,6 +146,11 @@ class Warper(object):
             grid_cropped = grid_unnormalized[:, crop:-crop, crop:-crop, :] - crop
             grid = grid_normalize(grid_cropped, Hc, Wc)
 
+            #hc = flow.shape[1]
+            #wc = flow.shape[2]
+            #gridc = flow + grid_unnormalize(tps_grid(hc, wc).reshape(1, hc, wc, 2), hc, wc)
+            #grid = grid_normalize(gridc, hc, wc)
+
             if keypts is not None:
                 kp1 -= crop
                 kp2 -= crop
