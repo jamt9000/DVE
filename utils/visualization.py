@@ -84,6 +84,15 @@ def sphere_colormap(writer, data, output, meta):
     writer.add_image('colormap/1', vis[1])
     writer.add_image('colormap', grid)
 
+    normall = (output[0].cpu().detach()**2).sum(1).sqrt()
+
+    fig, ax = plt.subplots()
+    ms = ax.matshow(normall[0])
+    fig.colorbar(ms, ax=ax)
+    writer.add_figure('magnitude/0', fig)
+
+
+
 
 def sphere_norm_scatter3d(writer, data, output, meta):
     output = [F.normalize(o, p=2, dim=1) for o in output]
