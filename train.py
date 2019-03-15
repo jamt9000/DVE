@@ -35,7 +35,7 @@ def main(config, resume):
     data_loader = DataLoader(
         dataset,
         batch_size=int(config["batch_size"]),
-        num_workers=max(8, int(config['n_gpu']) * 2),
+        num_workers=max(8, int(config['n_gpu']) * 4),
         shuffle=True,
         drop_last=True,
         pin_memory=True,
