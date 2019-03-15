@@ -1,5 +1,5 @@
 {
-    "name": "celeba_64d_evc",
+    "name": "celeba_64d_evc_nonormalize",
     "n_gpu": 4,
     "batch_size": 48,
     "arch": {
@@ -30,6 +30,7 @@
         }
     },
     "loss": "dense_correlation_loss_evc",
+    "loss_args": {"normalize_vectors": false},
     "metrics": [
 
     ],
