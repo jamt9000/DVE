@@ -10,8 +10,8 @@ from torch.autograd import gradcheck
 PROFILE = False
 PRINT_MEM = False
 OLD_METHOD = False
-LOCAL_CHECKS = 1
-LOCAL_CHECKS_INNER_LOOP = 1
+LOCAL_CHECKS = 0
+LOCAL_CHECKS_INNER_LOOP = 0
 
 # NOTE: To pass numerical tests with double precision, this value needs to
 # be mega low, but for single precision machine-epsilon is around 2**(-23), so
@@ -23,8 +23,8 @@ ATOL = 1E-4
 
 # NOTE: Without a very high JDT factor, the numerical tests will not pass for
 # a large EVC dimension (e.g. 1E3)
-JDT_FACTOR = 1E3
-# JDT_FACTOR = 20
+# JDT_FACTOR = 1E3
+JDT_FACTOR = 20
 
 
 def estimate_mem(x):
