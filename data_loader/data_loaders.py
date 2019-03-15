@@ -29,6 +29,24 @@ class PcaAug(object):
         return im + rgb.reshape(3, 1, 1)
 
 
+class JPEGNoise(object):
+    def __init__(self, low=30, high=99):
+        self.low = low
+        self.high = high
+
+    def __call__(self, im):
+        H = im.height
+        W = im.width
+        rW = max(int(0.8 * W), int(W * (1 + 0.5 * torch.randn([]))))
+        im = TF.resize(im, (rW, rW))
+        buf = BytesIO()
+        im.save(buf, format='JPEG', quality=torch.randint(self.low, self.high, []).item())
+        im = Image.open(buf)
+        im = TF.resize(im, (H, W))
+        return im
+
+
+
 def kp_normalize(H, W, kp):
     kp = kp.clone()
     kp[..., 0] = 2. * kp[..., 0] / (W - 1) - 1
@@ -55,22 +73,6 @@ class CelebABase(Dataset):
 
                 im1 = TF.to_pil_image(im1)
                 im2 = TF.to_pil_image(im2)
-
-                rW = max(int(0.8*W),int(W * (1+0.5*torch.randn([]))))
-                im1 = TF.resize(im1, (rW,rW))
-                buf = BytesIO()
-                im1.save(buf, format='JPEG', quality=torch.randint(30, 99, []).item())
-                im1 = Image.open(buf)
-
-
-                rW = max(int(0.8*W),int(W * (1+0.5*torch.randn([]))))
-                im2 = TF.resize(im2, (rW,rW))
-                buf = BytesIO()
-                im2.save(buf, format='JPEG', quality=torch.randint(30, 99, []).item())
-                im2 = Image.open(buf)
-
-                im1 = TF.resize(im1, (H,W))
-                im2 = TF.resize(im2, (H,W))
 
                 im1 = self.transforms(im1)
                 im2 = self.transforms(im2)
@@ -145,7 +147,7 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
         self.keypoints *= self.imwidth / 178.
 
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
-        augmentations = [transforms.transforms.ColorJitter(.4, .4, .4),
+        augmentations = [JPEGNoise(), transforms.transforms.ColorJitter(.4, .4, .4),
                          transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
 
         self.initial_transforms = transforms.Compose([initial_crop, transforms.Resize(self.imwidth)])
@@ -199,7 +201,7 @@ class MAFLAligned(CelebABase):
         self.keypoints *= self.imwidth / 178.
 
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
-        augmentations = [transforms.transforms.ColorJitter(.4, .4, .4),
+        augmentations = [JPEGNoise(), transforms.transforms.ColorJitter(.4, .4, .4),
                          transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
 
         self.initial_transforms = transforms.Compose([initial_crop, transforms.Resize(self.imwidth)])
