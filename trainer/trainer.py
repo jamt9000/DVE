@@ -118,7 +118,7 @@ class Trainer(BaseTrainer):
                     self.loss_wrapper,
                     device_ids=self.model.device_ids,
                 )
-                loss = mod(output, meta, fold_corr=self.config["fold_corr"])
+                loss = mod(output, meta, fold_corr=self.config["fold_corr"], **self.loss_args)
                 loss = loss.mean()
             else:
                 loss = self.loss(output, meta,
@@ -232,7 +232,8 @@ class Trainer(BaseTrainer):
                 output = self.model(data)
 
                 if isinstance(self.model, torch.nn.DataParallel):
-                    loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta)
+                    loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta,
+                                                                                                      **self.loss_args)
                     loss = loss.mean()
                 else:
                     loss = self.loss(output, meta, **self.loss_args)
@@ -260,7 +261,8 @@ class Trainer(BaseTrainer):
                 output = self.model(data)
 
                 if isinstance(self.model, torch.nn.DataParallel):
-                    loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta)
+                    loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta,
+                                                                                                      **self.loss_args)
                     loss = loss.mean()
                 else:
                     loss = self.loss(output, meta, **self.loss_args)
