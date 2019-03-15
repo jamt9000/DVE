@@ -109,7 +109,7 @@ class HourglassBlock(nn.Module):
 
 class HourglassNet(BaseModel):
     def __init__(self, block=ResidualBottleneckPreactivation, num_stacks=1, num_blocks=4, planes_conv1=64, planes_block=128, planes_hg=128,
-                 num_output_channels=16, use_group_norm=False):
+                 num_output_channels=16, use_group_norm=False, output_layer_weight_mul=1.):
         super(HourglassNet, self).__init__()
 
         self.block = block
@@ -124,6 +124,7 @@ class HourglassNet(BaseModel):
             self.make_bn = make_gn
         else:
             self.make_bn = nn.BatchNorm2d
+        self.output_layer_weight_mul = output_layer_weight_mul
 
         self.conv1 = nn.Conv2d(3, planes_conv1, kernel_size=7, stride=2, padding=3,
                                bias=True)
@@ -145,6 +146,7 @@ class HourglassNet(BaseModel):
             bn = self.make_bn(nch)
             conv = nn.Conv2d(nch, nch, kernel_size=1)
             outlayer = nn.Conv2d(nch, self.num_output_channels, kernel_size=1)
+            outlayer.weight.data.mul_(self.output_layer_weight_mul)
             output_layers.append(nn.Sequential(res, conv, bn, self.relu, outlayer))
 
         self.hg = nn.ModuleList(hg)
