@@ -144,7 +144,7 @@ class DenseCorrEvc(torch.autograd.Function):
         ignored, the return statement is simple even when the function has
         optional inputs."""
         grad_feats1 = grad_feats2 = grad_xxyy = grad_batch_u = None
-        grad_stride = grad_pow = None
+        grad_stride = grad_norm = grad_pow = None
 
         """Returning gradients for inputs that don't require it is
         not an error."""
@@ -494,8 +494,6 @@ class DenseCorrEvc(torch.autograd.Function):
 
                 # Combine gradients for two ops using aux features
                 grad_fa_norm = grad_fa_norm + grad_fa_
-                print("pow", norm)
-                print("norm", norm)
 
                 # Back through the norms
                 # [Fwd op] -> `f1_norm = F.normalize(f1_, p=2, dim=0) * JDT_FACTOR`
@@ -714,7 +712,7 @@ class DenseCorrEvc(torch.autograd.Function):
                 print("==============")
 
         return (grad_feats1, grad_feats2, grad_xxyy, grad_batch_u,
-                grad_stride, grad_pow)
+                grad_stride, grad_norm, grad_pow)
 
 
 def rel_diff(x1, x2, name):
