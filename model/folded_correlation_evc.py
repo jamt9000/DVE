@@ -10,8 +10,8 @@ from torch.autograd import gradcheck
 PROFILE = False
 PRINT_MEM = False
 OLD_METHOD = False
-LOCAL_CHECKS = 0
-LOCAL_CHECKS_INNER_LOOP = 0
+LOCAL_CHECKS = 1
+LOCAL_CHECKS_INNER_LOOP = 1
 
 # NOTE: To pass numerical tests with double precision, this value needs to
 # be mega low, but for single precision machine-epsilon is around 2**(-23), so
@@ -23,8 +23,8 @@ ATOL = 1E-4
 
 # NOTE: Without a very high JDT factor, the numerical tests will not pass for
 # a large EVC dimension (e.g. 1E3)
-# JDT_FACTOR = 1E3
-JDT_FACTOR = 20
+JDT_FACTOR = 1E3
+# JDT_FACTOR = 20
 
 
 def estimate_mem(x):
@@ -46,7 +46,7 @@ def estimate_mem(x):
 class DenseCorrEvc(torch.autograd.Function):
 
     @staticmethod
-    def forward(ctx, feats1, feats2, xxyy, batch_grid_u, stride, pow=0.5):
+    def forward(ctx, feats1, feats2, xxyy, batch_grid_u, stride, norm, pow=0.5):
         """Compute the folded dense correlation loss forward pass.
 
         Args:
@@ -58,6 +58,7 @@ class DenseCorrEvc(torch.autograd.Function):
             stride (int): the stride to be applied to the image grid to match
                 the spatial dimensions of the features (so that
                 `H = h * stride`).
+            norm (bool): whether to remove normalisation.
             pow (float :: 0.5): power by which to raise the root distances
                 between pixel locations.
 
@@ -67,7 +68,7 @@ class DenseCorrEvc(torch.autograd.Function):
         with torch.no_grad():
             B, C, H, W = feats1.shape
             h, w = H, W
-            params = torch.IntTensor([B, C, H, W, stride])
+            params = torch.IntTensor([B, C, H, W, stride, norm])
             pow_tensor = torch.FloatTensor([pow])
             ctx.save_for_backward(feats1, feats2, xxyy, batch_grid_u,
                                   params, pow_tensor)
@@ -78,9 +79,10 @@ class DenseCorrEvc(torch.autograd.Function):
                 f2 = feats2[b].reshape(C, h * w)  # target
                 fa = feats1[(b + 1) % B].reshape(C, h * w)  # auxiliary
 
-                f1 = F.normalize(f1, p=2, dim=0) * JDT_FACTOR
-                f2 = F.normalize(f2, p=2, dim=0) * JDT_FACTOR
-                fa = F.normalize(fa, p=2, dim=0) * JDT_FACTOR
+                if norm:
+                    f1 = F.normalize(f1, p=2, dim=0) * JDT_FACTOR
+                    f2 = F.normalize(f2, p=2, dim=0) * JDT_FACTOR
+                    fa = F.normalize(fa, p=2, dim=0) * JDT_FACTOR
 
                 corr = torch.matmul(f1.t(), fa)
                 corr = corr.reshape(H, W, h, w)
@@ -132,7 +134,7 @@ class DenseCorrEvc(torch.autograd.Function):
 
         """We needed to store the integers as part of a tensor, so the
         unpacking code here is a little convoluted."""
-        B, C, H, W, stride = [x.item() for x in params]
+        B, C, H, W, stride, norm = [x.item() for x in params]
         h, w = H, W
         pow = pow.item()
 
@@ -223,9 +225,14 @@ class DenseCorrEvc(torch.autograd.Function):
                 f2_ = feats2[b].view(C, h * w)
                 fa_ = feats1[(b + 1) % B].reshape(C, h * w)  # auxiliary
 
-                f1_norm = F.normalize(f1_, p=2, dim=0) * JDT_FACTOR
-                f2_norm = F.normalize(f2_, p=2, dim=0) * JDT_FACTOR
-                fa_norm = F.normalize(fa_, p=2, dim=0) * JDT_FACTOR
+                if norm:
+                    f1_norm = F.normalize(f1_, p=2, dim=0) * JDT_FACTOR
+                    f2_norm = F.normalize(f2_, p=2, dim=0) * JDT_FACTOR
+                    fa_norm = F.normalize(fa_, p=2, dim=0) * JDT_FACTOR
+                else:
+                    f1_norm = f1_.clone()
+                    f2_norm = f2_.clone()
+                    fa_norm = fa_.clone()
 
                 if PROFILE:
                     timings["fwd-norm"] += time.time() - tic
@@ -487,7 +494,8 @@ class DenseCorrEvc(torch.autograd.Function):
 
                 # Combine gradients for two ops using aux features
                 grad_fa_norm = grad_fa_norm + grad_fa_
-
+                print("pow", norm)
+                print("norm", norm)
 
                 # Back through the norms
                 # [Fwd op] -> `f1_norm = F.normalize(f1_, p=2, dim=0) * JDT_FACTOR`
@@ -495,66 +503,61 @@ class DenseCorrEvc(torch.autograd.Function):
                 # [Fwd op] -> `fa_norm = F.normalize(fa_, p=2, dim=0) * JDT_FACTOR`
                 # xNorm = sqrt(sum(x.*x, 3) + opts.epsilon) ;
 
-                  # if isempty(dzdy)
-                    # y = x ./ repmat(xNorm, [1, 1, size(x, 3)]) ;
-                  # else
-                    # dzdy = dzdy{1} ;
-                    # A = bsxfun(@times, dzdy, xNorm.^(-1)) ;
-                    # B = sum(x.*dzdy,3) .* xNorm.^(-3) ;
-                    # B = bsxfun(@times, x, B) ;
-                    # y = A - B ;
+                if norm:
+                    f1_norm_val = torch.norm(f1_, p=2, dim=0).clamp(min=EPS)
+                    f2_norm_val = torch.norm(f2_, p=2, dim=0).clamp(min=EPS)
+                    fa_norm_val = torch.norm(fa_, p=2, dim=0).clamp(min=EPS)
 
-                  # y = dzdy - bsxfun(@times, tmp, bsxfun(@rdivide, x.^(opts.p-1), massp)) ;
-                  # end
-                f1_norm_val = torch.norm(f1_, p=2, dim=0).clamp(min=EPS)
-                f2_norm_val = torch.norm(f2_, p=2, dim=0).clamp(min=EPS)
-                fa_norm_val = torch.norm(fa_, p=2, dim=0).clamp(min=EPS)
-                max_val_f1 = torch.max(f1_norm_val)
-                max_val_f2 = torch.max(f2_norm_val)
-                max_val_fa = torch.max(fa_norm_val)
-                if max_val_f1 + max_val_f2 + max_val_fa > 1E8:
-                    import ipdb; ipdb.set_trace()
+                    max_val_f1 = torch.max(f1_norm_val)
+                    max_val_f2 = torch.max(f2_norm_val)
+                    max_val_fa = torch.max(fa_norm_val)
+                    if max_val_f1 + max_val_f2 + max_val_fa > 1E8:
+                        import ipdb; ipdb.set_trace()
 
-                grad_f1_norm_ = grad_f1_norm / f1_norm_val
-                grad_f1 = JDT_FACTOR * (grad_f1_norm_ -
-                  (grad_f1_norm_ * f1_).sum(0) * (f1_ / (f1_norm_val ** 2)))
+                    grad_f1_norm_ = grad_f1_norm / f1_norm_val
+                    grad_f1 = JDT_FACTOR * (grad_f1_norm_ -
+                      (grad_f1_norm_ * f1_).sum(0) * (f1_ / (f1_norm_val ** 2)))
 
-                grad_f2_norm_ = grad_f2_norm / f2_norm_val
-                grad_f2 = JDT_FACTOR * (grad_f2_norm_ -
-                   (grad_f2_norm_ * f2_).sum(0) * (f2_ / (f2_norm_val ** 2)))
+                    grad_f2_norm_ = grad_f2_norm / f2_norm_val
+                    grad_f2 = JDT_FACTOR * (grad_f2_norm_ -
+                       (grad_f2_norm_ * f2_).sum(0) * (f2_ / (f2_norm_val ** 2)))
 
-                grad_fa_norm_ = grad_fa_norm / fa_norm_val
-                grad_fa = JDT_FACTOR * (grad_fa_norm_ -
-                  (grad_fa_norm_ * fa_).sum(0) * (fa_ / (fa_norm_val ** 2)))
+                    grad_fa_norm_ = grad_fa_norm / fa_norm_val
+                    grad_fa = JDT_FACTOR * (grad_fa_norm_ -
+                      (grad_fa_norm_ * fa_).sum(0) * (fa_ / (fa_norm_val ** 2)))
 
-                if LOCAL_CHECKS:
-                    with torch.enable_grad():
-                        f1_num = f1_.clone().requires_grad_()
-                        f2_num = f2_.clone().requires_grad_()
-                        fa_num = fa_.clone().requires_grad_()
+                    if LOCAL_CHECKS:
+                        with torch.enable_grad():
+                            f1_num = f1_.clone().requires_grad_()
+                            f2_num = f2_.clone().requires_grad_()
+                            fa_num = fa_.clone().requires_grad_()
 
-                        f1_norm_num = F.normalize(f1_num, p=2, dim=0) * JDT_FACTOR
-                        f2_norm_num = F.normalize(f2_num, p=2, dim=0) * JDT_FACTOR
-                        fa_norm_num = F.normalize(fa_num, p=2, dim=0) * JDT_FACTOR
+                            f1_norm_num = F.normalize(f1_num, p=2, dim=0) * JDT_FACTOR
+                            f2_norm_num = F.normalize(f2_num, p=2, dim=0) * JDT_FACTOR
+                            fa_norm_num = F.normalize(fa_num, p=2, dim=0) * JDT_FACTOR
 
-                        grad_f1_num = torch.autograd.grad(
-                            outputs=f1_norm_num,
-                            inputs=(f1_num,),
-                            grad_outputs=grad_f1_norm,
-                        )
-                        grad_f2_num = torch.autograd.grad(
-                            outputs=f2_norm_num,
-                            inputs=(f2_num,),
-                            grad_outputs=grad_f2_norm,
-                        )
-                        grad_fa_num = torch.autograd.grad(
-                            outputs=fa_norm_num,
-                            inputs=(fa_num,),
-                            grad_outputs=grad_fa_norm,
-                        )
-                        rel_diff(grad_f1, grad_f1_num[0], "norm-f1")
-                        rel_diff(grad_f2, grad_f2_num[0], "norm-f2")
-                        rel_diff(grad_fa, grad_fa_num[0], "norm-fa")
+                            grad_f1_num = torch.autograd.grad(
+                                outputs=f1_norm_num,
+                                inputs=(f1_num,),
+                                grad_outputs=grad_f1_norm,
+                            )
+                            grad_f2_num = torch.autograd.grad(
+                                outputs=f2_norm_num,
+                                inputs=(f2_num,),
+                                grad_outputs=grad_f2_norm,
+                            )
+                            grad_fa_num = torch.autograd.grad(
+                                outputs=fa_norm_num,
+                                inputs=(fa_num,),
+                                grad_outputs=grad_fa_norm,
+                            )
+                            rel_diff(grad_f1, grad_f1_num[0], "norm-f1")
+                            rel_diff(grad_f2, grad_f2_num[0], "norm-f2")
+                            rel_diff(grad_fa, grad_fa_num[0], "norm-fa")
+                else:
+                    grad_f1 = grad_f1_norm
+                    grad_f2 = grad_f2_norm
+                    grad_fa = grad_fa_norm
 
 
                 if PRINT_MEM:
@@ -580,9 +583,14 @@ class DenseCorrEvc(torch.autograd.Function):
                         f2_num = feats2[b].clone().detach().requires_grad_().reshape(C, h * w)
                         fa_num = feats1[(b + 1) % B].clone().detach().requires_grad_().reshape(C, h * w)
 
-                        f1_norm_num = F.normalize(f1_num, p=2, dim=0) * JDT_FACTOR
-                        f2_norm_num = F.normalize(f2_num, p=2, dim=0) * JDT_FACTOR
-                        fa_norm_num = F.normalize(fa_num, p=2, dim=0) * JDT_FACTOR
+                        if norm:
+                            f1_norm_num = F.normalize(f1_num, p=2, dim=0) * JDT_FACTOR
+                            f2_norm_num = F.normalize(f2_num, p=2, dim=0) * JDT_FACTOR
+                            fa_norm_num = F.normalize(fa_num, p=2, dim=0) * JDT_FACTOR
+                        else:
+                            f1_norm_num = f1_num
+                            f2_norm_num = f2_num
+                            fa_norm_num = fa_num
 
                         # BLock 1 ------------------------------------------
                         corr_num = torch.matmul(f1_norm_num.t(), fa_norm_num)
@@ -638,9 +646,10 @@ class DenseCorrEvc(torch.autograd.Function):
                         f2 = feats2[b].reshape(C, h * w)  # target
                         fa = feats1[(b + 1) % B].reshape(C, h * w)  # auxiliary
 
-                        f1 = F.normalize(f1, p=2, dim=0) * JDT_FACTOR
-                        f2 = F.normalize(f2, p=2, dim=0) * JDT_FACTOR
-                        fa = F.normalize(fa, p=2, dim=0) * JDT_FACTOR
+                        if norm:
+                            f1 = F.normalize(f1, p=2, dim=0) * JDT_FACTOR
+                            f2 = F.normalize(f2, p=2, dim=0) * JDT_FACTOR
+                            fa = F.normalize(fa, p=2, dim=0) * JDT_FACTOR
 
                         corr = torch.matmul(f1.t(), fa)
                         corr = corr.reshape(H, W, h, w)
@@ -719,12 +728,17 @@ def dense_corr_check(use_evc=False):
     # approximations and returns True if they all verify this condition.
     dense_corr = DenseCorrEvc.apply
     evc_dim = 4
-    stride = 2
+    stride = 1
+    norm = False
     B, C, H, W = 4, evc_dim, 4, 4
 
     common = {"dtype": torch.double, "requires_grad": True}
-    feats1 = torch.randn(B, C, H, W, **common)
-    feats2 = torch.randn(B, C, H, W, **common)
+    if not norm:
+        sc = 100
+    else:
+        sc = 1
+    feats1 = torch.randn(B, C, H, W, **common) * sc
+    feats2 = torch.randn(B, C, H, W, **common) * sc
 
     batch_grid_u = torch.randn(B, H, W, 2,
         dtype=torch.double,
@@ -735,9 +749,7 @@ def dense_corr_check(use_evc=False):
     W_input = W * stride
     xxyy = tps.spatial_grid_unnormalized(H_input, W_input).double()
     xxyy.requires_grad = False
-    args = (feats1, feats2, xxyy, batch_grid_u, stride)
-
-    feats1.cuda()
+    args = (feats1, feats2, xxyy, batch_grid_u, stride, norm)
     feats2.cuda()
     xxyy.cuda()
     batch_grid_u.cuda()

@@ -152,9 +152,9 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False, normalize_
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
-        assert normalize_vectors
         dense_corr = DenseCorrEvc.apply
-        return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
+        return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride,
+                          normalize_vectors, pow)
 
     loss = 0.
     for b in range(B):
