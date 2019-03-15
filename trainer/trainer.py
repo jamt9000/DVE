@@ -58,7 +58,7 @@ class Trainer(BaseTrainer):
             def __call__(self, *a, **kw):
                 return self.fn(*a, **kw)
 
-        self.loss_wrapper = LossWrapper(self.loss)
+        self.loss_wrapper = torch.nn.DataParallel(LossWrapper(self.loss), device_ids=self.model.device_ids)
 
     def _eval_metrics(self, output, target):
         acc_metrics = np.zeros(len(self.metrics))
@@ -114,11 +114,7 @@ class Trainer(BaseTrainer):
                 tic = time.time()
 
             if isinstance(self.model, torch.nn.DataParallel):
-                mod = torch.nn.DataParallel(
-                    self.loss_wrapper,
-                    device_ids=self.model.device_ids,
-                )
-                loss = mod(output, meta, fold_corr=self.config["fold_corr"], **self.loss_args)
+                loss = self.loss_wrapper(output, meta, fold_corr=self.config["fold_corr"], **self.loss_args)
                 loss = loss.mean()
             else:
                 loss = self.loss(output, meta,
@@ -232,8 +228,7 @@ class Trainer(BaseTrainer):
                 output = self.model(data)
 
                 if isinstance(self.model, torch.nn.DataParallel):
-                    loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta,
-                                                                                                      **self.loss_args)
+                    loss = self.loss_wrapper(output, meta, **self.loss_args)
                     loss = loss.mean()
                 else:
                     loss = self.loss(output, meta, **self.loss_args)
@@ -261,8 +256,7 @@ class Trainer(BaseTrainer):
                 output = self.model(data)
 
                 if isinstance(self.model, torch.nn.DataParallel):
-                    loss = torch.nn.DataParallel(self.loss_wrapper, device_ids=self.model.device_ids)(output, meta,
-                                                                                                      **self.loss_args)
+                    loss = self.loss_wrapper(output, meta, **self.loss_args)
                     loss = loss.mean()
                 else:
                     loss = self.loss(output, meta, **self.loss_args)
