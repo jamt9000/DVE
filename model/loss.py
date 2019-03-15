@@ -40,7 +40,7 @@ def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False, normalize_vect
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
-        assert normalize_vectors
+        assert normalize_vectors == False
         dense_corr = DenseCorr.apply
         return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
 
