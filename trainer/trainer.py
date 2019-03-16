@@ -48,6 +48,17 @@ class Trainer(BaseTrainer):
         self.visualizations = visualizations if visualizations is not None else []
         self.loss_args = config.get('loss_args', {})
 
+        assert self.lr_scheduler.optimizer is self.optimizer
+        assert self.start_epoch >= 1
+
+        if self.start_epoch != 1:
+            # Our epoch 1 is step -1 (but we can't explicitly call
+            # step(-1) because that would update the lr based on a negative epoch)
+            # NB stateful schedulers eg based on loss won't be restored properly
+            self.lr_scheduler.step(self.start_epoch - 2)
+
+        assert self.lr_scheduler.last_epoch == self.start_epoch - 2
+
         print('Loss args', self.loss_args)
 
         class LossWrapper(torch.nn.Module):
@@ -204,7 +215,7 @@ class Trainer(BaseTrainer):
             log = {**log, **val_log}
 
         if self.lr_scheduler is not None:
-            self.lr_scheduler.step()
+            self.lr_scheduler.step(epoch - 1)
 
         return log
 
