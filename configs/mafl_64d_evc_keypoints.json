@@ -1,7 +1,7 @@
 {
     "name": "mafl_64d_evc_keypoints",
     "n_gpu": 1,
-    "finetune_from": "saved/celeba_64d_evc_checkpoint-epoch10.pth",
+    "finetune_from": "saved/celeba_64d_evc_nonormalize_checkpoint-epoch10.pth",
     "batch_size": 128,
     "arch": {
         "type": "HourglassNet",

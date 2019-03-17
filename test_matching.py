@@ -58,7 +58,7 @@ def main(config, resume):
     train_dataset = module_data.MAFLAligned(root='data/celeba', imwidth=imwidth, crop=crop, train=True,
                                             pair_warper=warper1, do_augmentations=False)
     val_dataset = module_data.MAFLAligned(root='data/celeba', imwidth=imwidth, crop=crop, train=False,
-                                          pair_warper=warper)
+                                          pair_warper=warper, use_keypoints=True)
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=False)
     data_loader = DataLoader(val_dataset, batch_size=2, collate_fn=coll, shuffle=False)
@@ -111,7 +111,7 @@ def main(config, resume):
                 if data.shape[2] == 64:
                     assert float(data.sum()) == -553.9221801757812
                 elif data.shape[2] == 128:
-                    assert float(data.sum()) == 2724.149658203125
+                    assert float(data.sum()) == 754.1907348632812
 
             data = data.to(device)
 
