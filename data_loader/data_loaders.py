@@ -57,7 +57,10 @@ def kp_normalize(H, W, kp):
 class CelebABase(Dataset):
     def __getitem__(self, index):
         im = Image.open(os.path.join(self.root, 'Img', 'img_align_celeba', self.filenames[index]))
-        kp = self.keypoints[index].copy()
+        kp = None
+        if self.use_keypoints:
+            kp = self.keypoints[index].copy()
+        meta = {}
 
         if self.warper is not None:
             if self.warper.returns_pairs:
@@ -79,7 +82,9 @@ class CelebABase(Dataset):
 
                 C, H, W = im1.shape
                 data = torch.stack((im1, im2), 0)
-                meta = {'flow': flow[0], 'grid': grid[0], 'kp1': kp1, 'kp2': kp2, 'im1': im1, 'im2': im2}
+                meta = {'flow': flow[0], 'grid': grid[0], 'im1': im1, 'im2': im2}
+                if self.use_keypoints:
+                    meta = {**meta, **{'kp1': kp1, 'kp2': kp2}}
             else:
                 im1 = self.initial_transforms(im)
                 im1 = TF.to_tensor(im1)*255
@@ -92,7 +97,8 @@ class CelebABase(Dataset):
 
                 C, H, W = im1.shape
                 data = im1
-                meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
+                if self.use_keypoints:
+                    meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
 
         else:
             data = self.transforms(self.initial_transforms(im))
@@ -103,7 +109,8 @@ class CelebABase(Dataset):
                 kp = torch.tensor(kp)
 
             C, H, W = data.shape
-            meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
+            if self.use_keypoints:
+                meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
 
         return data, meta
 
@@ -112,12 +119,13 @@ class CelebABase(Dataset):
 class CelebAPrunedAligned_MAFLVal(CelebABase):
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18, do_augmentations=True):
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18, do_augmentations=True, use_keypoints=False):
         self.root = root
         self.imwidth = imwidth
         self.train = train
         self.warper = pair_warper
         self.crop = crop
+        self.use_keypoints = use_keypoints
 
         anno = pd.read_csv(os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt'), header=1,
                            delim_whitespace=True)
@@ -160,12 +168,14 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
 class MAFLAligned(CelebABase):
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18, do_augmentations=True):
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18, do_augmentations=True, use_keypoints=False):
         self.root = root
         self.imwidth = imwidth
         self.train = train
         self.warper = pair_warper
         self.crop = crop
+        self.use_keypoints = use_keypoints
+
 
         anno = pd.read_csv(os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt'), header=1,
                            delim_whitespace=True)
