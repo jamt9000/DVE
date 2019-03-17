@@ -25,6 +25,16 @@ def coll(batch):
     return [bi.reshape((-1,) + bi.shape[-3:]) if isinstance(bi, torch.Tensor) else bi for bi in b]
 
 
+class NoGradWrapper(nn.Module):
+    def __init__(self, wrapped):
+        super(NoGradWrapper, self).__init__()
+        self.wrapped_module = wrapped
+
+    def forward(self, *args, **kwargs):
+        with torch.no_grad():
+            return self.wrapped_module.forward(*args, **kwargs)
+
+
 def main(config, resume):
     train_logger = Logger()
 
@@ -72,7 +82,8 @@ def main(config, resume):
     if 'keypoint_regressor' in config.keys():
         descdim = config['arch']['args']['num_output_channels']
         kp_regressor = get_instance(module_arch, 'keypoint_regressor', config, descriptor_dimension=descdim)
-        model = nn.Sequential(model, kp_regressor)
+        basemodel = NoGradWrapper(model)
+        model = nn.Sequential(basemodel, kp_regressor)
 
     # get function handles of loss and metrics
     loss = getattr(module_loss, config['loss'])

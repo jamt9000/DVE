@@ -34,12 +34,12 @@ class IntermediateKeypointPredictor(nn.Module):
             f1 = self.descriptors.reshape(C, -1)  # source
             f2 = input[b].reshape(C, H * W)  # target
 
-            f1 = F.normalize(f1, p=2, dim=0) * 20
-            f2 = F.normalize(f2, p=2, dim=0) * 20
+            #f1 = F.normalize(f1, p=2, dim=0) * 20
+            #f2 = F.normalize(f2, p=2, dim=0) * 20
 
             corr = torch.matmul(f1.t(), f2)
 
-            smcorr = F.softmax(30. * corr, dim=1)
+            smcorr = F.softmax(50. * corr, dim=1)
             smcorr = smcorr.reshape(self.nA, self.nI, H, W)
 
             xpred = (smcorr * xx.view(1, 1, H, W)).sum(dim=(2, 3)) / smcorr.sum(dim=(2, 3))
