@@ -156,9 +156,14 @@ def main(config, resume):
             ax3.imshow(norm_range(im_diff).permute(1, 2, 0))
             ax3.scatter(kp_diff[:, 0], kp_diff[:, 1], c='g')
 
-            fsrc = F.normalize(desc_source, p=2, dim=0)
-            fsame = F.normalize(desc_same, p=2, dim=0)
-            fdiff = F.normalize(desc_diff, p=2, dim=0)
+            if False:
+                fsrc = F.normalize(desc_source, p=2, dim=0)
+                fsame = F.normalize(desc_same, p=2, dim=0)
+                fdiff = F.normalize(desc_diff, p=2, dim=0)
+            else:
+                fsrc = desc_source.clone()
+                fsame = desc_same.clone()
+                fdiff = desc_diff.clone()
 
             for ki, kp in enumerate(kp_source):
                 x, y = np.array(kp)
