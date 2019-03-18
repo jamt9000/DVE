@@ -7,7 +7,8 @@
         "args": {
             "num_output_channels": 64,
             "scaled_norm_output": true,
-            "num_stacks": 2
+            "num_stacks": 2,
+            "use_group_norm": true
         }
     },
     "dataset": {
