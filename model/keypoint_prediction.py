@@ -5,11 +5,12 @@ import torch.nn.functional as F
 
 class IntermediateKeypointPredictor(nn.Module):
 
-    def __init__(self, descriptor_dimension, num_annotated_points, num_intermediate_points):
+    def __init__(self, descriptor_dimension, num_annotated_points, num_intermediate_points, softargmax_mul=50.):
         super(IntermediateKeypointPredictor, self).__init__()
         self.nA = num_annotated_points
         self.nI = num_intermediate_points
         self.descriptor_dimension = descriptor_dimension
+        self.softargmax_mul = softargmax_mul
 
         self.descriptors = nn.Parameter(torch.randn(descriptor_dimension,
                                                     num_annotated_points,
@@ -39,7 +40,7 @@ class IntermediateKeypointPredictor(nn.Module):
 
             corr = torch.matmul(f1.t(), f2)
 
-            smcorr = F.softmax(50. * corr, dim=1)
+            smcorr = F.softmax(self.softargmax_mul * corr, dim=1)
             smcorr = smcorr.reshape(self.nA, self.nI, H, W)
 
             xpred = (smcorr * xx.view(1, 1, H, W)).sum(dim=(2, 3)) / smcorr.sum(dim=(2, 3))
