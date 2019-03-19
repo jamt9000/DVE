@@ -16,7 +16,7 @@ class SmallNet(BaseModel):
         self.conv3 = self._generate_conv_block(48, 64, kernel_size=5, padding=4, dilation=2)
         self.conv4 = self._generate_conv_block(64, 80, kernel_size=3, padding=4, dilation=4)
         self.conv5 = self._generate_conv_block(80, 256, kernel_size=3, padding=2, dilation=2)
-        self.conv6 = self._generate_conv_block(256, num_output_channels, kernel_size=1, padding=0)
+        self.conv6 = nn.Conv2d(256, num_output_channels, kernel_size=1, padding=0)
 
         for b in [x.bias for x in self.modules() if isinstance(x,nn.Conv2d)]:
             b.data.mul_(0.)
