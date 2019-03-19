@@ -30,6 +30,7 @@
         }
     },
     "loss": "dense_correlation_loss",
+    "loss_args": {"normalize_vectors": false},
     "metrics": [
 
     ],
