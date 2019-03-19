@@ -1,5 +1,5 @@
 {
-    "name": "smallnet_celeba_64d_128in",
+    "name": "smallnet_celeba_64d_evc_128in",
     "n_gpu": 4,
     "batch_size": 64,
     "bias_lr": 0.00001,
