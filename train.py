@@ -91,7 +91,7 @@ def main(config, resume):
     visualizations = [getattr(module_visualization, vis) for vis in config['visualizations']]
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
-    trainable_params = filter(lambda p: p.requires_grad, model.parameters())
+    trainable_params = list(filter(lambda p: p.requires_grad, model.parameters()))
 
     biases = [x.bias for x in model.modules() if isinstance(x,nn.Conv2d)]
 
