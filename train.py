@@ -92,7 +92,19 @@ def main(config, resume):
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = get_instance(torch.optim, 'optimizer', config, trainable_params)
+
+    biases = [x.bias for x in model.modules() if isinstance(x,nn.Conv2d)]
+
+    trainbiases = list(set(trainable_params) & set(biases))
+    trainweights = list(set(trainable_params) - set(biases))
+    print(len(trainbiases), 'Biases', len(trainweights), 'Weights')
+
+    bias_lr = config.get('bias_lr', None)
+    if bias_lr is not None:
+        optimizer = get_instance(torch.optim, 'optimizer', config, [{"params": trainweights}, {"params": trainbiases, "lr": bias_lr}])
+    else:
+        optimizer = get_instance(torch.optim, 'optimizer', config, trainable_params)
+
     lr_scheduler = get_instance(torch.optim.lr_scheduler, 'lr_scheduler', config, optimizer)
 
     trainer = Trainer(model, loss, metrics, optimizer,
