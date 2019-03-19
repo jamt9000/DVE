@@ -1,0 +1,60 @@
+{
+    "name": "smallnet_celeba_3d_128in",
+    "n_gpu": 1,
+    "batch_size": 32,
+    "bias_lr": 0.00001,
+    "arch": {
+        "type": "SmallNet",
+        "args": {
+            "num_output_channels": 3
+        }
+    },
+    "dataset": {
+        "type": "CelebAPrunedAligned_MAFLVal",
+        "args": {
+            "root": "data/celeba",
+            "imwidth": 180,
+            "crop": 26
+        }
+    },
+    "warper": {
+        "type": "Warper",
+        "args": {
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args": {
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "loss": "dense_correlation_loss",
+    "loss_args": {"normalize_vectors": false},
+    "metrics": [
+
+    ],
+    "visualizations": [
+        "sphere_colormap",
+        "sphere_scatter3d",
+        "sphere_norm_scatter3d"
+    ],
+    "lr_scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 100,
+            "gamma": 0.1
+        }
+    },
+    "trainer": {
+        "epochs": 100,
+        "save_dir": "saved/",
+        "save_period": 1,
+        "verbosity": 2,
+        "monitor": "min val_loss",
+        "early_stop": 10,
+        "tensorboardX": true,
+        "log_dir": "saved/"
+    }
+}
