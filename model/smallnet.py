@@ -21,7 +21,8 @@ class SmallNet(BaseModel):
         for b in [x.bias for x in self.modules() if isinstance(x,nn.Conv2d)]:
             b.data.mul_(0.)
 
-
+        for w in [x.weight for x in self.modules() if isinstance(x,nn.Conv2d)]:
+            nn.init.xavier_normal_(w.data)
 
     def _generate_conv_block(self, in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1):
         conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, dilation)
