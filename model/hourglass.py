@@ -109,7 +109,7 @@ class HourglassBlock(nn.Module):
 
 class HourglassNet(BaseModel):
     def __init__(self, block=ResidualBottleneckPreactivation, num_stacks=1, num_blocks=4, planes_conv1=64, planes_block=128, planes_hg=128,
-                 num_output_channels=16, use_group_norm=False, output_layer_weight_mul=1.):
+                 num_output_channels=16, use_group_norm=False, output_layer_weight_mul=1., scaled_norm_output=False):
         super(HourglassNet, self).__init__()
 
         self.block = block
@@ -125,6 +125,7 @@ class HourglassNet(BaseModel):
         else:
             self.make_bn = nn.BatchNorm2d
         self.output_layer_weight_mul = output_layer_weight_mul
+        self.scaled_norm_output = scaled_norm_output
 
         self.conv1 = nn.Conv2d(3, planes_conv1, kernel_size=7, stride=2, padding=3,
                                bias=True)
@@ -133,6 +134,9 @@ class HourglassNet(BaseModel):
         self.layer1 = self._make_blocks(planes_conv1, planes_conv1, 1)  # 64 -> 64 -> 128
         self.layer2 = self._make_blocks(planes_conv1 * block.expansion, planes_block, 1)  # 128 -> 128 -> 256
         self.layer3 = self._make_blocks(planes_block * block.expansion, planes_hg, 1)  # 256 -> 128 -> 256
+
+        if self.scaled_norm_output:
+            self.normscale = nn.Parameter(torch.tensor(20.))
 
 
         nch = self.planes_hg * block.expansion
@@ -179,6 +183,8 @@ class HourglassNet(BaseModel):
         for i in range(self.num_stacks):
             x = self.hg[i](x)
             y = self.output_layers[i](x)
+            if self.scaled_norm_output:
+                y = F.normalize(y, dim=1, p=2) * self.normscale
             out.append(y)
 
         # XXX just return last output
