@@ -7,8 +7,9 @@ from base import BaseModel
 # NeurIPS 2017 style network
 
 class SmallNet(BaseModel):
-    def __init__(self, num_output_channels=16):
+    def __init__(self, num_output_channels=16, do_maxpool=True):
         super(SmallNet, self).__init__()
+        self.do_maxpool = do_maxpool
 
         self.conv1 = self._generate_conv_block(3, 20, kernel_size=5, padding=2)
         self.mp = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -32,7 +33,8 @@ class SmallNet(BaseModel):
 
     def forward(self, x):
         x = self.conv1(x)
-        x = self.mp(x)
+        if self.do_maxpool:
+            x = self.mp(x)
         x = self.conv2(x)
         x = self.conv3(x)
         x = self.conv4(x)
@@ -43,6 +45,6 @@ class SmallNet(BaseModel):
 
 if __name__ == '__main__':
     x = torch.randn(2,3,70,70)
-    net = SmallNet(num_output_channels=4)
+    net = SmallNet(num_output_channels=4, do_maxpool=False)
     y = net.forward(x)
     print(y[0].shape)
