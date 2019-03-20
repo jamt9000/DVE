@@ -40,7 +40,7 @@ def main(config, resume):
 
     # setup data_loader instances
     imwidth = config['dataset']['args']['imwidth']
-    warper = get_instance(tps, 'warper', config, imwidth, imwidth)
+    warper = get_instance(tps, 'warper', config, imwidth, imwidth) if 'warper' in config.keys() else None
     dataset = get_instance(module_data, 'dataset', config, pair_warper=warper)
     data_loader = DataLoader(
         dataset,
