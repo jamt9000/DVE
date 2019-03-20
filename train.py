@@ -95,8 +95,8 @@ def main(config, resume):
 
     biases = [x.bias for x in model.modules() if isinstance(x,nn.Conv2d)]
 
-    trainbiases = [x for x in trainable_params if x in biases]
-    trainweights = [x for x in trainable_params if x not in biases]
+    trainbiases = [x for x in trainable_params if sum([(x is b) for b in biases])]
+    trainweights = [x for x in trainable_params if not sum([(x is b) for b in biases])]
     print(len(trainbiases), 'Biases', len(trainweights), 'Weights')
 
     bias_lr = config.get('bias_lr', None)
