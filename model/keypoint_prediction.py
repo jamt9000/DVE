@@ -16,7 +16,7 @@ class IntermediateKeypointPredictor(nn.Module):
                                                     num_annotated_points,
                                                     num_intermediate_points))
 
-        self.linear = nn.Linear(num_intermediate_points*2, 2, bias=False)
+        self.linear = nn.ModuleList([nn.Linear(num_intermediate_points*2, 2, bias=False) for l in range(self.nA)])
 
     def forward(self, input):
         input = input[0].detach()
@@ -58,12 +58,13 @@ class IntermediateKeypointPredictor(nn.Module):
             #         sy = ypred[a,i]
             #         print("[%d,%d] soft (%f,%f) real (%f,%f)" % (a,i,sx,sy,rx,ry))
 
-        pred = self.linear(intermediate.reshape(B,self.nA,-1)).reshape(B,self.nA,2)
+        pred = [self.linear[i](intermediate[:,i,:,:].reshape(B,-1)).reshape(B,1,2) for i in range(self.nA)]
+        pred = torch.cat(pred,1)
 
         return pred, intermediate
 
 
 if __name__ == '__main__':
     m = IntermediateKeypointPredictor(4, 5, 10)
-    o = m.forward(torch.randn(10, 4, 80, 75))
+    o = m.forward([torch.randn(10, 4, 80, 75)])
     print(o)
