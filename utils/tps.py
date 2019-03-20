@@ -68,7 +68,7 @@ class Warper(object):
     returns_pairs = True
 
     def __init__(self, H, W, warpsd_all=0.001, warpsd_subset=0.01, transsd=0.1,
-                 scalesd=0.1, rotsd=5, im1_multiplier=0.5):
+                 scalesd=0.1, rotsd=5, im1_multiplier=0.5, im1_multiplier_aff=1.):
         self.H = H
         self.W = W
         self.warpsd_all = warpsd_all
@@ -77,6 +77,7 @@ class Warper(object):
         self.scalesd = scalesd
         self.rotsd = rotsd
         self.im1_multiplier = im1_multiplier
+        self.im1_multiplier_aff = im1_multiplier_aff
 
         self.npixels = H * W
         self.nc = 10
@@ -108,8 +109,9 @@ class Warper(object):
         assert im1.shape[0] == 1 and im2.shape[0] == 1
 
         a = self.im1_multiplier
-        weights1 = random_tps_weights(self.nctrlpts, a * self.warpsd_all, a * self.warpsd_subset, a * self.transsd,
-                                      a * self.scalesd, a * self.rotsd)
+        b = self.im1_multiplier_aff
+        weights1 = random_tps_weights(self.nctrlpts, a * self.warpsd_all, a * self.warpsd_subset, b * self.transsd,
+                                      b * self.scalesd, b * self.rotsd)
 
         grid1 = torch.matmul(self.F, weights1).reshape(1, self.H, self.W, 2)
         grid1_unnormalized = grid_unnormalize(grid1, self.H, self.W)
@@ -119,8 +121,8 @@ class Warper(object):
         im1 = F.grid_sample(im1, grid1)
         im2 = F.grid_sample(im2, grid1)
 
-        weights2 = random_tps_weights(self.nctrlpts, a * self.warpsd_all, a * self.warpsd_subset, a * self.transsd,
-                                      a * self.scalesd, a * self.rotsd)
+        weights2 = random_tps_weights(self.nctrlpts, self.warpsd_all, self.warpsd_subset, self.transsd,
+                                      self.scalesd, self.rotsd)
         grid2 = torch.matmul(self.F, weights2).reshape(1, self.H, self.W, 2)
         im2 = F.grid_sample(im2, grid2)
 
