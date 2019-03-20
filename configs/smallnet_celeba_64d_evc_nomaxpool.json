@@ -1,6 +1,6 @@
 {
-    "name": "smallnet_celeba_64d_evc",
-    "n_gpu": 1,
+    "name": "smallnet_celeba_64d_evc_nomaxpool",
+    "n_gpu": 2,
     "batch_size": 32,
     "bias_lr": 0.00001,
     "arch": {
