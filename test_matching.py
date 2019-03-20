@@ -49,8 +49,8 @@ def main(config, resume):
     crop = config['dataset']['args'].get('crop', config['warper']['args'].get('crop',None))
 
     # Want explicit pair warper
-    warper = tps.Warper(imwidth, imwidth, warpsd_all=0.001, warpsd_subset=0.01, transsd=0.1,
-                        scalesd=0.1, rotsd=5, im1_multiplier=0.5)
+    warper = tps.Warper(imwidth, imwidth, warpsd_all=0.001*.5, warpsd_subset=0.01*.5, transsd=0.1*.5,
+                        scalesd=0.1*.5, rotsd=5*.5, im1_multiplier=1, im1_multiplier_aff=1)
 
     warper1 = tps.WarperSingle(imwidth, imwidth, warpsd_all=0.0, warpsd_subset=0.0, transsd=0.05,
                                scalesd=0.01, rotsd=2)
@@ -60,7 +60,7 @@ def main(config, resume):
     val_dataset = module_data.MAFLAligned(root='data/celeba', imwidth=imwidth, crop=crop, train=False,
                                           pair_warper=warper, use_keypoints=True)
 
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=128, shuffle=False)
     data_loader = DataLoader(val_dataset, batch_size=2, collate_fn=coll, shuffle=False)
 
     # build model architecture
@@ -73,6 +73,8 @@ def main(config, resume):
     if config['n_gpu'] > 1:
         model = torch.nn.DataParallel(model)
     model.load_state_dict(state_dict)
+    if config['n_gpu'] > 1:
+        model = model.module
 
     model = model.to(device)
     model.train()
