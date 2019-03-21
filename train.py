@@ -83,6 +83,7 @@ def main(config, resume):
         descdim = config['arch']['args']['num_output_channels']
         kp_regressor = get_instance(module_arch, 'keypoint_regressor', config, descriptor_dimension=descdim)
         basemodel = NoGradWrapper(model)
+
         model = nn.Sequential(basemodel, kp_regressor)
 
     # get function handles of loss and metrics
@@ -92,6 +93,10 @@ def main(config, resume):
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     trainable_params = list(filter(lambda p: p.requires_grad, model.parameters()))
+
+    if 'keypoint_regressor' in config.keys():
+        base_params = list(filter(lambda p: p.requires_grad, basemodel.parameters()))
+        trainable_params = [x for x in trainable_params if not sum([(x is w) for w in base_params])]
 
     biases = [x.bias for x in model.modules() if isinstance(x,nn.Conv2d)]
 
