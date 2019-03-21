@@ -44,7 +44,7 @@ class Trainer(BaseTrainer):
         self.valid_data_loader = valid_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = max(1, int(len(self.data_loader)/30.))
+        self.log_step = max(1, int(len(self.data_loader)/5.))
         self.visualizations = visualizations if visualizations is not None else []
         self.loss_args = config.get('loss_args', {})
 

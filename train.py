@@ -11,6 +11,7 @@ from trainer import Trainer
 from utils import Logger
 from utils import tps
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import torch.utils.data.dataloader
 
@@ -34,6 +35,10 @@ class NoGradWrapper(nn.Module):
         with torch.no_grad():
             return self.wrapped_module.forward(*args, **kwargs)
 
+class Up(nn.Module):
+    def forward(self, x):
+        with torch.no_grad():
+            return [F.interpolate(x[0], scale_factor=2, mode='bilinear')]
 
 def main(config, resume):
     train_logger = Logger()
@@ -84,7 +89,10 @@ def main(config, resume):
         kp_regressor = get_instance(module_arch, 'keypoint_regressor', config, descriptor_dimension=descdim)
         basemodel = NoGradWrapper(model)
 
-        model = nn.Sequential(basemodel, kp_regressor)
+        if config.get('keypoint_regressor_upsample', False):
+            model = nn.Sequential(basemodel, Up(), kp_regressor)
+        else:
+            model = nn.Sequential(basemodel, kp_regressor)
 
     # get function handles of loss and metrics
     loss = getattr(module_loss, config['loss'])
