@@ -7,11 +7,11 @@ from utils import tps
 from model.folded_correlation import DenseCorr
 from model.folded_correlation_evc import DenseCorrEvc
 
-def regression_loss(prediction_normalized, meta, **kwargs):
+def regression_loss(prediction_normalized, meta, alpha=1., **kwargs):
     pred = prediction_normalized[0]
     kp = meta['keypts_normalized'].to(pred.device)
     B, nA, _ = pred.shape
-    return F.smooth_l1_loss(pred, kp)
+    return F.smooth_l1_loss(pred * alpha, kp * alpha)
 
 
 def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):
