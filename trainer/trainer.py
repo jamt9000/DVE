@@ -133,7 +133,7 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             if self.config.get('cache_descriptors', False):
                 assert isinstance(self.model, torch.nn.Sequential)
-                descs = torch.cat([self.cache[i] for i in meta['index']],0).to(self.device)
+                descs = torch.stack([self.cache[i] for i in meta['index']],0).to(self.device)
                 output = self.model[1:]([descs])
             else:
                 output = self.model(data)
