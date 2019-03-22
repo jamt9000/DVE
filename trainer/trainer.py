@@ -82,6 +82,7 @@ class Trainer(BaseTrainer):
                     for fi in range(len(fw)):
                         self.cache[mm['index'][fi]] = fw[fi]
                 print('cache', ii,'/',len(batcher))
+            self.cache = torch.stack(self.cache, 0).half().to(self.device)
             self.model.train()
 
     def _eval_metrics(self, output, target):
@@ -133,7 +134,7 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             if self.config.get('cache_descriptors', False):
                 assert isinstance(self.model, torch.nn.Sequential)
-                descs = torch.stack([self.cache[i] for i in meta['index']],0).to(self.device)
+                descs = self.cache[meta['index']].to(self.device).float()
                 output = self.model[1:]([descs])
             else:
                 output = self.model(data)
