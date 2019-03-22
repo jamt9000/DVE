@@ -72,6 +72,18 @@ class Trainer(BaseTrainer):
         if isinstance(self.model, torch.nn.DataParallel):
             self.loss_wrapper = torch.nn.DataParallel(LossWrapper(self.loss), device_ids=self.model.device_ids)
 
+        if self.config.get('cache_descriptors', False):
+            self.cache = [None] * len(self.data_loader.dataset)
+            self.model.eval()
+            batcher = torch.utils.data.DataLoader(self.data_loader.dataset, batch_size=100)
+            for ii, (dd,mm) in enumerate(batcher):
+                with torch.no_grad():
+                    fw = self.model[0].forward(dd.to(self.device))[0].to('cpu')
+                    for fi in range(len(fw)):
+                        self.cache[mm['index'][fi]] = fw[fi]
+                print('cache', ii,'/',len(batcher))
+            self.model.train()
+
     def _eval_metrics(self, output, target):
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
@@ -119,7 +131,12 @@ class Trainer(BaseTrainer):
                 tic = time.time()
 
             self.optimizer.zero_grad()
-            output = self.model(data)
+            if self.config.get('cache_descriptors', False):
+                assert isinstance(self.model, torch.nn.Sequential)
+                descs = torch.cat([self.cache[i] for i in meta['index']],0).to(self.device)
+                output = self.model[1:]([descs])
+            else:
+                output = self.model(data)
 
             if profile:
                 timings["fwd"] = time.time() - tic

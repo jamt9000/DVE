@@ -82,7 +82,7 @@ class CelebABase(Dataset):
 
                 C, H, W = im1.shape
                 data = torch.stack((im1, im2), 0)
-                meta = {'flow': flow[0], 'grid': grid[0], 'im1': im1, 'im2': im2}
+                meta = {'flow': flow[0], 'grid': grid[0], 'im1': im1, 'im2': im2, 'index': index}
                 if self.use_keypoints:
                     meta = {**meta, **{'kp1': kp1, 'kp2': kp2}}
             else:
@@ -98,7 +98,7 @@ class CelebABase(Dataset):
                 C, H, W = im1.shape
                 data = im1
                 if self.use_keypoints:
-                    meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
+                    meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
 
         else:
             data = self.transforms(self.initial_transforms(im))
@@ -110,7 +110,7 @@ class CelebABase(Dataset):
 
             C, H, W = data.shape
             if self.use_keypoints:
-                meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp)}
+                meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
 
         return data, meta
 
