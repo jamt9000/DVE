@@ -4,19 +4,22 @@ import torch.nn.functional as F
 
 
 class IntermediateKeypointPredictor(nn.Module):
-
-    def __init__(self, descriptor_dimension, num_annotated_points, num_intermediate_points, softargmax_mul=50.):
+    def __init__(self, descriptor_dimension, num_annotated_points,
+                 num_intermediate_points, softargmax_mul=50.):
         super(IntermediateKeypointPredictor, self).__init__()
         self.nA = num_annotated_points
         self.nI = num_intermediate_points
         self.descriptor_dimension = descriptor_dimension
         self.softargmax_mul = softargmax_mul
 
-        self.descriptors = nn.Parameter(torch.randn(descriptor_dimension,
-                                                    num_annotated_points,
-                                                    num_intermediate_points))
+        self.descriptors = nn.Parameter(
+            torch.randn(descriptor_dimension, num_annotated_points,
+                        num_intermediate_points))
 
-        self.linear = nn.ModuleList([nn.Linear(num_intermediate_points*2, 2, bias=False) for l in range(self.nA)])
+        self.linear = nn.ModuleList([
+            nn.Linear(num_intermediate_points * 2, 2, bias=False)
+            for l in range(self.nA)
+        ])
 
     def forward(self, input):
         input = input[0].detach()
@@ -27,7 +30,6 @@ class IntermediateKeypointPredictor(nn.Module):
         xi = torch.linspace(-1, 1, W, device=input.device)
         yi = torch.linspace(-1, 1, H, device=input.device)
         yy, xx = torch.meshgrid(yi, xi)
-
 
         intermediate = torch.zeros(B, self.nA, self.nI, 2, device=input.device)
 
@@ -43,8 +45,10 @@ class IntermediateKeypointPredictor(nn.Module):
             smcorr = F.softmax(self.softargmax_mul * corr, dim=1)
             smcorr = smcorr.reshape(self.nA, self.nI, H, W)
 
-            xpred = (smcorr * xx.view(1, 1, H, W)).sum(dim=(2, 3)) / smcorr.sum(dim=(2, 3))
-            ypred = (smcorr * yy.view(1, 1, H, W)).sum(dim=(2, 3)) / smcorr.sum(dim=(2, 3))
+            xpred = (smcorr * xx.view(1, 1, H, W)).sum(dim=(2, 3)) / smcorr.sum(dim=(2,
+                                                                                     3))
+            ypred = (smcorr * yy.view(1, 1, H, W)).sum(dim=(2, 3)) / smcorr.sum(dim=(2,
+                                                                                     3))
 
             intermediate[b, :, :, 0] = xpred
             intermediate[b, :, :, 1] = ypred
@@ -58,8 +62,11 @@ class IntermediateKeypointPredictor(nn.Module):
             #         sy = ypred[a,i]
             #         print("[%d,%d] soft (%f,%f) real (%f,%f)" % (a,i,sx,sy,rx,ry))
 
-        pred = [self.linear[i](intermediate[:,i,:,:].reshape(B,-1)).reshape(B,1,2) for i in range(self.nA)]
-        pred = torch.cat(pred,1)
+        pred = [
+            self.linear[i](intermediate[:, i, :, :].reshape(B, -1)).reshape(B, 1, 2)
+            for i in range(self.nA)
+        ]
+        pred = torch.cat(pred, 1)
 
         return pred, intermediate
 

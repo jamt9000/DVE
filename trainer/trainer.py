@@ -3,6 +3,7 @@ import torch
 import time
 import datetime
 from torchvision.utils import make_grid
+from pkg_resources import parse_version
 from base import BaseTrainer
 from torch.nn.modules.batchnorm import _BatchNorm
 
@@ -34,17 +35,17 @@ class Trainer(BaseTrainer):
         Inherited from BaseTrainer.
     """
 
-    def __init__(self, model, loss, metrics, optimizer, resume, config,
-                 data_loader, valid_data_loader=None, lr_scheduler=None,
-                 train_logger=None, visualizations=None):
-        super(Trainer, self).__init__(model, loss, metrics, optimizer, resume,
-                                      config, train_logger)
+    def __init__(self, model, loss, metrics, optimizer, resume, config, data_loader,
+                 valid_data_loader=None, lr_scheduler=None, train_logger=None,
+                 visualizations=None):
+        super(Trainer, self).__init__(model, loss, metrics, optimizer, resume, config,
+                                      train_logger)
         self.config = config
         self.data_loader = data_loader
         self.valid_data_loader = valid_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = max(1, int(len(self.data_loader)/5.))
+        self.log_step = max(1, int(len(self.data_loader) / 5.))
         self.visualizations = visualizations if visualizations is not None else []
         self.loss_args = config.get('loss_args', {})
 
@@ -57,7 +58,10 @@ class Trainer(BaseTrainer):
             # NB stateful schedulers eg based on loss won't be restored properly
             self.lr_scheduler.step(self.start_epoch - 2)
 
-        assert self.lr_scheduler.last_epoch == self.start_epoch - 2
+        # only perform last epoch check for older PyTorch, current versions
+        # immediately set the `last_epoch` attribute to 0.
+        if parse_version(torch.__version__) <= parse_version("1.0.0"):
+            assert self.lr_scheduler.last_epoch == self.start_epoch - 2
 
         print('Loss args', self.loss_args)
 
@@ -70,25 +74,28 @@ class Trainer(BaseTrainer):
                 return self.fn(*a, **kw)
 
         if isinstance(self.model, torch.nn.DataParallel):
-            self.loss_wrapper = torch.nn.DataParallel(LossWrapper(self.loss), device_ids=self.model.device_ids)
+            self.loss_wrapper = torch.nn.DataParallel(LossWrapper(self.loss),
+                                                      device_ids=self.model.device_ids)
 
         if self.config.get('cache_descriptors', False):
             self.cache = [None] * len(self.data_loader.dataset)
             self.model.eval()
-            batcher = torch.utils.data.DataLoader(self.data_loader.dataset, batch_size=100)
-            for ii, (dd,mm) in enumerate(batcher):
+            batcher = torch.utils.data.DataLoader(self.data_loader.dataset,
+                                                  batch_size=100)
+            for ii, (dd, mm) in enumerate(batcher):
                 with torch.no_grad():
                     fw = self.model[0].forward(dd.to(self.device))[0].to('cpu')
                     for fi in range(len(fw)):
                         self.cache[mm['index'][fi]] = fw[fi]
-                print('cache', ii,'/',len(batcher))
+                print('cache', ii, '/', len(batcher))
             self.cache = torch.stack(self.cache, 0).half().to(self.device)
             self.model.train()
 
     def _eval_metrics(self, output, target):
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
-            acc_metrics[i] += metric(output, target, self.data_loader.dataset, self.config)
+            acc_metrics[i] += metric(output, target, self.data_loader.dataset,
+                                     self.config)
             self.writer.add_scalar(f'{metric.__name__}', acc_metrics[i])
         return acc_metrics
 
@@ -144,11 +151,13 @@ class Trainer(BaseTrainer):
                 tic = time.time()
 
             if isinstance(self.model, torch.nn.DataParallel):
-                loss = self.loss_wrapper(output, meta, fold_corr=self.config["fold_corr"], **self.loss_args)
+                loss = self.loss_wrapper(output, meta,
+                                         fold_corr=self.config["fold_corr"],
+                                         **self.loss_args)
                 loss = loss.mean()
             else:
-                loss = self.loss(output, meta,
-                                 fold_corr=self.config["fold_corr"], **self.loss_args)
+                loss = self.loss(output, meta, fold_corr=self.config["fold_corr"],
+                                 **self.loss_args)
             if profile:
                 timings["loss-fwd"] = time.time() - tic
                 tic = time.time()
@@ -183,14 +192,11 @@ class Trainer(BaseTrainer):
                 batches_left = totaL_batches - batch_idx
                 remaining = batches_left * self.data_loader.batch_size / rate
                 eta_str = str(datetime.timedelta(seconds=remaining))
-                self.logger.info(msg.format(
-                    epoch,
-                    batch_idx * self.data_loader.batch_size,
-                    len(self.data_loader.dataset),
-                    100.0 * batch_idx / len(self.data_loader),
-                    loss.item(),
-                    rate,
-                    eta_str))
+                self.logger.info(
+                    msg.format(epoch, batch_idx * self.data_loader.batch_size,
+                               len(self.data_loader.dataset),
+                               100.0 * batch_idx / len(self.data_loader), loss.item(),
+                               rate, eta_str))
                 im = make_grid(data.cpu(), nrow=8, normalize=True)
                 self.writer.add_image('input', im)
                 for v in self.visualizations:
@@ -199,7 +205,6 @@ class Trainer(BaseTrainer):
                 seen = 0
                 if profile:
                     timings["vis"] = time.time() - tic
-
             """Do some aggressive reference clearning to ensure that we don't
             hang onto memory while fetching the next minibatch."""
             #  For safety, disabling this for now
@@ -217,10 +222,7 @@ class Trainer(BaseTrainer):
                     print(msg.format(timings[key], ratio, key))
                 print("==============")
 
-        log = {
-            'loss': avg_loss.avg,
-            'metrics': [a.avg for a in total_metrics]
-        }
+        log = {'loss': avg_loss.avg, 'metrics': [a.avg for a in total_metrics]}
 
         self.writer.set_step(epoch, 'train_epoch')
         self.writer.add_scalar('loss', log['loss'])
@@ -263,12 +265,14 @@ class Trainer(BaseTrainer):
                 else:
                     loss = self.loss(output, meta, **self.loss_args)
 
-                self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
+                self.writer.set_step(
+                    (epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.writer.add_scalar('loss', loss.item())
                 avg_val_loss.update(loss.item(), data.size(0))
                 for i, m in enumerate(self._eval_metrics(output, meta)):
                     total_val_metrics[i].update(m, data.size(0))
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                self.writer.add_image('input',
+                                      make_grid(data.cpu(), nrow=8, normalize=True))
                 for v in self.visualizations:
                     v(self.writer, data.cpu(), output, meta)
 
