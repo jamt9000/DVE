@@ -1,23 +1,24 @@
 {
     "name": "smallnet_mafl_64d_evc_128in_keypoints-ep57-v1",
-    "collate_fn": "dict_flatten",
     "n_gpu": 1,
+    "finetune_from": "saved/smallnet_celeba_64d_evc_128in_checkpoint-epoch57.pth",
     "batch_size": 128,
     "keypoint_regressor_upsample": false,
     "arch": {
-        "type": "DummyNet",
+        "type": "SmallNet",
         "args": {
             "num_output_channels": 64
         }
     },
     "dataset": {
-        "type": "CachedDataset",
+        "type": "MAFLAligned",
         "args": {
             "root": "data/celeba",
-            "cache_root": "saved/feat_caches/smallnet_celeba_64d_evc_128in_checkpoint-epoch57-hqTrue-crop26-imwidth180",
             "imwidth": 180,
+            "crop": 26,
             "use_hq_ims": true,
-            "crop": 26
+            "use_keypoints": true,
+            "do_augmentations": false
         }
     },
     "keypoint_regressor": {

@@ -7,6 +7,7 @@ from utils import tps
 from model.folded_correlation import DenseCorr
 from model.folded_correlation_evc import DenseCorrEvc
 
+
 def regression_loss(prediction_normalized, meta, alpha=1., **kwargs):
     pred = prediction_normalized[0]
     kp = meta['keypts_normalized'].to(pred.device)

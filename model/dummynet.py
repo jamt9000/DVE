@@ -8,6 +8,7 @@ class DummyNet(BaseModel):
         self.num_output_channels = num_output_channels
 
     def forward(self, x):
+        x = x.detach()
         msg = "expected {} output channels, found {}"
         msg = msg.format(x.shape[1], self.num_output_channels)
         assert x.shape[1] == self.num_output_channels, msg

@@ -17,31 +17,7 @@ import torch.utils.data.dataloader
 
 def main(config, resume):
     train_logger = Logger()
-
-    # setup data_loader instances
-    imwidth = config['dataset']['args']['imwidth']
-    warper = get_instance(tps, 'warper', config, imwidth,
-                          imwidth) if 'warper' in config.keys() else None
-    dataset = get_instance(module_data, 'dataset', config, pair_warper=warper)
-    data_loader = DataLoader(
-        dataset,
-        batch_size=int(config["batch_size"]),
-        num_workers=max(4, int(config['n_gpu']) * 4),
-        shuffle=True,
-        drop_last=True,
-        pin_memory=True,
-        collate_fn=coll,
-    )
-
-    warp_val = config.get('warp_val', True)
-    val_dataset = get_instance(
-        module_data,
-        'dataset',
-        config,
-        train=False,
-        pair_warper=warper if warp_val else None,
-    )
-    valid_data_loader = DataLoader(val_dataset, batch_size=32, collate_fn=coll)
+    # torch.backends.cudnn.benchmark = True
 
     # build model architecture
     model = get_instance(module_arch, 'arch', config)
@@ -62,12 +38,55 @@ def main(config, resume):
         else:
             model = nn.Sequential(basemodel, kp_regressor)
 
+    # setup data_loader instances
+    imwidth = config['dataset']['args']['imwidth']
+    warper = get_instance(tps, 'warper', config, imwidth,
+                          imwidth) if 'warper' in config.keys() else None
+
+    loader_kwargs = {}
+    coll_func = config.get("collate_fn", "dict_flatten")
+    if coll_func == "flatten":
+        loader_kwargs["collate_fn"] = coll
+    elif coll_func == "dict_flatten":
+        pass  # use the default collate
+    else:
+        raise ValueError("collate function type {} unrecognised".format(coll_func))
+
+    dataset = get_instance(module_data, 'dataset', config, pair_warper=warper,
+                           train=True, visualize=config["vis"])
+    if config["disable_workers"]:
+        num_workers = 0
+    else:
+        num_workers = max(4, int(config['n_gpu']) * 4)
+    data_loader = DataLoader(
+        dataset,
+        batch_size=int(config["batch_size"]),
+        num_workers=num_workers,
+        shuffle=True,
+        drop_last=True,
+        pin_memory=True,
+        **loader_kwargs,
+    )
+
+    warp_val = config.get('warp_val', True)
+    val_dataset = get_instance(
+        module_data,
+        'dataset',
+        config,
+        train=False,
+        pair_warper=warper if warp_val else None,
+    )
+    valid_data_loader = DataLoader(val_dataset, batch_size=32, **loader_kwargs)
+
     # get function handles of loss and metrics
     loss = getattr(module_loss, config['loss'])
     metrics = [getattr(module_metric, met) for met in config['metrics']]
-    visualizations = [
-        getattr(module_visualization, vis) for vis in config['visualizations']
-    ]
+    if not config["vis"]:
+        visualizations = []
+    else:
+        visualizations = [
+            getattr(module_visualization, vis) for vis in config['visualizations']
+        ]
 
     # build optimizer, learning rate scheduler. delete every lines containing
     # lr_scheduler for disabling scheduler
@@ -122,6 +141,8 @@ if __name__ == '__main__':
                         help='the size of each minibatch')
     parser.add_argument('-g', '--n_gpu', default=None, type=int,
                         help='if given, override the numb')
+    parser.add_argument('--disable_workers', default=0, type=int)
+    parser.add_argument('--vis', default=0, type=int)
     args = parser.parse_args()
 
     if args.config:
@@ -141,6 +162,8 @@ if __name__ == '__main__':
     if args.n_gpu is not None:
         config["n_gpu"] = args.n_gpu
     config["profile"] = args.profile
+    config["vis"] = args.vis
+    config["disable_workers"] = args.disable_workers
     if args.device:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.device
     main(config, args.resume)
