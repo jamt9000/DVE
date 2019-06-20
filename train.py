@@ -8,7 +8,7 @@ import model.metric as module_metric
 import model.model as module_arch
 import utils.visualization as module_visualization
 from trainer import Trainer
-from utils import Logger
+from utils import Logger, dict_coll
 from utils import tps, clean_state_dict, coll, NoGradWrapper, Up, get_instance
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -48,6 +48,7 @@ def main(config, resume):
     if coll_func == "flatten":
         loader_kwargs["collate_fn"] = coll
     elif coll_func == "dict_flatten":
+        loader_kwargs["collate_fn"] = dict_coll
         pass  # use the default collate
     else:
         raise ValueError("collate function type {} unrecognised".format(coll_func))

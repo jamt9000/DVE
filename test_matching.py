@@ -1,25 +1,34 @@
+"""
+python test_matching.py \
+    --config=configs/warp_ims_smallnet_mafl_64d_evc_128in_keypoints-ep57.json \
+    --dense_match \
+    --device=3
+"""
 import os
 import argparse
 import torch
 from tqdm import tqdm
 import data_loader.data_loaders as module_data
-import model.loss as module_loss
-import model.metric as module_metric
+import json
 import model.model as module_arch
 from train import get_instance
-from utils import tps
+from utils import tps, clean_state_dict
 from torch.utils.data import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 from utils.visualization import norm_range
 import torch.nn.functional as F
-from utils.tps import *
+from utils.tps import spatial_grid_unnormalized, tps_grid, dict_coll
+from tensorboardX import SummaryWriter
 
+import sys
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # NOQA
 
-def coll(batch):
-    b = torch.utils.data.dataloader.default_collate(batch)
-    # Flatten to be 4D
-    return [bi.reshape((-1,) + bi.shape[-3:]) if isinstance(bi, torch.Tensor) else bi for bi in b]
+sys.path.insert(0, str(Path.home() / "coding/src/zsvision/python"))
+from zsvision.zs_iterm import zs_dispFig # NOQA
 
 
 def find_descriptor(x, y, source_descs, target_descs, stride):
@@ -28,8 +37,8 @@ def find_descriptor(x, y, source_descs, target_descs, stride):
     x = int(np.round(x / stride))
     y = int(np.round(y / stride))
 
-    x = min(W-1,max(x,0))
-    y = min(H-1,max(y,0))
+    x = min(W - 1, max(x, 0))
+    y = min(H - 1, max(y, 0))
 
     query_desc = source_descs[:, y, x]
 
@@ -41,38 +50,106 @@ def find_descriptor(x, y, source_descs, target_descs, stride):
     return x.item(), y.item()
 
 
+def dense_desc_match(src, target, upscale=2):
+
+    # upsample for higher resolution
+    interp_kwargs = dict(scale_factor=upscale, mode='bilinear', align_corners=True)
+    src = F.interpolate(src.unsqueeze(0), **interp_kwargs).squeeze(0)
+    target = F.interpolate(target.unsqueeze(0), **interp_kwargs).squeeze(0)
+    C, H, W = src.shape
+    # target = F.interpolate(target.unsqueeze(0), **interp_kwargs).squeeze(0)
+
+    grid = tps_grid(H, W)
+    # to (H x W x H x W)
+    corr = torch.einsum("ijk,ilm->jklm", src, target)
+    # corr2 = torch.matmul(
+    #     source_descs.permute(1, 2, 0).reshape(-1, C),
+    #     target_descs.reshape(C, H * W),
+    # )
+    # corr2 = corr2.reshape(H, W, H, W)
+    # find maximal correlation among source
+    maxidx = torch.argmax(corr.view(H * W, H * W), dim=0)
+    return grid[maxidx].reshape(1, H, W, 2)
+    # return picks
+
+
 def main(config, resume):
     device = 'cuda'
 
     # setup data_loader instances
     imwidth = config['dataset']['args']['imwidth']
-    crop = config['dataset']['args'].get('crop', config['warper']['args'].get('crop',None))
+    warp_crop_default = config['warper']['args'].get('crop', None)
+    crop = config['dataset']['args'].get('crop', warp_crop_default)
 
     # Want explicit pair warper
-    warper = tps.Warper(imwidth, imwidth, warpsd_all=0.001*.5, warpsd_subset=0.01*.5, transsd=0.1*.5,
-                        scalesd=0.1*.5, rotsd=5*.5, im1_multiplier=1, im1_multiplier_aff=1)
+    disable_warps = True
+    if config["dense_match"] and disable_warps:
+        # rotsd = 2.5
+        # scalesd=0.1 * .5
+        rotsd = 0
+        scalesd = 0
+        warp_kwargs = dict(
+            warpsd_all=0,
+            warpsd_subset=0,
+            transsd=0,
+            scalesd=scalesd,
+            rotsd=rotsd,
+            im1_multiplier=1,
+            im1_multiplier_aff=1
+        )
+    else:
+        warp_kwargs = dict(
+            warpsd_all=0.001 * .5,
+            warpsd_subset=0.01 * .5,
+            transsd=0.1 * .5,
+            scalesd=0.1 * .5,
+            rotsd=5 * .5,
+            im1_multiplier=1,
+            im1_multiplier_aff=1
+        )
+    warper = tps.Warper(imwidth, imwidth, **warp_kwargs)
 
-    warper1 = tps.WarperSingle(imwidth, imwidth, warpsd_all=0.0, warpsd_subset=0.0, transsd=0.05,
-                               scalesd=0.01, rotsd=2)
+    warper1 = tps.WarperSingle(
+        imwidth,
+        imwidth,
+        warpsd_all=0.0,
+        warpsd_subset=0.0,
+        transsd=0.05,
+        scalesd=0.01,
+        rotsd=2
+    )
 
-    train_dataset = module_data.MAFLAligned(root='data/celeba', imwidth=imwidth, crop=crop, train=True,
-                                            pair_warper=warper1, do_augmentations=False)
-    val_dataset = module_data.MAFLAligned(root='data/celeba', imwidth=imwidth, crop=crop, train=False,
-                                          pair_warper=warper, use_keypoints=True)
+    train_dataset = module_data.MAFLAligned(
+        root='data/celeba',
+        imwidth=imwidth,
+        crop=crop,
+        train=True,
+        pair_warper=warper1,
+        do_augmentations=False
+    )
+    val_dataset = module_data.MAFLAligned(
+        root='data/celeba',
+        imwidth=imwidth,
+        crop=crop,
+        train=False,
+        pair_warper=warper,
+        use_keypoints=True
+    )
 
     train_loader = DataLoader(train_dataset, batch_size=128, shuffle=False)
-    data_loader = DataLoader(val_dataset, batch_size=2, collate_fn=coll, shuffle=False)
+    data_loader = DataLoader(val_dataset, batch_size=2, collate_fn=dict_coll,
+                             shuffle=False)
 
     # build model architecture
     model = get_instance(module_arch, 'arch', config)
     model.summary()
 
     # load state dict
-    checkpoint = torch.load(resume)
+    checkpoint = torch.load(config["weights"])
     state_dict = checkpoint['state_dict']
     if config['n_gpu'] > 1:
         model = torch.nn.DataParallel(model)
-    model.load_state_dict(state_dict)
+    model.load_state_dict(clean_state_dict(state_dict))
     if config['n_gpu'] > 1:
         model = model.module
 
@@ -99,6 +176,13 @@ def main(config, resume):
                 output = model(data)
                 print(i, 'bn checksum', float(bns[0].running_mean.sum()))
 
+    if config["dense_match"]:
+        warp_dir = Path(config["warp_dir"]) / config["name"]
+        warp_dir = warp_dir / "disable_warps{}".format(disable_warps)
+        if not warp_dir.exists():
+            warp_dir.mkdir(exist_ok=True, parents=True)
+        writer = SummaryWriter(warp_dir)
+
     # prepare model for testing
     model.eval()
 
@@ -107,16 +191,22 @@ def main(config, resume):
 
     torch.manual_seed(0)
     with torch.no_grad():
-        for i, (data, meta) in enumerate(tqdm(data_loader)):
+        for i, batch in enumerate(tqdm(data_loader)):
+            data, meta = batch["data"], batch["meta"]
+
             if i == 0:
                 # Checksum to make sure warps are deterministic
-                if data.shape[2] == 64:
-                    assert float(data.sum()) == -553.9221801757812
-                elif data.shape[2] == 128:
-                    assert float(data.sum()) == 754.1907348632812
+                if False:
+                    # redo later
+                    if data.shape[2] == 64:
+                        assert float(data.sum()) == -553.9221801757812
+                    elif data.shape[2] == 128:
+                        assert float(data.sum()) == 754.1907348632812
 
+            if i < 1:
+                print("skipping")
+                continue
             data = data.to(device)
-
 
             output = model(data)
 
@@ -144,19 +234,20 @@ def main(config, resume):
             kp_same = kp2[0]
             kp_diff = kp2[1]
 
-            fig = plt.figure()  # a new figure window
-            ax1 = fig.add_subplot(1, 3, 1)
-            ax2 = fig.add_subplot(1, 3, 2)
-            ax3 = fig.add_subplot(1, 3, 3)
+            if config["vis"]:
+                fig = plt.figure()  # a new figure window
+                ax1 = fig.add_subplot(1, 3, 1)
+                ax2 = fig.add_subplot(1, 3, 2)
+                ax3 = fig.add_subplot(1, 3, 3)
 
-            ax1.imshow(norm_range(im_source).permute(1, 2, 0))
-            ax1.scatter(kp_source[:, 0], kp_source[:, 1], c='g')
+                ax1.imshow(norm_range(im_source).permute(1, 2, 0))
+                ax1.scatter(kp_source[:, 0], kp_source[:, 1], c='g')
 
-            ax2.imshow(norm_range(im_same).permute(1, 2, 0))
-            ax2.scatter(kp_same[:, 0], kp_same[:, 1], c='g')
+                ax2.imshow(norm_range(im_same).permute(1, 2, 0))
+                ax2.scatter(kp_same[:, 0], kp_same[:, 1], c='g')
 
-            ax3.imshow(norm_range(im_diff).permute(1, 2, 0))
-            ax3.scatter(kp_diff[:, 0], kp_diff[:, 1], c='g')
+                ax3.imshow(norm_range(im_diff).permute(1, 2, 0))
+                ax3.scatter(kp_diff[:, 0], kp_diff[:, 1], c='g')
 
             if False:
                 fsrc = F.normalize(desc_source, p=2, dim=0)
@@ -167,22 +258,63 @@ def main(config, resume):
                 fsame = desc_same.clone()
                 fdiff = desc_diff.clone()
 
-            for ki, kp in enumerate(kp_source):
-                x, y = np.array(kp)
-                gt_samex, gt_samey = np.array(kp_same[ki])
-                gt_diffx, gt_diffy = np.array(kp_diff[ki])
+            if config["dense_match"]:
+                # if False:
+                #     print("DEBUGGING WITH IDENTICAL FEATS")
+                #     fdiff = fsrc
+                # tic = time.time()
+                grid = dense_desc_match(fsrc, fdiff)
+                im_warped = F.grid_sample(im_source.view(1, 3, imH, imW), grid)
+                im_warped = im_warped.squeeze(0)
+                # print("done matching in {:.3f}s".format(time.time() - tic))
+                plt.close("all")
+                if config["subplots"]:
+                    fig = plt.figure()  # a new figure window
+                    ax1 = fig.add_subplot(1, 3, 1)
+                    ax2 = fig.add_subplot(1, 3, 2)
+                    ax3 = fig.add_subplot(1, 3, 3)
+                    ax1.imshow(norm_range(im_source).permute(1, 2, 0))
+                    ax2.imshow(norm_range(im_diff).permute(1, 2, 0))
+                    ax3.imshow(norm_range(im_warped).permute(1, 2, 0))
+                    triplet_dest = warp_dir / "triplet-{:05d}.jpg".format(i)
+                    fig.savefig(triplet_dest)
+                else:
+                    triplet_dest_dir = warp_dir / "triplet-{:05d}".format(i)
+                    if not triplet_dest_dir.exists():
+                        triplet_dest_dir.mkdir(exist_ok=True, parents=True)
+                    for jj, im in enumerate((im_source, im_diff, im_warped)):
+                        plt.axis("off")
+                        fig = plt.figure(figsize=(1.5, 1.5))
+                        ax = plt.Axes(fig, [0., 0., 1., 1.])
+                        ax.set_axis_off()
+                        fig.add_axes(ax)
+                        # ax.imshow(data, cmap = plt.get_cmap("bone"))
+                        im_ = norm_range(im).permute(1, 2, 0)
+                        ax.imshow(im_)
+                        dest_path = triplet_dest_dir / "im-{}-{}.jpg".format(i, jj)
+                        plt.savefig(str(dest_path), dpi=im_.shape[0])
+                        # plt.savefig(filename, dpi = sizes[0])
+                # writer.add_figure('warp-triplets', fig)
 
-                samex, samey = find_descriptor(x, y, fsrc, fsame, stride)
-                ax2.scatter(samex, samey, c='b')
+            else:
+                for ki, kp in enumerate(kp_source):
+                    x, y = np.array(kp)
+                    gt_samex, gt_samey = np.array(kp_same[ki])
+                    gt_diffx, gt_diffy = np.array(kp_diff[ki])
 
-                same_errs.append(np.sqrt((gt_samex - samex) ** 2 + (gt_samey - samey) ** 2))
+                    samex, samey = find_descriptor(x, y, fsrc, fsame, stride)
 
-                diffx, diffy = find_descriptor(x, y, fsrc, fdiff, stride)
-                ax3.scatter(diffx, diffy, c='b')
+                    same_errs.append(np.sqrt((gt_samex - samex)**2 + (gt_samey - samey)**2))
 
-                diff_errs.append(np.sqrt((gt_diffx - diffx) ** 2 + (gt_diffy - diffy) ** 2))
+                    diffx, diffy = find_descriptor(x, y, fsrc, fdiff, stride)
+                    diff_errs.append(np.sqrt((gt_diffx - diffx)**2 + (gt_diffy - diffy)**2))
+                    if config["vis"]:
+                        ax2.scatter(samex, samey, c='b')
+                        ax3.scatter(diffx, diffy, c='b')
 
-            fig.savefig('/tmp/matching.pdf')
+            if config["vis"]:
+                zs_dispFig()
+                fig.savefig('/tmp/matching.pdf')
 
     print('same', np.mean(same_errs))
     print('diff', np.mean(diff_errs))
@@ -190,17 +322,41 @@ def main(config, resume):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Template')
-
-    parser.add_argument('-r', '--resume', default=None, type=str,
-                        help='path to latest checkpoint (default: None)')
-    parser.add_argument('-d', '--device', default=None, type=str,
-                        help='indices of GPUs to enable (default: all)')
+    parser.add_argument('--config', default=None, type=str)
+    parser.add_argument(
+        '--resume',
+        default=None,
+        type=str,
+        help='path to latest checkpoint (default: None)'
+    )
+    parser.add_argument(
+        '--device',
+        default=None,
+        type=str,
+        help='indices of GPUs to enable (default: all)'
+    )
+    parser.add_argument(
+        '--vis',
+        action="store_true",
+        help='indices of GPUs to enable (default: all)'
+    )
+    parser.add_argument(
+        '--dense_match',
+        action="store_true",
+        help='indices of GPUs to enable (default: all)'
+    )
+    parser.add_argument('--subplots', action="store_true")
 
     args = parser.parse_args()
 
-    if args.resume:
+    if args.config:
+        config = json.load(open(args.config))
+    elif args.resume:
         config = torch.load(args.resume)['config']
     if args.device:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.device
-
+    config.update(vars(args))
+    # config["vis"] = args.vis
+    # config["dense_match"] = args.dense_match
+    # config["subplots"] = args.subplots
     main(config, args.resume)

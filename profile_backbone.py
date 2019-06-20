@@ -13,17 +13,21 @@ import torch.nn as nn
 import data_loader.data_loaders as module_data
 from utils import NoGradWrapper, Up, get_instance
 from torch.utils.data import DataLoader
+from thop import profile
 import model.model as module_arch
 
 
 def get_profile_name(model_type, keypoint_reg, imwidth, upsample):
-    model_name = "{} imsz ({})".format(model_type, imwidth)
+    name_map = {"SmallNet": "Ours", "HourglassNet": "Hourglass"}
+    for key, val in name_map.items():
+        model_type = model_type.replace(key, val)
+    model_name = "{}, image size {},".format(model_type, imwidth)
     if keypoint_reg:
         model_name += " backbone+regressor"
     else:
         model_name += " backbone"
     if keypoint_reg and upsample:
-        model_name += " (upsample)"
+        model_name += " (+upsample)"
     return model_name
 
 
@@ -31,14 +35,16 @@ def main(config):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    for model_type in "HourglassNet", "SmallNet":
-        for keypoint_reg in True, False:
-            for upsample in True, False:
-                for imwidth in 70, 128:
+    for model_type in "SmallNet", "HourglassNet":
+        for imwidth in 70, 96, 128:
+            for keypoint_reg in False, True:
+                for upsample in False, True:
 
                     if upsample and not keypoint_reg:
                         continue  # not needed
-                    if model_type == "HourglassNet" and imwidth != 128:
+                    if model_type == "HourglassNet" and imwidth not in {96, 128}:
+                        continue  # not needed
+                    if model_type == "SmallNet" and imwidth not in {70, 128}:
                         continue  # not needed
 
                     profile_name = get_profile_name(
@@ -100,11 +106,22 @@ def main(config):
                             # print("speed: {:.3f}Hz".format(speed))
                             tic = time.time()
                             # count += batch_size
+
+                    flops, params = profile(
+                        model,
+                        input_size=(1, 3, imwidth, imwidth),
+                        verbose=False,
+                    )
                     # use format so that its easy to latexify
-                    template = "{} & {:.1f} (\\pm {:.1f})"
-                    print(
-                        template.format(profile_name, np.mean(timings),
-                                        np.std(timings)))
+                    template = "{} & {:.1f} & {:.1f} & ${:.1f} (\\pm {:.1f})$\\\\"
+                    template = template.format(
+                        profile_name,
+                        params / 10**6,
+                        flops / 10**9,
+                        np.mean(timings),
+                        np.std(timings),
+                    )
+                    print(template)
 
 
 if __name__ == '__main__':

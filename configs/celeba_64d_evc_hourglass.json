@@ -1,7 +1,7 @@
 {
-    "name": "celeba_64d_evc",
+    "name": "celeba_64d_evc_hourglass",
     "n_gpu": 1,
-    "batch_size": 12,
+    "batch_size": 16,
     "arch": {
         "type": "HourglassNet",
         "args": {
@@ -12,8 +12,8 @@
         "type": "CelebAPrunedAligned_MAFLVal",
         "args": {
             "root": "data/celeba",
-            "imwidth": 170,
-            "crop": 21
+            "imwidth": 136,
+            "crop": 20
         }
     },
     "warper": {
