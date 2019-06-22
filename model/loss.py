@@ -1,7 +1,6 @@
 import torch.nn.functional as F
 import time
 import torch
-import torch.nn.functional as F
 from utils import tps
 
 from model.folded_correlation import DenseCorr
@@ -13,6 +12,17 @@ def regression_loss(prediction_normalized, meta, alpha=1., **kwargs):
     kp = meta['keypts_normalized'].to(pred.device)
     B, nA, _ = pred.shape
     return F.smooth_l1_loss(pred * alpha, kp * alpha)
+
+
+def segmentation_loss(x, meta, weight=None, size_average=True, **kwargs):
+    target = meta["lbls"].to(x.device).long()
+    n, c, h, w = x.size()
+    nt, ht, wt = target.size()
+    if h != ht and w != wt:  # upsample labels
+        x = F.interpolate(x, size=(ht, wt), mode="bilinear", align_corners=True)
+    x = x.transpose(1, 2).transpose(2, 3).contiguous().view(-1, c)
+    target = target.view(-1)
+    return F.cross_entropy(x, target, weight=weight, size_average=size_average)
 
 
 def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):
@@ -41,7 +51,7 @@ def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False, normalize_vect
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
-        assert normalize_vectors == False
+        assert not normalize_vectors
         dense_corr = DenseCorr.apply
         return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
 

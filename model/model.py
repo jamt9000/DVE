@@ -7,3 +7,4 @@ from .smallnet import *
 from .dummynet import DummyNet
 
 from .keypoint_prediction import *
+from .segmentation_head import *

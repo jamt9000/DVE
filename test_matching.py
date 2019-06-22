@@ -19,7 +19,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from utils.visualization import norm_range
 import torch.nn.functional as F
-from utils.tps import spatial_grid_unnormalized, tps_grid, dict_coll
+from utils.util import dict_coll
+from utils.tps import spatial_grid_unnormalized, tps_grid
 from tensorboardX import SummaryWriter
 
 import sys
@@ -119,22 +120,38 @@ def main(config, resume):
         rotsd=2
     )
 
-    train_dataset = module_data.MAFLAligned(
-        root='data/celeba',
-        imwidth=imwidth,
-        crop=crop,
-        train=True,
-        pair_warper=warper1,
-        do_augmentations=False
-    )
-    val_dataset = module_data.MAFLAligned(
-        root='data/celeba',
-        imwidth=imwidth,
-        crop=crop,
-        train=False,
-        pair_warper=warper,
-        use_keypoints=True
-    )
+    if False:
+        train_dataset = module_data.MAFLAligned(
+            root='data/celeba',
+            imwidth=imwidth,
+            crop=crop,
+            train=True,
+            pair_warper=warper1,
+            do_augmentations=False
+        )
+        val_dataset = module_data.MAFLAligned(
+            root='data/celeba',
+            imwidth=imwidth,
+            crop=crop,
+            train=False,
+            pair_warper=warper,
+            use_keypoints=True
+        )
+    else:
+        train_dataset = get_instance(
+            module_data,
+            'dataset',
+            config,
+            pair_warper=warper1,
+            train=True,
+        )
+        val_dataset = get_instance(
+            module_data,
+            'dataset',
+            config,
+            pair_warper=warper,
+            train=False,
+        )
 
     train_loader = DataLoader(train_dataset, batch_size=128, shuffle=False)
     data_loader = DataLoader(val_dataset, batch_size=2, collate_fn=dict_coll,
@@ -215,8 +232,6 @@ def main(config, resume):
             descs2 = descs[1::2]  # 2nd in pair
             ims1 = data[0::2].cpu()
             ims2 = data[1::2].cpu()
-            kp1 = meta['kp1']
-            kp2 = meta['kp2']
 
             im_source = ims1[0]
             im_same = ims2[0]
@@ -230,9 +245,12 @@ def main(config, resume):
             desc_same = descs2[0]
             desc_diff = descs2[1]
 
-            kp_source = kp1[0]
-            kp_same = kp2[0]
-            kp_diff = kp2[1]
+            if not config["dense_match"]:
+                kp1 = meta['kp1']
+                kp2 = meta['kp2']
+                kp_source = kp1[0]
+                kp_same = kp2[0]
+                kp_diff = kp2[1]
 
             if config["vis"]:
                 fig = plt.figure()  # a new figure window
@@ -241,13 +259,13 @@ def main(config, resume):
                 ax3 = fig.add_subplot(1, 3, 3)
 
                 ax1.imshow(norm_range(im_source).permute(1, 2, 0))
-                ax1.scatter(kp_source[:, 0], kp_source[:, 1], c='g')
-
                 ax2.imshow(norm_range(im_same).permute(1, 2, 0))
-                ax2.scatter(kp_same[:, 0], kp_same[:, 1], c='g')
-
                 ax3.imshow(norm_range(im_diff).permute(1, 2, 0))
-                ax3.scatter(kp_diff[:, 0], kp_diff[:, 1], c='g')
+
+                if not config["dense_match"]:
+                    ax1.scatter(kp_source[:, 0], kp_source[:, 1], c='g')
+                    ax2.scatter(kp_same[:, 0], kp_same[:, 1], c='g')
+                    ax3.scatter(kp_diff[:, 0], kp_diff[:, 1], c='g')
 
             if False:
                 fsrc = F.normalize(desc_source, p=2, dim=0)

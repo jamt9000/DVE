@@ -38,6 +38,17 @@ def main(config, resume):
         else:
             model = nn.Sequential(basemodel, kp_regressor)
 
+    if 'segmentation_head' in config.keys():
+        descdim = config['arch']['args']['num_output_channels']
+        segmenter = get_instance(module_arch, 'segmentation_head', config,
+                                 descriptor_dimension=descdim)
+        basemodel = NoGradWrapper(model)
+
+        if config.get('segmentation_upsample', False):
+            model = nn.Sequential(basemodel, Up(), segmenter)
+        else:
+            model = nn.Sequential(basemodel, segmenter)
+
     # setup data_loader instances
     imwidth = config['dataset']['args']['imwidth']
     warper = get_instance(tps, 'warper', config, imwidth,
@@ -54,11 +65,12 @@ def main(config, resume):
         raise ValueError("collate function type {} unrecognised".format(coll_func))
 
     dataset = get_instance(module_data, 'dataset', config, pair_warper=warper,
-                           train=True, visualize=config["vis"])
+                           train=True)
     if config["disable_workers"]:
         num_workers = 0
     else:
         num_workers = max(4, int(config['n_gpu']) * 4)
+
     data_loader = DataLoader(
         dataset,
         batch_size=int(config["batch_size"]),
@@ -134,16 +146,16 @@ if __name__ == '__main__':
                         help='path to latest checkpoint (default: None)')
     parser.add_argument('-d', '--device', default=None, type=str,
                         help='indices of GPUs to enable (default: all)')
-    parser.add_argument('-f', '--folded_correlation', default=0, type=int,
+    parser.add_argument('-f', '--folded_correlation',
                         help='whether to use folded correlation (reduce mem)')
-    parser.add_argument('-p', '--profile', default=0, type=int,
+    parser.add_argument('-p', '--profile', action="store_true",
                         help='whether to print out profiling information')
     parser.add_argument('-b', '--batch_size', default=None, type=int,
                         help='the size of each minibatch')
     parser.add_argument('-g', '--n_gpu', default=None, type=int,
                         help='if given, override the numb')
-    parser.add_argument('--disable_workers', default=0, type=int)
-    parser.add_argument('--vis', default=0, type=int)
+    parser.add_argument('--disable_workers', action="store_true")
+    parser.add_argument('--vis', action="store_true")
     args = parser.parse_args()
 
     if args.config:
@@ -157,7 +169,9 @@ if __name__ == '__main__':
         config = torch.load(args.resume)['config']
     else:
         raise AssertionError("config file needs to be specified. Add '-c config.json'")
-    config["fold_corr"] = args.folded_correlation
+    if args.folded_correlation is not None:
+        config["loss_args"]["fold_corr"] = args.folded_correlation
+    # config["fold_corr"] = config["loss_args"]["fold_corr"]
     if args.batch_size is not None:
         config["batch_size"] = args.batch_size
     if args.n_gpu is not None:

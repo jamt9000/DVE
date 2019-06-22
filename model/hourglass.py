@@ -8,6 +8,7 @@ from base import BaseModel
 def make_gn(*args, **kwargs):
     return nn.GroupNorm(16, *args, **kwargs)
 
+
 class ResidualBottleneckPreactivation(nn.Module):
     expansion = 2
 
@@ -63,7 +64,7 @@ class HourglassBlock(nn.Module):
     def _make_blocks(self):
         layers = []
         for i in range(0, self.num_blocks):
-            layers.append(self.block(self.planes * self.block.expansion, self.planes, make_bn = self.make_bn))
+            layers.append(self.block(self.planes * self.block.expansion, self.planes, make_bn=self.make_bn))
         return nn.Sequential(*layers)
 
     def _hour_glass_layers(self, n):
@@ -90,7 +91,7 @@ class HourglassBlock(nn.Module):
         setattr(self, self.layernames[-1], nn.Upsample(scale_factor=2))
 
         self.layernames.append('sum%d' % n)
-        #setattr(self, self.layernames[-1], lambda x: self.outputs['layer%d_1' % n] + x)
+        # setattr(self, self.layernames[-1], lambda x: self.outputs['layer%d_1' % n] + x)
         setattr(self, self.layernames[-1], (torch.add, 'layer%d_1' % n))
 
     def forward(self, x):
@@ -138,9 +139,7 @@ class HourglassNet(BaseModel):
         if self.scaled_norm_output:
             self.normscale = nn.Parameter(torch.tensor(20.))
 
-
         nch = self.planes_hg * block.expansion
-
         hg = []
         output_layers = []
 
