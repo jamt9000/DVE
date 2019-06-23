@@ -42,7 +42,10 @@ def main(config, resume):
         descdim = config['arch']['args']['num_output_channels']
         segmenter = get_instance(module_arch, 'segmentation_head', config,
                                  descriptor_dimension=descdim)
-        basemodel = NoGradWrapper(model)
+        if config.get(["segmentation_head"]["freeze_base"], True):
+            basemodel = NoGradWrapper(model)
+        else:
+            basemodel = model
 
         if config.get('segmentation_upsample', False):
             model = nn.Sequential(basemodel, Up(), segmenter)
