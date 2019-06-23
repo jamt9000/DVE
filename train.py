@@ -42,7 +42,7 @@ def main(config, resume):
         descdim = config['arch']['args']['num_output_channels']
         segmenter = get_instance(module_arch, 'segmentation_head', config,
                                  descriptor_dimension=descdim)
-        if config.get(["segmentation_head"]["freeze_base"], True):
+        if config["segmentation_head"]["args"].get("freeze_base", True):
             basemodel = NoGradWrapper(model)
         else:
             basemodel = model

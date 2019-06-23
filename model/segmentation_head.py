@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class SegmentationHead(nn.Module):
-    def __init__(self, descriptor_dimension, num_classes):
+    def __init__(self, descriptor_dimension, num_classes, **kwargs):
         super().__init__()
         self.descriptor_dimension = descriptor_dimension
         self.classifier = nn.Conv2d(

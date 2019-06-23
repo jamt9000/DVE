@@ -22,7 +22,8 @@ def segmentation_loss(x, meta, weight=None, size_average=True, **kwargs):
         x = F.interpolate(x, size=(ht, wt), mode="bilinear", align_corners=True)
     x = x.transpose(1, 2).transpose(2, 3).contiguous().view(-1, c)
     target = target.view(-1)
-    return F.cross_entropy(x, target, weight=weight, size_average=size_average)
+    return F.cross_entropy(x, target, weight=weight, reduction="mean")
+    # return F.cross_entropy(x, target, weight=weight, size_average=size_average)
 
 
 def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):

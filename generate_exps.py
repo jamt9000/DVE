@@ -19,12 +19,14 @@ non_evc_3d_celeba_ckpt = "saved/smallnet_celeba_3d/0618_085842/checkpoint-epoch1
 
 def update_dict(orig, updater):
     for key, val in updater.items():
+        assert key in orig, "unknown key: {}".format(key)
         if isinstance(val, dict):
             orig[key] = update_dict(orig[key], val)
-        if val == "REMOVE-KEY":
+        elif val == "REMOVE-KEY":
             del orig[key]
         else:
             orig[key] = val
+    return orig
 
 
 if args.exp_name == "scarce-data":
@@ -36,29 +38,31 @@ if args.exp_name == "scarce-data":
     with open(template, "r") as f:
         base = json.load(f)
     restrict_to_args = [1, 10, 100, 0]
+    save_period = 100
     log_dir = "data/saved-gen"
+    visualizations = []
     epochs = 1
-    milestones = [15]
+    milestones = [1]
+    tensorboardX = True
+    # seeds = [0, 1, 2]
     seeds = [0, 1, 2]
     dataset = "Helen"
     Path(log_dir).mkdir(exist_ok=True, parents=True)
-    models = [
-        {
-            "arch": {"type": "SmallNet", "args": {"num_output_channels": 64}},
-            "finetune_from": evc_celeba_ckpt,
-        },
-        {
-            "arch": {"type": "SmallNet", "args": {"num_output_channels": 64}},
-            "finetune_from": non_evc_3d_celeba_ckpt,
-        },
-        {
+    named_models = [
+        ("scratch_64d", {
             "arch": {"type": "SmallNet", "args": {"num_output_channels": 64}},
             "finetune_from": "REMOVE-KEY",
-            "segmentation_head": {"freeze_base": False},
-        },
+            "segmentation_head": {"args": {"freeze_base": False}},
+        }),
+        ("smallnet_non_evc_3d", {
+            "arch": {"type": "SmallNet", "args": {"num_output_channels": 3}},
+            "finetune_from": non_evc_3d_celeba_ckpt,
+        }),
+        ("smallnet_evc_64d", {
+            "arch": {"type": "SmallNet", "args": {"num_output_channels": 64}},
+            "finetune_from": evc_celeba_ckpt,
+        }),
     ]
-    model_names = ["smallnet_evc_64d", "smallnet_non_evc_3d", "scratch"]
-    named_models = list(zip(model_names, models))
     total = np.prod(list(map(len, [restrict_to_args, seeds, named_models])))
     count = 0
     for restrict_to in restrict_to_args:
@@ -72,7 +76,10 @@ if args.exp_name == "scarce-data":
                 exp["dataset"]["args"]["restrict_seed"] = seed
                 exp["trainer"]["epochs"] = epochs
                 exp["trainer"]["log_dir"] = log_dir
-                exp["lr_scheduler"]["milestones"] = milestones
+                exp["trainer"]["save_period"] = save_period
+                exp["trainer"]["tensorboardX"] = tensorboardX
+                exp["visualizations"] = visualizations
+                exp["lr_scheduler"]["args"]["milestones"] = milestones
                 update_dict(exp, model)
                 exp_str = json.dumps(exp)
                 config_path = gen_config_root / "{}.json".format(exp["name"])
