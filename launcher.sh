@@ -28,7 +28,7 @@ for config in "$CONFIG_DIR/${EXP_NAME}"/*
 do
     if [[ $(( count % WORKERS )) == $GPU ]]; then
         echo "LAUNCHING: ${config}"
-        python train.py --config ${config} --device $GPU
+        python train.py --config ${config} --device $((GPU*2 + 1))
     fi
     count=$((count+1))
 done

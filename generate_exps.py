@@ -41,8 +41,8 @@ if args.exp_name == "scarce-data":
     save_period = 100
     log_dir = "data/saved-gen"
     visualizations = []
-    epochs = 1
-    milestones = [1]
+    epochs = 20
+    milestones = [15]
     tensorboardX = True
     # seeds = [0, 1, 2]
     seeds = [0, 1, 2]

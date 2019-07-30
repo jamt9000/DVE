@@ -19,6 +19,7 @@ from utils import tps
 import glob
 import torch
 from os.path import join as pjoin
+from utils.util import label_colormap
 from scipy.io import loadmat
 from torchvision import transforms
 import torchvision.transforms.functional as TF
@@ -156,8 +157,9 @@ class CelebABase(Dataset):
 
             if self.crop != 0:
                 data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+
+            if kp is not None:
                 kp = kp - self.crop
-            if kp:
                 kp = torch.tensor(kp)
 
             C, H, W = data.shape
@@ -226,6 +228,8 @@ class IJBB(Dataset):
         assert len(self.im_list) == expected, "expected {} images".format(expected)
         if prototypes:
             prototype_list = [
+                "124171.jpg",
+                "150665.jpg",
                 "3128.jpg",
                 "2920.jpg",
                 "2782.jpg",
@@ -401,12 +405,15 @@ class Chimps(CelebABase):
 
 
 class Helen(Dataset):
-    def __init__(self, root, imwidth, train, visualize=False, thresh=0.5,
-                 crop2face=False, **kwargs):
+    def __init__(self, root, imwidth, train, visualize=False, thresh=0.5, rand_in=False,
+                 crop2face=False, downsample_labels=0, break_preproc=False,
+                 restrict_to=0, restrict_seed=0, **kwargs):
         self.root = root
         self.thresh = thresh
+        self.break_preproc = break_preproc
         self.train = train
         self.visualize = visualize
+        self.rand_in = rand_in
         self.imwidth = imwidth
         setlists = {
             "train": "exemplars.txt",
@@ -441,25 +448,42 @@ class Helen(Dataset):
         msg = "expected {} images, found {}"
         expected = 2330
         assert total_ims == expected, msg.format(expected, total_ims)
+
+        if restrict_to:
+            np.random.seed(restrict_seed)
+            num_repeats = len(im_lists["train"]) // restrict_to
+            sample = np.random.choice(im_lists["train"], restrict_to)
+            im_lists["train"] = sample.repeat(num_repeats)
+
         if train:
             self.im_list = im_lists["train"]
         else:
             self.im_list = im_lists["test"]
-        normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769],
-                                         std=[0.2599, 0.2371, 0.2323])
-        aug_dict = {}
-        #     "rsize": 1.05,
-        #     "hflip": 0.5,
-        #     "translate": (2, 2),
-        # }
+        normalize = transforms.Normalize(
+            mean=[0.5084, 0.4224, 0.3769],
+            std=[0.2599, 0.2371, 0.2323],
+        )
+        aug_dict = {
+            "rsize": 1.05,
+            "hflip": 0.5,
+            "translate": (2, 2),
+        }
         # "rotate": 5,
         # "hue": 0.5,
         # "gamma": 0.5,
         self.augs = get_composed_augmentations(aug_dict)
-        self.resizer = transforms.Compose([
-            transforms.Resize((self.imwidth, self.imwidth)),
-        ])
+        self.resizer = transforms.Resize((self.imwidth, self.imwidth))
+        self.downsample_labels = downsample_labels
+        if downsample_labels:
+            label_w = self.imwidth // downsample_labels
+        else:
+            label_w = self.imwidth
+        self.label_resizer = transforms.Resize((label_w, label_w),
+                                               interpolation=Image.NEAREST)
+        if self.break_preproc:
+            normalize = transforms.Normalize(mean=[0, 0, 0], std=[1, 1, 1])
         self.transforms = transforms.Compose([transforms.ToTensor(), normalize])
+        # transforms.Resize(self.imwidth),
 
     def __getitem__(self, index):
         im_path = Path(self.root) / "images/{}.jpg".format(self.im_list[index])
@@ -467,20 +491,34 @@ class Helen(Dataset):
         name = Path(im_path).stem
         anno_template = str(Path(self.root) / "labels/{}/{}_lbl{:02d}.png")
         seg = np.zeros((im.size[1], im.size[0]), dtype=np.uint8)
+        # for ii in range(10, 0, -1):
         for ii in range(1, 11):
             anno_path = anno_template.format(name, name, ii)
             lbl_im = np.array(Image.open(anno_path).convert("L"))
             assert lbl_im.ndim == 2, "expected greyscale"
-            seg[lbl_im > self.thresh] = ii
+            # if sum(seg[lbl_im > self.thresh]) > 0:
+            #     print("already colored these pixels")
+            #     import ipdb; ipdb.set_trace()
+            seg[lbl_im > self.thresh * 255] = ii
+            # plt.matshow(seg)
+            # zs_dispFig()
 
         seg = Image.fromarray(seg, "L")
-        if self.train and False:
-            im, seg = self.augs(im, seg)
+        # if self.train and False:
+        #     im, seg = self.augs(im, seg)
 
-        seg = self.resizer(seg)
+        seg = self.label_resizer(seg)
         seg = torch.from_numpy(np.array(seg))
         data = self.resizer(im)
         data = self.transforms(data)
+
+        if False:
+            counts = torch.histc(seg.float(), bins=11, min=0, max=10)
+            probs = counts / counts.sum()
+            for name, prob in zip(self.classnames, probs):
+                print("{}\t {:.2f}".format(name, prob))
+        if self.rand_in:
+            data = torch.randn(data.shape)
 
         if self.visualize:
             from torchvision.utils import make_grid
@@ -491,10 +529,18 @@ class Helen(Dataset):
             fig = plt.figure()  # a new figure window
             ax1 = fig.add_subplot(1, 3, 1)
             ax2 = fig.add_subplot(1, 3, 2)
+            ax3 = fig.add_subplot(1, 3, 3)
             ax1.imshow(ims)
-            ax2.matshow(seg)
+            ax2.imshow(label_colormap(seg).numpy())
+            if self.downsample_labels:
+                sz = tuple([x * self.downsample_labels for x in seg.size()])
+                seg_ = np.array(Image.fromarray(seg.numpy()).resize(sz))
+            else:
+                seg_ = seg
+            # ax3.matshow(seg_)
+            ax3.imshow(label_colormap(seg_).numpy())
+            ax3.imshow(ims, alpha=0.5)
             zs_dispFig()
-            import ipdb; ipdb.set_trace()
 
         return {"data": data, "meta": {"im_path": str(im_path), "lbls": seg}}
 
@@ -573,7 +619,7 @@ class MAFLAligned(CelebABase):
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
                  do_augmentations=True, use_keypoints=False, use_hq_ims=False,
-                 visualize=False):
+                 visualize=False, **kwargs):
         self.root = root
         self.imwidth = imwidth
         self.use_hq_ims = use_hq_ims
@@ -582,6 +628,12 @@ class MAFLAligned(CelebABase):
         self.warper = pair_warper
         self.crop = crop
         self.use_keypoints = use_keypoints
+
+        if use_hq_ims:
+            subdir = "img_align_celeba_hq"
+        else:
+            subdir = "img_align_celeba"
+        self.subdir = os.path.join(root, 'Img', subdir)
 
         anno = pd.read_csv(
             os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt'), header=1,
@@ -644,11 +696,18 @@ if __name__ == '__main__':
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--use_keypoints", action="store_true")
     parser.add_argument("--use_minival", action="store_true")
+    parser.add_argument("--break_preproc", action="store_true")
+    parser.add_argument("--rand_in", action="store_true")
+    parser.add_argument("--restrict_to", type=int, help="restrict to n images")
+    parser.add_argument("--downsample_labels", type=int, default=2)
+    parser.add_argument("--show", type=int, default=20)
+    parser.add_argument("--restrict_seed", type=int, default=0)
     parser.add_argument("--root")
     args = parser.parse_args()
 
     default_roots = {
         "CelebAPrunedAligned_MAFLVal": "data/celeba",
+        "MAFLAligned": "data/celeba",
         "Helen": "data/SmithCVPR2013_dataset_resized",
         "AFLW": "data/aflw/aflw_release-2",
         "Chimps": "data/chimpanzee_faces/datasets_cropped_chimpanzee_faces/data_CZoo",
@@ -663,28 +722,40 @@ if __name__ == '__main__':
         "visualize": True,
         "imwidth": imwidth,
         "use_minival": args.use_minival,
+        "downsample_labels": args.downsample_labels,
+        "break_preproc": args.break_preproc,
+        "rand_in": args.rand_in,
+        "restrict_to": args.restrict_to,
+        "restrict_seed": args.restrict_seed,
     }
     kwargs["pair_warper"] = tps.Warper(H=imwidth, W=imwidth) if args.train else None
 
+    show = args.show
+    if args.restrict_to:
+        show = min(args.restrict_to, show)
     if args.dataset == "IJBB":
         dataset = IJBB('data/ijbb', prototypes=True, imwidth=128, train=False)
-        for ii in range(3):
+        for ii in range(show):
             dataset[ii]
     elif args.dataset == "Helen":
         dataset = Helen(**kwargs)
-        for ii in range(20):
+        for ii in range(show):
             dataset[ii]
     elif args.dataset == "AFLW":
         dataset = AFLW(**kwargs)
-        for ii in range(20):
+        for ii in range(show):
             dataset[ii]
     elif args.dataset == "Chimps":
         dataset = Chimps(**kwargs)
-        for ii in range(20):
+        for ii in range(show):
             dataset[ii]
     elif args.dataset == "CelebAPrunedAligned_MAFLVal":
         dataset = CelebAPrunedAligned_MAFLVal(**kwargs)
-        for ii in range(20):
+        for ii in range(show):
+            dataset[ii]
+    elif args.dataset == "MAFLAligned":
+        dataset = MAFLAligned(**kwargs)
+        for ii in range(show):
             dataset[ii]
         # out = dataset[6]
         # x, meta = out["data"], out["meta"]

@@ -1,6 +1,7 @@
 """Log parser
 
-python parse_logs.py --log_path data/grid-logs/scarce-data.txt.2019-06-23_15-12-22
+python parse_logs.py --log_path data/grid-logs/2019-06-23_16-22-18-scarce-data-GPU0.txt.2019-06-23_16-22-18,data/grid-logs/2019-06-23_16-22-18-scarce-data-GPU1.txt.2019-06-23_16-22-18
+
 """
 import argparse
 import numpy as np
@@ -14,8 +15,10 @@ parser.add_argument(
 parser.add_argument("--key_metric", default="miou")
 args = parser.parse_args()
 
-with open(args.log_path, "r") as f:
-    log = f.read().splitlines()
+log = []
+for log_path in args.log_path.split(","):
+    with open(log_path, "r") as f:
+        log += f.read().splitlines()
 
 metric_names = ["acc", "clsacc", "fwacc", "miou"]
 best_metrics = {key: defaultdict(list) for key in metric_names}
@@ -28,8 +31,9 @@ for row in log:
         if metrics is not None:
             best_epoch = np.argmax(metrics[args.key_metric])
             # exp name has the format <03d>-of-<03d>-stem-seed<seed_num>
+            stem = "-".join(exp_name.split("-")[3:-1])
+            print(stem)
             for key, val in metrics.items():
-                stem = "-".join(exp_name.split("-")[3:-1])
                 best_metrics[key][stem].append(val[best_epoch])
                 # print("{}: {}, {}".format(key, np.mean(val), np.std(val)))
 
@@ -44,5 +48,6 @@ for row in log:
     # print(row)
 for key, val in best_metrics.items():
     print("Metric: {}".format(key))
-    for subkey, subval in val.items():
-        print("{:.2f}, {:.2f} {}".format(np.mean(subval), np.std(subval), subkey))
+    for subkey, subval in sorted(val.items()):
+        msg = "{:.2f}, {:.2f} [{}] {}"
+        print(msg.format(np.mean(subval), np.std(subval), len(subval), subkey))

@@ -1,7 +1,7 @@
 {
-    "name": "warp_ims_smallnet_mafl_64d_evc_128in_keypoints-ep57",
+    "name": "warp_ims_smallnet_chimps_64d_evc",
     "n_gpu": 1,
-    "weights": "aws-saved/smallnet_celeba_64d_evc_128in_checkpoint-epoch57.pth",
+    "weights": "data/saved/smallnet_chimps_64d_evc_70in/0621_075956/checkpoint-epoch300.pth",
     "batch_size": 4,
     "keypoint_regressor_upsample": false,
     "arch": {
@@ -11,13 +11,12 @@
         }
     },
     "dataset": {
-        "type": "MAFLAligned",
+        "type": "Chimps",
         "args": {
-            "root": "data/celeba",
-            "imwidth": 180,
-            "crop": 26,
-            "use_hq_ims": true,
-            "use_keypoints": true,
+            "root": "data/chimpanzee_faces/datasets_cropped_chimpanzee_faces/data_CZoo",
+            "imwidth": 128,
+            "crop": 0,
+            "use_keypoints": false,
             "do_augmentations": false
         }
     },
