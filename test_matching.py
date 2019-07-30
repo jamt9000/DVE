@@ -24,13 +24,10 @@ def coll(batch):
 
 def find_descriptor(x, y, source_descs, target_descs, stride):
     C, H, W = source_descs.shape
-
     x = int(np.round(x / stride))
     y = int(np.round(y / stride))
-
-    x = min(W-1,max(x,0))
-    y = min(H-1,max(y,0))
-
+    x = min(W - 1, max(x, 0))
+    y = min(H - 1, max(y, 0))
     query_desc = source_descs[:, y, x]
 
     corr = torch.matmul(query_desc.reshape(-1, C), target_descs.reshape(C, H * W))
@@ -116,8 +113,6 @@ def main(config, resume):
                     assert float(data.sum()) == 754.1907348632812
 
             data = data.to(device)
-
-
             output = model(data)
 
             descs = output[0]
@@ -190,12 +185,10 @@ def main(config, resume):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Template')
-
     parser.add_argument('-r', '--resume', default=None, type=str,
                         help='path to latest checkpoint (default: None)')
     parser.add_argument('-d', '--device', default=None, type=str,
                         help='indices of GPUs to enable (default: all)')
-
     args = parser.parse_args()
 
     if args.resume:
