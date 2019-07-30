@@ -112,3 +112,7 @@ datasets/
 __MACOSX/
 data
 dev
+
+# ignore symlinks
+saved
+aws-saved
