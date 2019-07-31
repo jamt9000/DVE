@@ -111,7 +111,7 @@ def estimate_mem(x):
     return torch.numel(x) * nbytes / (1024) ** 3
 
 
-def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):
+def dense_correlation_loss_dve(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):
     feats = feats[0]
     device = feats.device
 
@@ -163,8 +163,8 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False, normalize_
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
-        from model.folded_correlation_evc import DenseCorrEvc
-        dense_corr = DenseCorrEvc.apply
+        from model.folded_correlation_dve import DenseCorrDve
+        dense_corr = DenseCorrDve.apply
         return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride,
                           normalize_vectors, pow)
 
@@ -289,8 +289,8 @@ def rel_diff(x1, x2, name):
 
 
 def dense_corr_trick_check():
-    evc_dim = 4
-    B, C, H, W = 4, evc_dim, 4, 4
+    dve_dim = 4
+    B, C, H, W = 4, dve_dim, 4, 4
 
     common = {"dtype": torch.double, "requires_grad": True}
     feats = torch.randn(B, C, H, W, **common)

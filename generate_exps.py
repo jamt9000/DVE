@@ -13,8 +13,8 @@ parser.add_argument("--gen_config_dir", default="data/gen_configs")
 parser.add_argument("--refresh", action="store_true")
 args = parser.parse_args()
 
-evc_celeba_ckpt = "aws-saved/smallnet_celeba_64d_evc_128in_checkpoint-epoch57.pth"
-non_evc_3d_celeba_ckpt = "saved/smallnet_celeba_3d/0618_085842/checkpoint-epoch161.pth"
+dve_celeba_ckpt = "aws-saved/smallnet_celeba_64d_dve_128in_checkpoint-epoch57.pth"
+non_dve_3d_celeba_ckpt = "saved/smallnet_celeba_3d/0618_085842/checkpoint-epoch161.pth"
 
 
 def update_dict(orig, updater):
@@ -31,7 +31,7 @@ def update_dict(orig, updater):
 
 if args.exp_name == "scarce-data":
     gen_config_root = Path(args.gen_config_dir, args.exp_name)
-    template = "configs/smallnet_helen_64d_evc_128in-scarce-data-template.json"
+    template = "configs/smallnet_helen_64d_dve_128in-scarce-data-template.json"
     if args.refresh and gen_config_root.exists():
         shutil.rmtree(str(gen_config_root))
     gen_config_root.mkdir(exist_ok=True, parents=True)
@@ -54,13 +54,13 @@ if args.exp_name == "scarce-data":
             "finetune_from": "REMOVE-KEY",
             "segmentation_head": {"args": {"freeze_base": False}},
         }),
-        ("smallnet_non_evc_3d", {
+        ("smallnet_non_dve_3d", {
             "arch": {"type": "SmallNet", "args": {"num_output_channels": 3}},
-            "finetune_from": non_evc_3d_celeba_ckpt,
+            "finetune_from": non_dve_3d_celeba_ckpt,
         }),
-        ("smallnet_evc_64d", {
+        ("smallnet_dve_64d", {
             "arch": {"type": "SmallNet", "args": {"num_output_channels": 64}},
-            "finetune_from": evc_celeba_ckpt,
+            "finetune_from": dve_celeba_ckpt,
         }),
     ]
     total = np.prod(list(map(len, [restrict_to_args, seeds, named_models])))

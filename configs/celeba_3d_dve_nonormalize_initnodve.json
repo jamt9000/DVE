@@ -1,50 +1,50 @@
 {
-    "name": "smallnet_mafl_3d_nomaxpool_keypoints-smallwarp-ep20",
-    "n_gpu": 1,
-    "finetune_from": "saved/smallnet_celeba_3d_dve_nomaxpool/0319_233554/checkpoint-epoch20.pth",
-    "batch_size": 128,
+    "name": "celeba_3d_dve_nonormalize_initnodve",
+    "n_gpu": 4,
+    "finetune_from": "saved/celeba_3d_nonormalize_checkpoint-epoch1.pth",
+    "batch_size": 48,
     "arch": {
-        "type": "SmallNet",
+        "type": "HourglassNet",
         "args": {
             "num_output_channels": 3
         }
     },
     "dataset": {
-        "type": "MAFLAligned",
+        "type": "CelebAPrunedAligned_MAFLVal",
         "args": {
             "root": "data/celeba",
-            "imwidth": 100,
-            "crop": 15,
-            "use_keypoints": true
+            "imwidth": 170,
+            "crop": 21
         }
     },
-    "keypoint_regressor": {
-        "type": "IntermediateKeypointPredictor",
+    "warper": {
+        "type": "Warper",
         "args": {
-            "num_annotated_points": 5,
-            "num_intermediate_points": 50
         }
     },
-    "warp_val": false,
     "optimizer": {
         "type": "Adam",
         "args": {
-            "lr": 0.1,
+            "lr": 0.001,
             "weight_decay": 0,
             "amsgrad": true
         }
     },
-    "loss": "regression_loss",
+    "loss": "dense_correlation_loss_dve",
+    "loss_args": {"normalize_vectors": false},
     "metrics": [
-        "inter_ocular_error"
+
     ],
     "visualizations": [
-        "keypoints_intermediate"
+        "sphere_colormap",
+        "sphere_rand_proj_colormap",
+        "sphere_norm_scatter3d",
+        "sphere_scatter3d"
     ],
     "lr_scheduler": {
-        "type": "MultiStepLR",
+        "type": "StepLR",
         "args": {
-            "milestones": [10,30,50,70],
+            "step_size": 50,
             "gamma": 0.1
         }
     },

@@ -1,10 +1,10 @@
 {
-    "name": "smallnet_mafl_3d_nomaxpool_keypoints-smallwarp-ep20",
+    "name": "mafl_3d_small_dve_keypoints",
     "n_gpu": 1,
-    "finetune_from": "saved/smallnet_celeba_3d_dve_nomaxpool/0319_233554/checkpoint-epoch20.pth",
+    "finetune_from": "saved/celeba_3d_small_dve/0305_152849/checkpoint-epoch19.pth",
     "batch_size": 128,
     "arch": {
-        "type": "SmallNet",
+        "type": "HourglassNet",
         "args": {
             "num_output_channels": 3
         }
@@ -14,8 +14,7 @@
         "args": {
             "root": "data/celeba",
             "imwidth": 100,
-            "crop": 15,
-            "use_keypoints": true
+            "crop": 18
         }
     },
     "keypoint_regressor": {
@@ -23,6 +22,11 @@
         "args": {
             "num_annotated_points": 5,
             "num_intermediate_points": 50
+        }
+    },
+    "warper": {
+        "type": "WarperSingle",
+        "args": {
         }
     },
     "warp_val": false,
@@ -42,9 +46,9 @@
         "keypoints_intermediate"
     ],
     "lr_scheduler": {
-        "type": "MultiStepLR",
+        "type": "StepLR",
         "args": {
-            "milestones": [10,30,50,70],
+            "step_size": 20,
             "gamma": 0.1
         }
     },

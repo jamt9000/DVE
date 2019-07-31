@@ -1,7 +1,7 @@
 {
-    "name": "smallnet_mafl_3d_nomaxpool_keypoints-smallwarp-ep20",
+    "name": "smallnet_mafl_3d_dve_keypoints-smallwarp-ep105",
     "n_gpu": 1,
-    "finetune_from": "saved/smallnet_celeba_3d_dve_nomaxpool/0319_233554/checkpoint-epoch20.pth",
+    "finetune_from": "saved/smallnet_celeba_3d_dve/0319_220445/checkpoint-epoch105.pth",
     "batch_size": 128,
     "arch": {
         "type": "SmallNet",

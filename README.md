@@ -26,12 +26,12 @@ In this work we use the following datasets:
 
 | Embedding Dim | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :-: | :----: | :----: | :----: |
-|  3 | :heavy_multiplication_x: | 17.93 | 23.48 [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-07-31_10-54-09/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-07-31_10-54-09/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-3d/2019-07-31_10-54-09/info.log) |
-|  3 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
-|  16 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
-|  16 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
-|  64 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
-|  64 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
+|  3 | :heavy_multiplication_x: | 17.93 | 23.48 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-07-31_10-54-09/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-07-31_10-54-09/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-3d/2019-07-31_10-54-09/info.log) |
+|  3 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
 
 <!-- |  16 | :heavy_multiplication_x: | TODO| TODO |[config](), [model](), [log]()
 |  64 | :heavy_multiplication_x: | TODO| TODO |[config](), [model](), [log]()

@@ -1,6 +1,6 @@
 """
 python profile_backbone.py \
-    --config configs/profile_smallnet_mafl_64d_evc.json \
+    --config configs/profile_smallnet_mafl_64d_dve.json \
     --device 3
 """
 import os
