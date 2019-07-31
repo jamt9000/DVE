@@ -114,3 +114,6 @@ data
 dev
 aws-saved
 saved
+
+.DS_Store
+._.DS_Store
