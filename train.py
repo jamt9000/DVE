@@ -1,6 +1,7 @@
-import os
-import json
+import time
 import argparse
+import numpy as np
+import random
 import torch
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
@@ -11,16 +12,24 @@ from trainer import Trainer
 from utils import Logger, dict_coll
 from utils import tps, clean_state_dict, coll, NoGradWrapper, Up, get_instance
 import torch.nn as nn
+from parse_config import ConfigParser
 from torch.utils.data import DataLoader
 import torch.utils.data.dataloader
 
 
 def main(config, resume):
-    train_logger = Logger()
+    logger = config.get_logger('train')
+    seed = int(config._args.seed)
     # torch.backends.cudnn.benchmark = True
 
-    # build model architecture
+    tic = time.time()
+    logger.info(f"Setting experiment random seed to {seed}")
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
     model = get_instance(module_arch, 'arch', config)
+    logger.info(model)
 
     if 'finetune_from' in config.keys():
         checkpoint = torch.load(config['finetune_from'])
@@ -133,12 +142,22 @@ def main(config, resume):
 
     lr_scheduler = get_instance(torch.optim.lr_scheduler, 'lr_scheduler', config,
                                 optimizer)
-    trainer = Trainer(model, loss, metrics, optimizer, resume=resume, config=config,
-                      data_loader=data_loader, valid_data_loader=valid_data_loader,
-                      lr_scheduler=lr_scheduler, train_logger=train_logger,
-                      visualizations=visualizations)
-
+    trainer = Trainer(
+        model=model,
+        loss=loss,
+        metrics=metrics,
+        resume=resume,
+        config=config,
+        optimizer=optimizer,
+        data_loader=data_loader,
+        lr_scheduler=lr_scheduler,
+        visualizations=visualizations,
+        mini_train=config._args.mini_train,
+        valid_data_loader=valid_data_loader,
+    )
     trainer.train()
+    duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - tic))
+    logger.info(f"Training took {duration}")
 
 
 if __name__ == '__main__':
@@ -157,31 +176,40 @@ if __name__ == '__main__':
                         help='the size of each minibatch')
     parser.add_argument('-g', '--n_gpu', default=None, type=int,
                         help='if given, override the numb')
+    parser.add_argument('--seed', default=0, type=int, help='random seed')
+    parser.add_argument('--mini_train', action="store_true")
+    parser.add_argument('--train_single_epoch', action="store_true")
     parser.add_argument('--disable_workers', action="store_true")
     parser.add_argument('--vis', action="store_true")
-    args = parser.parse_args()
+    config = ConfigParser(parser)
 
-    if args.config:
-        # load config file
-        config = json.load(open(args.config))
-        path = os.path.join(config['trainer']['save_dir'], config['name'])
-    elif args.resume:
-        # load config file from checkpoint, in case new config file is not given.
-        # Use '--config' and '--resume' arguments together to load trained model and
-        # train more with changed config.
-        config = torch.load(args.resume)['config']
-    else:
-        raise AssertionError("config file needs to be specified. Add '-c config.json'")
+    # if args.config:
+    #     # load config file
+    #     config = json.load(open(args.config))
+    #     path = os.path.join(config['trainer']['save_dir'], config['name'])
+    # elif args.resume:
+    #     # load config file from checkpoint, in case new config file is not given.
+    #     # Use '--config' and '--resume' arguments together to load trained model and
+    #     # train more with changed config.
+    #     config = torch.load(args.resume)['config']
+    # else:
+    #     raise AssertionError("config file needs to be specified. Add '-c config.json'")
+
+    # We allow a small number of cmd-line overrides for fast dev
+    args = config._args
     if args.folded_correlation is not None:
         config["loss_args"]["fold_corr"] = args.folded_correlation
-    # config["fold_corr"] = config["loss_args"]["fold_corr"]
-    if args.batch_size is not None:
+    if config._args.batch_size is not None:
         config["batch_size"] = args.batch_size
-    if args.n_gpu is not None:
+    if config._args.n_gpu is not None:
         config["n_gpu"] = args.n_gpu
     config["profile"] = args.profile
     config["vis"] = args.vis
     config["disable_workers"] = args.disable_workers
-    if args.device:
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.device
+
+    if args.train_single_epoch:
+        print("Restring training to a single epoch....")
+        config["trainer"]["epochs"] = 1
+        config["trainer"]["save_period"] = 1
+
     main(config, args.resume)

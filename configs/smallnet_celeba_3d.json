@@ -1,5 +1,4 @@
 {
-    "name": "smallnet_celeba_3d",
     "n_gpu": 1,
     "batch_size": 32,
     "bias_lr": 0.00001,

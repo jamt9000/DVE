@@ -47,11 +47,11 @@ class Trainer(BaseTrainer):
             data_loader,
             valid_data_loader=None,
             lr_scheduler=None,
-            train_logger=None,
             visualizations=None,
+            mini_train=False,
             **kwargs,
     ):
-        super().__init__(model, loss, metrics, optimizer, resume, config, train_logger)
+        super().__init__(model, loss, metrics, optimizer, resume, config)
         self.config = config
         self.data_loader = data_loader
         self.valid_data_loader = valid_data_loader
@@ -59,6 +59,7 @@ class Trainer(BaseTrainer):
         self.lr_scheduler = lr_scheduler
         self.log_step = max(1, int(len(self.data_loader) / 5.))
         self.visualizations = visualizations if visualizations is not None else []
+        self.mini_train = mini_train
         self.loss_args = config.get('loss_args', {})
 
         assert self.lr_scheduler.optimizer is self.optimizer
@@ -156,7 +157,6 @@ class Trainer(BaseTrainer):
         for batch_idx, batch in enumerate(self.data_loader):
             data, meta = batch["data"], batch["meta"]
             data = data.to(self.device)
-
             seen += data.shape[0] // 2
 
             if profile:
@@ -249,9 +249,11 @@ class Trainer(BaseTrainer):
                 seen = 0
                 if profile:
                     timings["vis"] = time.time() - tic
-            """Do some aggressive reference clearning to ensure that we don't
-            hang onto memory while fetching the next minibatch."""
-            #  For safety, disabling this for now
+
+            # Do some aggressive reference clearning to ensure that we don't
+            # hang onto memory while fetching the next minibatch (for safety, disabling
+            # this for now)
+
             # del data
             # del loss
             # del output
@@ -267,8 +269,11 @@ class Trainer(BaseTrainer):
                     print(msg.format(timings[key], ratio, key))
                 print("==============")
 
-        log = {'loss': avg_loss.avg, 'metrics': [a.avg for a in total_metrics]}
+            if self.mini_train and batch_idx > 3:
+                self.logger.info("Mini training: exiting epoch early...")
+                break
 
+        log = {'loss': avg_loss.avg, 'metrics': [a.avg for a in total_metrics]}
         self.writer.set_step(epoch, 'train_epoch')
         self.writer.add_scalar('loss', log['loss'])
 
@@ -281,7 +286,6 @@ class Trainer(BaseTrainer):
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step(epoch - 1)
-
         return log
 
     def _valid_epoch(self, epoch):
@@ -294,6 +298,7 @@ class Trainer(BaseTrainer):
             The validation metrics in log must have the key 'val_metrics'.
         """
         cached_state = torch.get_rng_state()
+        self.logger.info(f"Running validation for epoch {epoch}")
         self.model.eval()
         avg_val_loss = AverageMeter()
         total_val_metrics = [AverageMeter() for a in range(len(self.metrics))]

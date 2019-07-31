@@ -1,5 +1,6 @@
 import os
 import torch
+import json
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
@@ -124,3 +125,13 @@ class Up(nn.Module):
     def forward(self, x):
         with torch.no_grad():
             return [F.interpolate(x[0], scale_factor=2, mode='bilinear', align_corners=False)]
+
+
+def read_json(fname):
+    with fname.open('rt') as handle:
+        return json.load(handle, object_hook=OrderedDict)
+
+
+def write_json(content, fname):
+    with fname.open('wt') as handle:
+        json.dump(content, handle, indent=4, sort_keys=False)
