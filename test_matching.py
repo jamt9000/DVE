@@ -9,7 +9,7 @@ import argparse
 import torch
 from tqdm import tqdm
 import data_loader.data_loaders as module_data
-import json
+from parse_config import ConfigParser
 import model.model as module_arch
 from train import get_instance
 from utils import tps, clean_state_dict
@@ -34,20 +34,15 @@ from zsvision.zs_iterm import zs_dispFig # NOQA
 
 def find_descriptor(x, y, source_descs, target_descs, stride):
     C, H, W = source_descs.shape
-
     x = int(np.round(x / stride))
     y = int(np.round(y / stride))
-
     x = min(W - 1, max(x, 0))
     y = min(H - 1, max(y, 0))
-
     query_desc = source_descs[:, y, x]
-
     corr = torch.matmul(query_desc.reshape(-1, C), target_descs.reshape(C, H * W))
     maxidx = corr.argmax()
     grid = spatial_grid_unnormalized(H, W).reshape(-1, 2) * stride
     x, y = grid[maxidx]
-
     return x.item(), y.item()
 
 
@@ -59,7 +54,6 @@ def dense_desc_match(src, target, upscale=2):
     target = F.interpolate(target.unsqueeze(0), **interp_kwargs).squeeze(0)
     C, H, W = src.shape
     # target = F.interpolate(target.unsqueeze(0), **interp_kwargs).squeeze(0)
-
     grid = tps_grid(H, W)
     # to (H x W x H x W)
     corr = torch.einsum("ijk,ilm->jklm", src, target)
@@ -74,10 +68,15 @@ def dense_desc_match(src, target, upscale=2):
     # return picks
 
 
-def main(config, resume):
-    device = 'cuda'
+def evaluation(config, logger=None):
+    device = torch.device('cuda:0' if config["n_gpu"] > 0 else 'cpu')
 
-    # setup data_loader instances
+    if logger is None:
+        logger = config.get_logger('test')
+
+    logger.info("Running evaluation with configuration:")
+    logger.info(config)
+
     imwidth = config['dataset']['args']['imwidth']
     warp_crop_default = config['warper']['args'].get('crop', None)
     crop = config['dataset']['args'].get('crop', warp_crop_default)
@@ -109,7 +108,6 @@ def main(config, resume):
             im1_multiplier_aff=1
         )
     warper = tps.Warper(imwidth, imwidth, **warp_kwargs)
-
     warper1 = tps.WarperSingle(
         imwidth,
         imwidth,
@@ -162,7 +160,10 @@ def main(config, resume):
     model.summary()
 
     # load state dict
-    checkpoint = torch.load(config["weights"])
+    ckpt_path = config._args.resume
+    logger.info(f"Loading checkpoint: {ckpt_path} ...")
+    checkpoint = torch.load(ckpt_path)
+    # checkpoint = torch.load(config["weights"])
     state_dict = checkpoint['state_dict']
     if config['n_gpu'] > 1:
         model = torch.nn.DataParallel(model)
@@ -200,9 +201,7 @@ def main(config, resume):
             warp_dir.mkdir(exist_ok=True, parents=True)
         writer = SummaryWriter(warp_dir)
 
-    # prepare model for testing
     model.eval()
-
     same_errs = []
     diff_errs = []
 
@@ -213,18 +212,18 @@ def main(config, resume):
 
             if i == 0:
                 # Checksum to make sure warps are deterministic
-                if False:
+                if True:
                     # redo later
                     if data.shape[2] == 64:
                         assert float(data.sum()) == -553.9221801757812
                     elif data.shape[2] == 128:
                         assert float(data.sum()) == 754.1907348632812
+                    import ipdb; ipdb.set_trace()
 
-            if i < 1:
-                print("skipping")
-                continue
+            # if i < 1:
+            #     print("skipping")
+            #     continue
             data = data.to(device)
-
             output = model(data)
 
             descs = output[0]
@@ -312,8 +311,7 @@ def main(config, resume):
                         dest_path = triplet_dest_dir / "im-{}-{}.jpg".format(i, jj)
                         plt.savefig(str(dest_path), dpi=im_.shape[0])
                         # plt.savefig(filename, dpi = sizes[0])
-                # writer.add_figure('warp-triplets', fig)
-
+                writer.add_figure('warp-triplets', fig)
             else:
                 for ki, kp in enumerate(kp_source):
                     x, y = np.array(kp)
@@ -340,41 +338,30 @@ def main(config, resume):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Template')
-    parser.add_argument('--config', default=None, type=str)
-    parser.add_argument(
-        '--resume',
-        default=None,
-        type=str,
-        help='path to latest checkpoint (default: None)'
-    )
-    parser.add_argument(
-        '--device',
-        default=None,
-        type=str,
-        help='indices of GPUs to enable (default: all)'
-    )
-    parser.add_argument(
-        '--vis',
-        action="store_true",
-        help='indices of GPUs to enable (default: all)'
-    )
-    parser.add_argument(
-        '--dense_match',
-        action="store_true",
-        help='indices of GPUs to enable (default: all)'
-    )
+    parser.add_argument('--config', help="config file path")
+    parser.add_argument('--resume', help='path to ckpt for evaluation')
+    parser.add_argument('--device', help='indices of GPUs to enable')
+    parser.add_argument('--vis', action="store_true")
+    parser.add_argument('--dense_match', action="store_true")
     parser.add_argument('--subplots', action="store_true")
+    eval_config = ConfigParser(parser)
 
-    args = parser.parse_args()
+    eval_config["dense_match"] = eval_config._args.dense_match
+    eval_config["vis"] = eval_config._args.vis
+    msg = "For evaluation, a model checkpoint must be specified via the --resume flag"
+    assert eval_config._args.resume, msg
+    evaluation(eval_config)
 
-    if args.config:
-        config = json.load(open(args.config))
-    elif args.resume:
-        config = torch.load(args.resume)['config']
-    if args.device:
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.device
-    config.update(vars(args))
-    # config["vis"] = args.vis
+    # args = parser.parse_args()
+
+    # if args.config:
+    #     config = json.load(open(args.config))
+    # elif args.resume:
+    #     config = torch.load(args.resume)['config']
+    # if args.device:
+    #     os.environ["CUDA_VISIBLE_DEVICES"] = args.device
+    # config.update(vars(args))
+    # # config["vis"] = args.vis
     # config["dense_match"] = args.dense_match
-    # config["subplots"] = args.subplots
-    main(config, args.resume)
+    # # config["subplots"] = args.subplots
+    # main(config, args.resume)

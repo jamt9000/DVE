@@ -1,0 +1,29 @@
+{
+    "n_gpu": 1,
+    "batch_size": 32,
+    "bias_lr": 0.00001,
+    "arch": {
+        "type": "SmallNet",
+        "args": {
+            "num_output_channels": 3
+        }
+    },
+    "dataset": {
+        "type": "CelebAPrunedAligned_MAFLVal",
+        "args": {
+            "root": "data/celeba",
+            "imwidth": 100,
+            "use_keypoints": true,
+            "crop": 15
+        }
+    },
+    "warper": {
+        "type": "Warper",
+        "args": {
+        }
+    },
+    "tester": {
+        "save_dir": "data/saved/",
+        "verbosity": 2
+    }
+}
