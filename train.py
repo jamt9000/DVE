@@ -11,6 +11,7 @@ import utils.visualization as module_visualization
 from trainer import Trainer
 from utils import Logger, dict_coll
 from utils import tps, clean_state_dict, coll, NoGradWrapper, Up, get_instance
+from test_matching import evaluation
 import torch.nn as nn
 from parse_config import ConfigParser
 from torch.utils.data import DataLoader
@@ -158,6 +159,10 @@ def main(config, resume):
     trainer.train()
     duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - tic))
     logger.info(f"Training took {duration}")
+    config._args.resume = config.save_dir / "model_best.pth"
+    config["mini_eval"] = config._args.mini_train
+    evaluation(config, logger=logger)
+    logger.info(f"Log written to {config.log_path}")
 
 
 if __name__ == '__main__':
@@ -180,6 +185,7 @@ if __name__ == '__main__':
     parser.add_argument('--mini_train', action="store_true")
     parser.add_argument('--train_single_epoch', action="store_true")
     parser.add_argument('--disable_workers', action="store_true")
+    parser.add_argument('--check_bn_working', action="store_true")
     parser.add_argument('--vis', action="store_true")
     config = ConfigParser(parser)
 
@@ -206,6 +212,7 @@ if __name__ == '__main__':
     config["profile"] = args.profile
     config["vis"] = args.vis
     config["disable_workers"] = args.disable_workers
+    config["trainer"]["check_bn_working"] = args.check_bn_working
 
     if args.train_single_epoch:
         print("Restring training to a single epoch....")

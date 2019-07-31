@@ -49,6 +49,7 @@ class Trainer(BaseTrainer):
             lr_scheduler=None,
             visualizations=None,
             mini_train=False,
+            check_bn_working=False,
             **kwargs,
     ):
         super().__init__(model, loss, metrics, optimizer, resume, config)
@@ -60,6 +61,7 @@ class Trainer(BaseTrainer):
         self.log_step = max(1, int(len(self.data_loader) / 5.))
         self.visualizations = visualizations if visualizations is not None else []
         self.mini_train = mini_train
+        self.check_bn_working = check_bn_working
         self.loss_args = config.get('loss_args', {})
 
         assert self.lr_scheduler.optimizer is self.optimizer
@@ -340,44 +342,50 @@ class Trainer(BaseTrainer):
                     for v in self.visualizations:
                         v(self.writer, im_data.cpu(), output, meta)
 
-        # Run without using saved batchnorm statistics, to check bn is working
-        for md in self.model.modules():
-            if isinstance(md, _BatchNorm):
-                md.track_running_stats = False
-
-        avg_val_loss_trainbn = AverageMeter()
-        with torch.no_grad():
-            torch.manual_seed(0)
-            for batch_idx, batch in enumerate(self.valid_data_loader):
-                data, meta = batch["data"], batch["meta"]
-                data = data.to(self.device)
-
-                output = self.model(data)
-
-                if isinstance(self.model, torch.nn.DataParallel):
-                    loss = self.loss_wrapper(output, meta, **self.loss_args)
-                    loss = loss.mean()
-                else:
-                    loss = self.loss(output, meta, **self.loss_args)
-
-                avg_val_loss_trainbn.update(loss.item(), data.size(0))
-
-                if self.log_miou:
-                    running_metrics_val.update(output, meta)
-
-        for md in self.model.modules():
-            if isinstance(md, _BatchNorm):
-                md.track_running_stats = True
+                if self.mini_train and batch_idx > 3:
+                    self.logger.info("Mini training: exiting validation epoch early...")
+                    break
 
         val_log = {
             'val_loss': avg_val_loss.avg,
-            'val_loss_trainbn': avg_val_loss_trainbn.avg,
             'val_metrics': [a.avg for a in total_val_metrics]
         }
 
         self.writer.set_step(epoch, 'val_epoch')
         self.writer.add_scalar('val_loss', val_log['val_loss'])
-        self.writer.add_scalar('val_loss_trainbn', val_log['val_loss_trainbn'])
+
+        if self.check_bn_working:
+            # Run without using saved batchnorm statistics, to check bn is working
+            for md in self.model.modules():
+                if isinstance(md, _BatchNorm):
+                    md.track_running_stats = False
+
+            avg_val_loss_trainbn = AverageMeter()
+            with torch.no_grad():
+                torch.manual_seed(0)
+                for batch_idx, batch in enumerate(self.valid_data_loader):
+                    data, meta = batch["data"], batch["meta"]
+                    data = data.to(self.device)
+
+                    output = self.model(data)
+
+                    if isinstance(self.model, torch.nn.DataParallel):
+                        loss = self.loss_wrapper(output, meta, **self.loss_args)
+                        loss = loss.mean()
+                    else:
+                        loss = self.loss(output, meta, **self.loss_args)
+
+                    avg_val_loss_trainbn.update(loss.item(), data.size(0))
+
+                    if self.log_miou:
+                        running_metrics_val.update(output, meta)
+
+            for md in self.model.modules():
+                if isinstance(md, _BatchNorm):
+                    md.track_running_stats = True
+            self.writer.add_scalar('val_loss_trainbn', val_log['val_loss_trainbn'])
+            val_log['val_loss_trainbn'] = avg_val_loss_trainbn.avg
+
         if self.log_miou:
             summary, cliu = running_metrics_val.get_scores()
             for key, val in summary.items():

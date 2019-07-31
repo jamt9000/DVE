@@ -1,0 +1,30 @@
+{
+    "celeba-smallnet-3d": {
+        "timestamp": "2019-07-31_10-54-09",
+        "results": {
+            "different-identity": 23.480610299315448,
+            "same-identity": 17.92523302493519,
+            "params": 334875
+        }
+    },
+    "celeba-smallnet-3d-dve": {
+        "timestamp": "TODO",
+        "results": {}
+    },
+    "celeba-smallnet-16d": {
+        "timestamp": "TODO",
+        "results": {}
+    },
+    "celeba-smallnet-16d-dve": {
+        "timestamp": "TODO",
+        "results": {}
+    },
+    "celeba-smallnet-64d": {
+        "timestamp": "TODO",
+        "results": {}
+    },
+    "celeba-smallnet-64d-dve": {
+        "timestamp": "TODO",
+        "results": {}
+    }
+}

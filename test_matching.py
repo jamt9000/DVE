@@ -83,7 +83,8 @@ def evaluation(config, logger=None):
 
     # Want explicit pair warper
     disable_warps = True
-    if config["dense_match"] and disable_warps:
+    dense_match = config.get("dense_match", False)
+    if dense_match and disable_warps:
         # rotsd = 2.5
         # scalesd=0.1 * .5
         rotsd = 0
@@ -142,6 +143,7 @@ def evaluation(config, logger=None):
             config,
             pair_warper=warper1,
             train=True,
+            use_keypoints=True,
         )
         val_dataset = get_instance(
             module_data,
@@ -149,9 +151,11 @@ def evaluation(config, logger=None):
             config,
             pair_warper=warper,
             train=False,
+            use_keypoints=True,
         )
 
-    train_loader = DataLoader(train_dataset, batch_size=128, shuffle=False)
+    val_batch_size = 2
+    train_loader = DataLoader(train_dataset, batch_size=val_batch_size, shuffle=False)
     data_loader = DataLoader(val_dataset, batch_size=2, collate_fn=dict_coll,
                              shuffle=False)
 
@@ -194,7 +198,7 @@ def evaluation(config, logger=None):
                 output = model(data)
                 print(i, 'bn checksum', float(bns[0].running_mean.sum()))
 
-    if config["dense_match"]:
+    if dense_match:
         warp_dir = Path(config["warp_dir"]) / config["name"]
         warp_dir = warp_dir / "disable_warps{}".format(disable_warps)
         if not warp_dir.exists():
@@ -204,11 +208,16 @@ def evaluation(config, logger=None):
     model.eval()
     same_errs = []
     diff_errs = []
+    # Use 200 pairs to reproduce the experiment in the paper
+    num_batches = 200 / val_batch_size
 
     torch.manual_seed(0)
     with torch.no_grad():
         for i, batch in enumerate(tqdm(data_loader)):
             data, meta = batch["data"], batch["meta"]
+
+            if (config.get("mini_eval", False) and i > 3) or (i > num_batches):
+                break
 
             if i == 0:
                 # Checksum to make sure warps are deterministic
@@ -218,11 +227,7 @@ def evaluation(config, logger=None):
                         assert float(data.sum()) == -553.9221801757812
                     elif data.shape[2] == 128:
                         assert float(data.sum()) == 754.1907348632812
-                    import ipdb; ipdb.set_trace()
 
-            # if i < 1:
-            #     print("skipping")
-            #     continue
             data = data.to(device)
             output = model(data)
 
@@ -244,7 +249,7 @@ def evaluation(config, logger=None):
             desc_same = descs2[0]
             desc_diff = descs2[1]
 
-            if not config["dense_match"]:
+            if not dense_match:
                 kp1 = meta['kp1']
                 kp2 = meta['kp2']
                 kp_source = kp1[0]
@@ -261,7 +266,7 @@ def evaluation(config, logger=None):
                 ax2.imshow(norm_range(im_same).permute(1, 2, 0))
                 ax3.imshow(norm_range(im_diff).permute(1, 2, 0))
 
-                if not config["dense_match"]:
+                if not dense_match:
                     ax1.scatter(kp_source[:, 0], kp_source[:, 1], c='g')
                     ax2.scatter(kp_same[:, 0], kp_same[:, 1], c='g')
                     ax3.scatter(kp_diff[:, 0], kp_diff[:, 1], c='g')
@@ -275,7 +280,7 @@ def evaluation(config, logger=None):
                 fsame = desc_same.clone()
                 fdiff = desc_diff.clone()
 
-            if config["dense_match"]:
+            if dense_match:
                 # if False:
                 #     print("DEBUGGING WITH IDENTICAL FEATS")
                 #     fdiff = fsrc
@@ -317,13 +322,12 @@ def evaluation(config, logger=None):
                     x, y = np.array(kp)
                     gt_samex, gt_samey = np.array(kp_same[ki])
                     gt_diffx, gt_diffy = np.array(kp_diff[ki])
-
                     samex, samey = find_descriptor(x, y, fsrc, fsame, stride)
-
-                    same_errs.append(np.sqrt((gt_samex - samex)**2 + (gt_samey - samey)**2))
-
+                    err = np.sqrt((gt_samex - samex)**2 + (gt_samey - samey)**2)
+                    same_errs.append(err)
                     diffx, diffy = find_descriptor(x, y, fsrc, fdiff, stride)
-                    diff_errs.append(np.sqrt((gt_diffx - diffx)**2 + (gt_diffy - diffy)**2))
+                    err = np.sqrt((gt_diffx - diffx)**2 + (gt_diffy - diffy)**2)
+                    diff_errs.append(err)
                     if config["vis"]:
                         ax2.scatter(samex, samey, c='b')
                         ax3.scatter(diffx, diffy, c='b')
@@ -332,8 +336,10 @@ def evaluation(config, logger=None):
                 zs_dispFig()
                 fig.savefig('/tmp/matching.pdf')
 
-    print('same', np.mean(same_errs))
-    print('diff', np.mean(diff_errs))
+    print("")  # cleanup print from tqdm subtraction
+    logger.info("Matching Metrics:")
+    logger.info(f"Mean Pixel Error (same-identity): {np.mean(same_errs)}")
+    logger.info(f"Mean Pixel Error (different-identity) {np.mean(diff_errs)}")
 
 
 if __name__ == '__main__':
@@ -341,6 +347,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', help="config file path")
     parser.add_argument('--resume', help='path to ckpt for evaluation')
     parser.add_argument('--device', help='indices of GPUs to enable')
+    parser.add_argument('--mini_eval', action="store_true")
     parser.add_argument('--vis', action="store_true")
     parser.add_argument('--dense_match', action="store_true")
     parser.add_argument('--subplots', action="store_true")
@@ -348,20 +355,7 @@ if __name__ == '__main__':
 
     eval_config["dense_match"] = eval_config._args.dense_match
     eval_config["vis"] = eval_config._args.vis
+    eval_config["mini_eval"] = eval_config._args.mini_eval
     msg = "For evaluation, a model checkpoint must be specified via the --resume flag"
     assert eval_config._args.resume, msg
     evaluation(eval_config)
-
-    # args = parser.parse_args()
-
-    # if args.config:
-    #     config = json.load(open(args.config))
-    # elif args.resume:
-    #     config = torch.load(args.resume)['config']
-    # if args.device:
-    #     os.environ["CUDA_VISIBLE_DEVICES"] = args.device
-    # config.update(vars(args))
-    # # config["vis"] = args.vis
-    # config["dense_match"] = args.dense_match
-    # # config["subplots"] = args.subplots
-    # main(config, args.resume)

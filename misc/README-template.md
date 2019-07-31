@@ -26,12 +26,12 @@ In this work we use the following datasets:
 
 | Embedding Dim | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :-: | :----: | :----: | :----: |
-|  3 | :heavy_multiplication_x: | 17.93 | 23.48 [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-07-31_10-54-09/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-07-31_10-54-09/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-3d/2019-07-31_10-54-09/info.log) |
-|  3 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
-|  16 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
-|  16 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
-|  64 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
-|  64 | :heavy_multiplication_x: | TODO | TODO [config](TODO), [model](TODO), [log](TODO) |
+|  3 | :heavy_multiplication_x: | {{celeba-smallnet-3d.same-identity}} | {{celeba-smallnet-3d.different-identity}} [config]({{celeba-smallnet-3d.config}}), [model]({{celeba-smallnet-3d.model}}), [log]({{celeba-smallnet-3d.log}}) |
+|  3 | :heavy_multiplication_x: | {{celeba-smallnet-3d-dve.same-identity}} | {{celeba-smallnet-3d-dve.different-identity}} [config]({{celeba-smallnet-3d-dve.config}}), [model]({{celeba-smallnet-3d-dve.model}}), [log]({{celeba-smallnet-3d-dve.log}}) |
+|  16 | :heavy_multiplication_x: | {{celeba-smallnet-16d.same-identity}} | {{celeba-smallnet-16d.different}} [config]({{celeba-smallnet-16d.config}}), [model]({{celeba-smallnet-16d.model}}), [log]({{celeba-smallnet-16d.log}}) |
+|  16 | :heavy_multiplication_x: | {{celeba-smallnet-16d-dve.same-identity}} | {{celeba-smallnet-16d-dve.different-identity}} [config]({{celeba-smallnet-16d-dve.config}}), [model]({{celeba-smallnet-16d-dve.model}}), [log]({{celeba-smallnet-16d-dve.log}}) |
+|  64 | :heavy_multiplication_x: | {{celeba-smallnet-64d.same-identity}} | {{celeba-smallnet-64d.different}} [config]({{celeba-smallnet-64d.config}}), [model]({{celeba-smallnet-64d.model}}), [log]({{celeba-smallnet-64d.log}}) |
+|  64 | :heavy_multiplication_x: | {{celeba-smallnet-64d-dve.same-identity}} | {{celeba-smallnet-64d-dve.different-identity}} [config]({{celeba-smallnet-64d-dve.config}}), [model]({{celeba-smallnet-64d-dve.model}}), [log]({{celeba-smallnet-64d-dve.log}}) |
 
 <!-- |  16 | :heavy_multiplication_x: | TODO| TODO |[config](), [model](), [log]()
 |  64 | :heavy_multiplication_x: | TODO| TODO |[config](), [model](), [log]()
