@@ -43,7 +43,7 @@ def estimate_mem(x):
     return torch.numel(x) * nbytes / (1024) ** 3
 
 
-class DenseCorrEvc(torch.autograd.Function):
+class DenseCorrDve(torch.autograd.Function):
 
     @staticmethod
     def forward(ctx, feats1, feats2, xxyy, batch_grid_u, stride, norm, pow=0.5):
@@ -720,15 +720,15 @@ def rel_diff(x1, x2, name):
     print("rel diff for {}: {}".format(name, out))
 
 
-def dense_corr_check(use_evc=False):
+def dense_corr_check(use_dve=False):
     # gradcheck takes a tuple of tensors as input, check if your gradient
     # evaluated with these tensors are close enough to numerical
     # approximations and returns True if they all verify this condition.
-    dense_corr = DenseCorrEvc.apply
-    evc_dim = 4
+    dense_corr = DenseCorrDve.apply
+    dve_dim = 4
     stride = 1
     norm = False
-    B, C, H, W = 4, evc_dim, 4, 4
+    B, C, H, W = 4, dve_dim, 4, 4
 
     common = {"dtype": torch.double, "requires_grad": True}
     if not norm:

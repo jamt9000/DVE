@@ -2,8 +2,8 @@
     "celeba-smallnet-3d": {
         "timestamp": "2019-07-31_10-54-09",
         "results": {
-            "different-identity": 23.480610299315448,
             "same-identity": 17.92523302493519,
+            "different-identity": 23.480610299315448,
             "params": 334875
         }
     },

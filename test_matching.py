@@ -1,6 +1,6 @@
 """
 python test_matching.py \
-    --config=configs/warp_ims_smallnet_mafl_64d_evc_128in_keypoints-ep57.json \
+    --config=configs/warp_ims_smallnet_mafl_64d_dve_128in_keypoints-ep57.json \
     --dense_match \
     --device=3
 """
