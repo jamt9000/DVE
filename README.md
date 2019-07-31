@@ -24,14 +24,16 @@ In this work we use the following datasets:
 
 **CelebA Pixel Matching**
 
+For now, these numbers are the result of training for a small fraction of one epoch.
+
 | Embedding Dim | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :-: | :----: | :----: | :----: |
 |  3 | :heavy_multiplication_x: | 17.93 | 23.48 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-07-31_10-54-09/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-07-31_10-54-09/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-3d/2019-07-31_10-54-09/info.log) |
-|  3 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  16 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  16 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | :heavy_multiplication_x: | 22.69 | 34.30 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d-dve/2019-07-31_11-27-20/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d-dve/2019-07-31_11-27-20/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-3d-dve/2019-07-31_11-27-20/info.log) |
+|  16 | :heavy_multiplication_x: | 13.65 | 13.65 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d/2019-07-31_11-29-11/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d/2019-07-31_11-29-11/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-16d/2019-07-31_11-29-11/info.log) |
+|  16 | :heavy_multiplication_x: | 18.89 | 26.80 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d-dve/2019-07-31_11-30-51/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d-dve/2019-07-31_11-30-51/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-16d-dve/2019-07-31_11-30-51/info.log) |
+|  64 | :heavy_multiplication_x: | 18.16 | 18.16 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-64d/2019-07-31_11-37-08/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-64d/2019-07-31_11-37-08/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-64d/2019-07-31_11-37-08/info.log) |
+|  64 | :heavy_multiplication_x: | 22.48 | 20.07 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-64d-dve/2019-07-31_11-46-15/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-64d-dve/2019-07-31_11-46-15/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-64d-dve/2019-07-31_11-46-15/info.log) |
 
 <!-- |  16 | :heavy_multiplication_x: | TODO| TODO |[config](), [model](), [log]()
 |  64 | :heavy_multiplication_x: | TODO| TODO |[config](), [model](), [log]()

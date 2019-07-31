@@ -24,6 +24,8 @@ In this work we use the following datasets:
 
 **CelebA Pixel Matching**
 
+For now, these numbers are the result of training for a small fraction of one epoch.
+
 | Embedding Dim | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :-: | :----: | :----: | :----: |
 |  3 | :heavy_multiplication_x: | {{celeba-smallnet-3d.same-identity}} | {{celeba-smallnet-3d.different-identity}} | [config]({{celeba-smallnet-3d.config}}), [model]({{celeba-smallnet-3d.model}}), [log]({{celeba-smallnet-3d.log}}) |
