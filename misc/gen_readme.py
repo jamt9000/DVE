@@ -28,7 +28,7 @@ def generate_url(root_url, target, exp_name, experiments):
 def sync_files(experiments, save_dir, webserver, web_dir):
     filetypes = {
         "log": ["info.log"],
-        "models": ["trained_model.pth", "config.json"]
+        "models": ["model_best.pth", "config.json"]
     }
     for key, rel_dir in experiments.items():
 
