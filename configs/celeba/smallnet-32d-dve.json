@@ -5,7 +5,7 @@
     "arch": {
         "type": "SmallNet",
         "args": {
-            "num_output_channels": 3
+            "num_output_channels": 16
         }
     },
     "dataset": {
@@ -36,8 +36,7 @@
     ],
     "visualizations": [
         "sphere_colormap",
-        "sphere_scatter3d",
-        "sphere_norm_scatter3d"
+        "sphere_rand_proj_colormap"
     ],
     "lr_scheduler": {
         "type": "MultiStepLR",
