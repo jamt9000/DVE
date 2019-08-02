@@ -2,32 +2,32 @@
     "celeba-smallnet-3d": {
         "timestamp": "2019-07-31_10-54-09",
         "results": {
-            "same-identity": 17.92523302493519,
             "different-identity": 23.480610299315448,
+            "same-identity": 17.92523302493519,
             "params": 334875
         }
     },
     "celeba-smallnet-3d-dve": {
         "timestamp": "2019-07-31_11-27-20",
         "results": {
-            "same-identity": 22.6852914729391,
             "different-identity": 34.29976513217718,
+            "same-identity": 22.6852914729391,
             "params": 334875
         }
     },
     "celeba-smallnet-16d": {
         "timestamp": "2019-07-31_11-29-11",
         "results": {
-            "same-identity": 13.649995571007503,
             "different-identity": 18.750094148561267,
+            "same-identity": 13.649995571007503,
             "params": 338216
         }
     },
     "celeba-smallnet-16d-dve": {
         "timestamp": "2019-07-31_11-30-51",
         "results": {
-            "same-identity": 18.88937806466952,
             "different-identity": 26.80322318245596,
+            "same-identity": 18.88937806466952,
             "params": 338216
         }
     },
@@ -42,24 +42,24 @@
     "celeba-smallnet-64d": {
         "timestamp": "2019-07-31_11-37-08",
         "results": {
-            "same-identity": 18.15739248281387,
             "different-identity": 30.458591402696452,
+            "same-identity": 18.15739248281387,
             "params": 350552
         }
     },
     "celeba-smallnet-64d-dve": {
         "timestamp": "2019-07-31_11-46-15",
         "results": {
-            "same-identity": 22.48170056993197,
             "different-identity": 20.07029844933528,
+            "same-identity": 22.48170056993197,
             "params": 350552
         }
     },
     "celeba-hourglass-64d-dve": {
         "timestamp": "0618_103501",
         "results": {
-            "same-identity": 0.92915186948157,
             "different-identity": 2.365658230283113,
+            "same-identity": 0.92915186948157,
             "params": 12609472
         }
     }
