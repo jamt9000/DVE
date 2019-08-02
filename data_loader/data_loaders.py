@@ -187,7 +187,6 @@ class CelebABase(Dataset):
                         kp_x = kp[:, 0].numpy()
                         kp_y = kp[:, 1].numpy()
                     ax.scatter(kp_x, kp_y)
-            import ipdb; ipdb.set_trace()
             #     zs.
             # if self.train:
             # else:
@@ -552,7 +551,7 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
     eye_kp_idxs = [0, 1]
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
-                 do_augmentations=True, use_keypoints=False, use_hq_ims=False,
+                 do_augmentations=True, use_keypoints=False, use_hq_ims=True,
                  visualize=False, val_split="celeba", val_size=2000, **kwargs):
 
         self.root = root
@@ -589,7 +588,6 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
 
         if train:
             self.data = anno.loc[split[split[1] == 0].index]
-            import ipdb; ipdb.set_trace()
         elif val_split == "celeba":
             # subsample images from CelebA val, otherwise training gets slow
             self.data = anno.loc[split[split[1] == 2].index][:val_size]

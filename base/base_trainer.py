@@ -161,7 +161,6 @@ class BaseTrainer:
         state = {
             'arch': arch,
             'epoch': epoch,
-            'logger': self.logger,
             'state_dict': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
             'monitor_best': self.mnt_best,
@@ -206,6 +205,6 @@ class BaseTrainer:
         else:
             self.optimizer.load_state_dict(checkpoint['optimizer'])
 
-        self.logger = checkpoint['logger']
+        # self.logger = checkpoint['logger']
         msg = "Checkpoint '{}' (epoch {}) loaded"
         self.logger.info(msg .format(resume_path, self.start_epoch))
