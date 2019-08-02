@@ -53,10 +53,12 @@ def modernize_exp_dir(experiments, save_dir, refresh):
     for key, rel_dir in experiments.items():
 
         timestamp = rel_dir.split("/")[-1]
-        model_dir = Path(save_dir) / "models"
-
         src_config = Path(rel_dir) / "config.json"
-        config_path = model_dir / key / timestamp / "config.json"
+        src_model = Path(rel_dir) / "model_best.pth"
+        dest_log = Path(save_dir) / "log" / key / timestamp / "info.log"
+        config_path = Path(save_dir) / "models" / key / timestamp / "config.json"
+        model_path = Path(save_dir) / "models" / key / timestamp / "model_best.pth"
+
         config_path.parent.mkdir(exist_ok=True, parents=True)
         if not config_path.exists() or refresh:
             print(f"copying config: {str(src_config)} -> {str(config_path)}")
@@ -64,15 +66,13 @@ def modernize_exp_dir(experiments, save_dir, refresh):
         else:
             print(f"transferred config found at {str(config_path)}, skipping...")
 
-        src_model = Path(rel_dir) / "model_best.pth"
-        model_path = model_dir / key / timestamp / "model_best.pth"
+
         if not model_path.exists() or refresh:
             print(f"copying model: {str(src_model)} -> {str(model_path)}")
             shutil.copyfile(str(src_model), str(model_path))
         else:
             print(f"transferred model found at {str(model_path)}, skipping...")
 
-        dest_log = model_dir / key / timestamp / "model_best.path"
         if not dest_log.exists() or refresh:
             generated_log = parse_tboard_files(rel_dir)
             dest_log.parent.mkdir(exist_ok=True, parents=True)
