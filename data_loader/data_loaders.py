@@ -666,6 +666,10 @@ class MAFLAligned(CelebABase):
         else:
             self.data = anno.loc[split[split[1] == 4].index]
 
+        # print("HARDCODING DEBGGER")
+        # if self.data.shape[0] == 19000:
+        #     self.data = self.data[:20]
+
         # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ;
         # leftmouth_x leftmouth_y ; rightmouth_x rightmouth_y
         self.keypoints = np.array(self.data, dtype=np.float32).reshape(-1, 5, 2)
