@@ -161,10 +161,11 @@ def main(config, resume):
     trainer.train()
     duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - tic))
     logger.info(f"Training took {duration}")
-    config._args.resume = config.save_dir / "model_best.pth"
-    config["mini_eval"] = config._args.mini_train
-    evaluation(config, logger=logger)
-    logger.info(f"Log written to {config.log_path}")
+    if "keypoint_regressor" not in config.keys():
+        config._args.resume = config.save_dir / "model_best.pth"
+        config["mini_eval"] = config._args.mini_train
+        evaluation(config, logger=logger)
+        logger.info(f"Log written to {config.log_path}")
 
 
 if __name__ == '__main__':

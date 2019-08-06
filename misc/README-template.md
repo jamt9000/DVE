@@ -22,24 +22,25 @@ In this work we use the following datasets:
 
 **300-W** This dataset contains 3,158 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
 
-**CelebA Pixel Matching**
 
-For now, these numbers are the result of training for a small fraction of one epoch.
+### Learned Embeddings
 
-| Embedding Dim | DVE | Same Identity | Different Identity | Links | 
-| ------------- | :-: | :----: | :----: | :----: |
-|  3 | :heavy_multiplication_x: | {{celeba-smallnet-3d.same-identity}} | {{celeba-smallnet-3d.different-identity}} | [config]({{celeba-smallnet-3d.config}}), [model]({{celeba-smallnet-3d.model}}), [log]({{celeba-smallnet-3d.log}}) |
-|  3 | :heavy_multiplication_x: | {{celeba-smallnet-3d-dve.same-identity}} | {{celeba-smallnet-3d-dve.different-identity}} | [config]({{celeba-smallnet-3d-dve.config}}), [model]({{celeba-smallnet-3d-dve.model}}), [log]({{celeba-smallnet-3d-dve.log}}) |
-|  16 | :heavy_multiplication_x: | {{celeba-smallnet-16d.same-identity}} | {{celeba-smallnet-16d.different}} | [config]({{celeba-smallnet-16d.config}}), [model]({{celeba-smallnet-16d.model}}), [log]({{celeba-smallnet-16d.log}}) |
-|  16 | :heavy_multiplication_x: | {{celeba-smallnet-16d-dve.same-identity}} | {{celeba-smallnet-16d-dve.different-identity}} | [config]({{celeba-smallnet-16d-dve.config}}), [model]({{celeba-smallnet-16d-dve.model}}), [log]({{celeba-smallnet-16d-dve.log}}) |
-|  64 | :heavy_multiplication_x: | {{celeba-smallnet-64d.same-identity}} | {{celeba-smallnet-64d.different}} | [config]({{celeba-smallnet-64d.config}}), [model]({{celeba-smallnet-64d.model}}), [log]({{celeba-smallnet-64d.log}}) |
-|  64 | :heavy_multiplication_x: | {{celeba-smallnet-64d-dve.same-identity}} | {{celeba-smallnet-64d-dve.different-identity}} | [config]({{celeba-smallnet-64d-dve.config}}), [model]({{celeba-smallnet-64d-dve.model}}), [log]({{celeba-smallnet-64d-dve.log}}) |
+We provide pretrained models for each dataset to reproduce the results reported in the paper [1] (references follow at the end of this README). Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set.  The goal of these experiments is to demonstrate that DVE allows models to achieve inter-instance generalisation even when using higher dimensional embeddings (e.g. 64d rather than 3d).
 
-<!-- |  16 | :heavy_multiplication_x: | TODO| TODO |[config](), [model](), [log]()
-|  64 | :heavy_multiplication_x: | TODO| TODO |[config](), [model](), [log]()
-|  3 | :heavy_check_mark: | TODO| TODO |[config](), [model](), [log]()
-|  16 | :heavy_check_mark: | TODO| TODO |[config](), [model](), [log]()
-|  64 | :heavy_check_mark: | TODO| TODO |[config](), [model](), [log]() -->
+| Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
+| ------------- | :--:  | :-: | :----: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | {{celeba-smallnet-3d.same-identity}} | {{celeba-smallnet-3d.different-identity}} | [config]({{celeba-smallnet-3d.config}}), [model]({{celeba-smallnet-3d.model}}), [log]({{celeba-smallnet-3d.log}}) |
+|  3 | smallnet | :heavy_check_mark: | {{celeba-smallnet-3d-dve.same-identity}} | {{celeba-smallnet-3d-dve.different-identity}} | [config]({{celeba-smallnet-3d-dve.config}}), [model]({{celeba-smallnet-3d-dve.model}}), [log]({{celeba-smallnet-3d-dve.log}}) |
+|  16 | smallnet | :heavy_multiplication_x: | {{celeba-smallnet-16d.same-identity}} | {{celeba-smallnet-16d.different}} | [config]({{celeba-smallnet-16d.config}}), [model]({{celeba-smallnet-16d.model}}), [log]({{celeba-smallnet-16d.log}}) |
+|  16 | smallnet | :heavy_check_mark: | {{celeba-smallnet-16d-dve.same-identity}} | {{celeba-smallnet-16d-dve.different-identity}} | [config]({{celeba-smallnet-16d-dve.config}}), [model]({{celeba-smallnet-16d-dve.model}}), [log]({{celeba-smallnet-16d-dve.log}}) |
+|  32 | smallnet | :heavy_multiplication_x: | {{celeba-smallnet-32d.same-identity}} | {{celeba-smallnet-32d.different}} | [config]({{celeba-smallnet-32d.config}}), [model]({{celeba-smallnet-32d.model}}), [log]({{celeba-smallnet-32d.log}}) |
+|  32 | smallnet | :heavy_check_mark: | {{celeba-smallnet-32d-dve.same-identity}} | {{celeba-smallnet-32d-dve.different-identity}} | [config]({{celeba-smallnet-32d-dve.config}}), [model]({{celeba-smallnet-32d-dve.model}}), [log]({{celeba-smallnet-32d-dve.log}}) |
+|  64 | smallnet | :heavy_multiplication_x: | {{celeba-smallnet-64d.same-identity}} | {{celeba-smallnet-64d.different}} | [config]({{celeba-smallnet-64d.config}}), [model]({{celeba-smallnet-64d.model}}), [log]({{celeba-smallnet-64d.log}}) |
+|  64 | smallnet | :heavy_check_mark: | {{celeba-smallnet-64d-dve.same-identity}} | {{celeba-smallnet-64d-dve.different-identity}} | [config]({{celeba-smallnet-64d-dve.config}}), [model]({{celeba-smallnet-64d-dve.model}}), [log]({{celeba-smallnet-64d-dve.log}}) |
+|  64 | hourglass | :heavy_check_mark: | {{celeba-hourglass-64d-dve.same-identity}} | {{celeba-hourglass-64d-dve.different-identity}} | [config]({{celeba-hourglass-64d-dve.config}}), [model]({{celeba-hourglass-64d-dve.model}}), [log]({{celeba-hourglass-64d-dve.log}}) |
+
+
+NOTE: The error metrics for the hourglass model are included for completeness, but are not exactly comparable to the performance of the smallnet due to slight differences in the cropping ratios used by the two architectures (0.3 for smallnet, 0.294 for Hourglass).  The numbers are normalised to account for the difference in input size, so they are approximately comparable.
 
 
 ### Landmark Regression

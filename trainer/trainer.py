@@ -95,19 +95,33 @@ class Trainer(BaseTrainer):
             )
 
         if self.config.get('cache_descriptors', False):
-            self.cache = [None] * len(self.data_loader.dataset)
+            cache_tic = time.time()
             self.model.eval()
-            batcher = torch.utils.data.DataLoader(
-                self.data_loader.dataset,
-                batch_size=100
-            )
-            for ii, (dd, mm) in enumerate(batcher):
-                with torch.no_grad():
-                    fw = self.model[0].forward(dd.to(self.device))[0].to('cpu')
-                    for fi in range(len(fw)):
-                        self.cache[mm['index'][fi]] = fw[fi]
-                print('cache', ii, '/', len(batcher))
-            self.cache = torch.stack(self.cache, 0).half().to(self.device)
+            datasets = {
+                "train": self.data_loader.dataset,
+                "val": self.valid_data_loader.dataset,
+            }
+            self.cache = {}
+            # First determine the spatial/depth dimensions of the tensor cache to enable
+            # preallocation of the tensor caches
+            init_batcher = torch.utils.data.DataLoader(datasets["train"], batch_size=1)
+            with torch.no_grad():
+                batch = next(iter(init_batcher))
+                dd, mm = batch["data"], batch["meta"]
+                feat_shape = self.model[0].forward(dd.to(self.device))[0].shape
+
+            for key, dataset in datasets.items():
+                batcher = torch.utils.data.DataLoader(dataset, batch_size=100)
+                self.cache[key] = torch.zeros(len(dataset), *feat_shape[1:])
+                for ii, batch in enumerate(batcher):
+                    with torch.no_grad():
+                        dd, mm = batch["data"], batch["meta"]
+                        fw = self.model[0].forward(dd.to(self.device))[0].to('cpu')
+                        self.cache[key][mm["index"]] = fw
+                    self.logger.info(f"caching {key} descriptors {ii}/{len(batcher)}")
+
+            duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - cache_tic))
+            self.logger.info(f"Descriptor caching took {duration}")
             self.model.train()
 
         # Handle segmentation metrics separately, since the accumulation cannot be
@@ -126,8 +140,8 @@ class Trainer(BaseTrainer):
             self.writer.add_scalar(f'{metric.__name__}', acc_metrics[i])
         return acc_metrics
 
-    def printer(self, msg):
-        print("{:.3f} >>> {}".format(time.time() - self.tic, msg))
+    # def printer(self, msg):
+    #     print("{:.3f} >>> {}".format(time.time() - self.tic, msg))
 
     def _train_epoch(self, epoch):
         """
@@ -147,6 +161,7 @@ class Trainer(BaseTrainer):
         """
         self.model.train()
 
+        train_tic = time.time()
         avg_loss = AverageMeter()
         total_metrics = [AverageMeter() for a in range(len(self.metrics))]
         seen_tic = time.time()
@@ -169,7 +184,7 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             if self.config.get('cache_descriptors', False):
                 assert isinstance(self.model, torch.nn.Sequential)
-                descs = self.cache[meta['index']].to(self.device).float()
+                descs = self.cache["train"][meta['index']].to(self.device).float()
                 output = self.model[1:]([descs])
             else:
                 output = self.model(data)
@@ -282,9 +297,15 @@ class Trainer(BaseTrainer):
         for i, metric in enumerate(self.metrics):
             self.writer.add_scalar(f'{metric.__name__}', log['metrics'][i])
 
+        duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - train_tic))
+        print(f"training epoch took {duration}")
+
+        val_tic = time.time()
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
             log = {**log, **val_log}
+        duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - val_tic))
+        print(f"validation epoch took {duration}")
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step(epoch - 1)
@@ -315,7 +336,13 @@ class Trainer(BaseTrainer):
                 data, meta = batch["data"], batch["meta"]
                 data = data.to(self.device)
 
-                output = self.model(data)
+                if self.config.get('cache_descriptors', False):
+                    assert isinstance(self.model, torch.nn.Sequential)
+                    descs = self.cache["val"][meta['index']].to(self.device).float()
+                    output = self.model[1:]([descs])
+                else:
+                    output = self.model(data)
+                # output = self.model(data)
 
                 if isinstance(self.model, torch.nn.DataParallel):
                     loss = self.loss_wrapper(output, meta, **self.loss_args)
