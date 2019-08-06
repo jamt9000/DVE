@@ -40,7 +40,7 @@ We provide pretrained models for each dataset to reproduce the results reported 
 |  64 | hourglass | :heavy_check_mark: | {{celeba-hourglass-64d-dve.same-identity}} | {{celeba-hourglass-64d-dve.different-identity}} | [config]({{celeba-hourglass-64d-dve.config}}), [model]({{celeba-hourglass-64d-dve.model}}), [log]({{celeba-hourglass-64d-dve.log}}) |
 
 
-NOTE: The error metrics for the hourglass model are included for completeness, but are not exactly comparable to the performance of the smallnet due to slight differences in the cropping ratios used by the two architectures (0.3 for smallnet, 0.294 for Hourglass).  The numbers are normalised to account for the difference in input size, so they are approximately comparable.
+**Notes**: The error metrics for the `hourglass` model are included for completeness, but are not exactly comparable to the performance of the smallnet due to slight differences in the cropping ratios used by the two architectures (0.3 for smallnet, 0.294 for Hourglass).  The numbers are normalised to account for the difference in input size, so they are approximately comparable.  Some of the logs are generated from existing logfiles that were created with a slightly older version of the codebase (these differences only affect the log format, rather than the training code itself - the log generator can be found [here](misc/update_deprecated_exps.py).)
 
 
 ### Landmark Regression
