@@ -625,7 +625,7 @@ class MAFLAligned(CelebABase):
     eye_kp_idxs = [0, 1]
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
-                 do_augmentations=True, use_keypoints=False, use_hq_ims=False,
+                 do_augmentations=True, use_keypoints=False, use_hq_ims=True,
                  visualize=False, **kwargs):
         self.root = root
         self.imwidth = imwidth
