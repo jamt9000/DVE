@@ -1,11 +1,12 @@
 {
-    "celeba-smallnet-3d": "2019-07-31_10-54-09",
-    "celeba-smallnet-3d-dve": "2019-07-31_11-27-20",
-    "celeba-smallnet-16d": "2019-07-31_11-29-11",
-    "celeba-smallnet-16d-dve": "2019-07-31_11-30-51",
+    "celeba-smallnet-3d": "TODO",
+    "celeba-smallnet-3d-dve": "TODO",
+    "celeba-smallnet-16d": "TODO",
+    "celeba-smallnet-16d-dve": "TODO",
+    "celeba-smallnet-16d-dve": "2019-08-02_06-20-13",
     "celeba-smallnet-32d": "TODO",
     "celeba-smallnet-32d-dve": "TODO",
-    "celeba-smallnet-64d": "2019-07-31_11-37-08",
-    "celeba-smallnet-64d-dve": "2019-07-31_11-46-15",
+    "celeba-smallnet-64d": "TODO",
+    "celeba-smallnet-64d-dve": "TODO",
     "celeba-hourglass-64d-dve": "0618_103501"
 }

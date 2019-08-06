@@ -1,33 +1,21 @@
 {
     "celeba-smallnet-3d": {
-        "timestamp": "2019-07-31_10-54-09",
-        "results": {
-            "different-identity": 23.480610299315448,
-            "same-identity": 17.92523302493519,
-            "params": 334875
-        }
+        "timestamp": "TODO",
+        "results": {}
     },
     "celeba-smallnet-3d-dve": {
-        "timestamp": "2019-07-31_11-27-20",
-        "results": {
-            "different-identity": 34.29976513217718,
-            "same-identity": 22.6852914729391,
-            "params": 334875
-        }
+        "timestamp": "TODO",
+        "results": {}
     },
     "celeba-smallnet-16d": {
-        "timestamp": "2019-07-31_11-29-11",
-        "results": {
-            "different-identity": 18.750094148561267,
-            "same-identity": 13.649995571007503,
-            "params": 338216
-        }
+        "timestamp": "TODO",
+        "results": {}
     },
     "celeba-smallnet-16d-dve": {
-        "timestamp": "2019-07-31_11-30-51",
+        "timestamp": "2019-08-02_06-20-13",
         "results": {
-            "different-identity": 26.80322318245596,
-            "same-identity": 18.88937806466952,
+            "different-identity": 2.7870315401680257,
+            "same-identity": 1.2834090457744578,
             "params": 338216
         }
     },
@@ -40,20 +28,12 @@
         "results": {}
     },
     "celeba-smallnet-64d": {
-        "timestamp": "2019-07-31_11-37-08",
-        "results": {
-            "different-identity": 30.458591402696452,
-            "same-identity": 18.15739248281387,
-            "params": 350552
-        }
+        "timestamp": "TODO",
+        "results": {}
     },
     "celeba-smallnet-64d-dve": {
-        "timestamp": "2019-07-31_11-46-15",
-        "results": {
-            "different-identity": 20.07029844933528,
-            "same-identity": 22.48170056993197,
-            "params": 350552
-        }
+        "timestamp": "TODO",
+        "results": {}
     },
     "celeba-hourglass-64d-dve": {
         "timestamp": "0618_103501",
