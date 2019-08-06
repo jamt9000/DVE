@@ -48,7 +48,7 @@ if __name__ == "__main__":
     parser.add_argument('--bs', default="32,64,128")
     parser.add_argument('--smax', default="1,100")
     parser.add_argument('--lr', default="1E-2,3E-3,1E-3")
-    parser.add_argument('--upsample', default="0")
+    parser.add_argument('--upsample', default="0,1")
     parser.add_argument('--refresh', action="store_true")
     args = parser.parse_args()
 
