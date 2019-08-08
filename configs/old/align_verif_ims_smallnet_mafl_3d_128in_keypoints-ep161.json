@@ -1,0 +1,23 @@
+{
+    "name": "align_verif_smallnet_mafl_3d_dve_128in_keypoints-ep57",
+    "n_gpu": 1,
+    "weights": "saved/smallnet_celeba_3d/0618_085842/checkpoint-epoch161.pth",
+    "batch_size": 4,
+    "keypoint_regressor_upsample": true,
+    "arch": {
+        "type": "SmallNet",
+        "args": {
+            "num_output_channels": 3
+        }
+    },
+    "dataset": {
+        "type": "IJBB",
+        "args": {
+            "root": "data/ijbb",
+            "imwidth": 128,
+            "crop": 0
+        }
+    },
+    "warp_dir": "data/saved/ijbb-warped",
+    "align_dir": "data/ijbb-aligned"
+}

@@ -331,9 +331,9 @@ def dense_corr_check():
     # evaluated with these tensors are close enough to numerical
     # approximations and returns True if they all verify this condition.
     dense_corr = DenseCorr.apply
-    evc_dim = 4
+    dve_dim = 4
     stride = 2
-    B, C, H, W = 4, evc_dim, 4, 4
+    B, C, H, W = 4, dve_dim, 4, 4
 
     common = {"dtype": torch.double, "requires_grad": True}
     feats1 = torch.randn(B, C, H, W, **common)

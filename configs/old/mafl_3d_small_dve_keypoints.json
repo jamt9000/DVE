@@ -1,0 +1,65 @@
+{
+    "name": "mafl_3d_small_dve_keypoints",
+    "n_gpu": 1,
+    "finetune_from": "saved/celeba_3d_small_dve/0305_152849/checkpoint-epoch19.pth",
+    "batch_size": 128,
+    "arch": {
+        "type": "HourglassNet",
+        "args": {
+            "num_output_channels": 3
+        }
+    },
+    "dataset": {
+        "type": "MAFLAligned",
+        "args": {
+            "root": "data/celeba",
+            "imwidth": 100,
+            "crop": 18
+        }
+    },
+    "keypoint_regressor": {
+        "type": "IntermediateKeypointPredictor",
+        "args": {
+            "num_annotated_points": 5,
+            "num_intermediate_points": 50
+        }
+    },
+    "warper": {
+        "type": "WarperSingle",
+        "args": {
+        }
+    },
+    "warp_val": false,
+    "optimizer": {
+        "type": "Adam",
+        "args": {
+            "lr": 0.1,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "loss": "regression_loss",
+    "metrics": [
+        "inter_ocular_error"
+    ],
+    "visualizations": [
+        "keypoints_intermediate"
+    ],
+    "lr_scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 20,
+            "gamma": 0.1
+        }
+    },
+    "trainer": {
+        "epochs": 100,
+        "save_dir": "saved/",
+        "save_period": 1,
+        "verbosity": 2,
+        "monitor": "min val_loss",
+        "early_stop": 10,
+        "tensorboardX": true,
+        "log_dir": "saved/"
+    }
+}

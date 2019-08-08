@@ -1,0 +1,34 @@
+{
+    "name": "cache_feats_smallnet_mafl_64d_dve_128in_keypoints-ep57",
+    "n_gpu": 1,
+    "weights": "saved/smallnet_celeba_64d_dve_128in_checkpoint-epoch57.pth",
+    "batch_size": 128,
+    "keypoint_regressor_upsample": false,
+    "arch": {
+        "type": "SmallNet",
+        "args": {
+            "num_output_channels": 64
+        }
+    },
+    "dataset": {
+        "type": "MAFLAligned",
+        "args": {
+            "root": "data/celeba",
+            "imwidth": 180,
+            "crop": 26,
+            "use_hq_ims": true,
+            "use_keypoints": true,
+            "do_augmentations": false
+        }
+    },
+    "warp_val": false,
+    "optimizer": {
+        "type": "Adam",
+        "args": {
+            "lr": 0.01,
+            "weight_decay": 0.0005,
+            "amsgrad": true
+        }
+    },
+    "feat_cache_dest_dir": "saved/feat_caches"
+}

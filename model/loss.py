@@ -1,17 +1,27 @@
 import torch.nn.functional as F
 import time
 import torch
-import torch.nn.functional as F
 from utils import tps
 
-from model.folded_correlation import DenseCorr
-from model.folded_correlation_evc import DenseCorrEvc
+
 
 def regression_loss(prediction_normalized, meta, alpha=1., **kwargs):
     pred = prediction_normalized[0]
     kp = meta['keypts_normalized'].to(pred.device)
     B, nA, _ = pred.shape
     return F.smooth_l1_loss(pred * alpha, kp * alpha)
+
+
+def segmentation_loss(x, meta, weight=None, size_average=True, **kwargs):
+    target = meta["lbls"].to(x.device).long()
+    n, c, h, w = x.size()
+    nt, ht, wt = target.size()
+    if h != ht and w != wt:  # upsample labels
+        x = F.interpolate(x, size=(ht, wt), mode="bilinear", align_corners=True)
+    x = x.transpose(1, 2).transpose(2, 3).contiguous().view(-1, c)
+    target = target.view(-1)
+    return F.cross_entropy(x, target, weight=weight, reduction="mean")
+    # return F.cross_entropy(x, target, weight=weight, size_average=size_average)
 
 
 def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):
@@ -38,9 +48,10 @@ def dense_correlation_loss(feats, meta, pow=0.5, fold_corr=False, normalize_vect
     xxyy = tps.spatial_grid_unnormalized(H_input, W_input).to(device)
 
     if fold_corr:
+        from model.folded_correlation import DenseCorr
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
-        assert normalize_vectors == False
+        assert not normalize_vectors
         dense_corr = DenseCorr.apply
         return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
 
@@ -100,7 +111,7 @@ def estimate_mem(x):
     return torch.numel(x) * nbytes / (1024) ** 3
 
 
-def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):
+def dense_correlation_loss_dve(feats, meta, pow=0.5, fold_corr=False, normalize_vectors=True):
     feats = feats[0]
     device = feats.device
 
@@ -152,7 +163,8 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False, normalize_
     if fold_corr:
         """This function computes the gradient explicitly to avoid the memory
         issues with using autorgrad in a for loop."""
-        dense_corr = DenseCorrEvc.apply
+        from model.folded_correlation_dve import DenseCorrDve
+        dense_corr = DenseCorrDve.apply
         return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride,
                           normalize_vectors, pow)
 
@@ -191,3 +203,106 @@ def dense_correlation_loss_evc(feats, meta, pow=0.5, fold_corr=False, normalize_
         loss += L.float().sum()
 
     return loss / (H * W * B)
+
+
+def dense_correlation_loss_trick(feats, meta, pow=0.5, fold_corr=False,
+        normalize_vectors=True):
+    feats = feats[0]
+    device = feats.device
+    grid = meta['grid']
+
+    # Grid (B,H,W,2): For each pixel in im1, where did it come from in im2
+    grid = grid.to(device)
+
+    H_input = grid.shape[1]
+    W_input = grid.shape[2]
+
+    feats1 = feats[0::2]
+    feats2 = feats[1::2]
+
+    B, C, H, W = feats1.shape
+    h, w = H, W
+
+    stride = H_input // H
+
+    batch_grid_u = tps.grid_unnormalize(grid, H_input, W_input)
+    batch_grid_u = batch_grid_u[:, ::stride, ::stride, :]
+    xxyy = tps.spatial_grid_unnormalized(H_input, W_input).to(device)
+
+    if fold_corr:
+        from model.folded_correlation import DenseCorr
+        """This function computes the gradient explicitly to avoid the memory
+        issues with using autorgrad in a for loop."""
+        assert not normalize_vectors
+        dense_corr = DenseCorr.apply
+        return dense_corr(feats1, feats2, xxyy, batch_grid_u, stride, pow)
+
+    loss = 0.
+    for b in range(B):
+        f1 = feats1[b].reshape(C, H * W)  # source
+        f2 = feats2[b].reshape(C, h * w)  # target
+
+        if normalize_vectors:
+            f1 = F.normalize(f1, p=2, dim=0) * 20
+            f2 = F.normalize(f2, p=2, dim=0) * 20
+
+        corr = torch.matmul(f1.t(), f2)
+        corr = corr.reshape(H, W, h, w)
+
+        with torch.no_grad():
+            # replace with expanded terms for efficiency
+            import ipdb; ipdb.set_trace()
+            diff = batch_grid_u[b, :, :, None, None, :] - \
+                    xxyy[None, None, ::stride, ::stride, :]
+            diff = (diff * diff).sum(4).sqrt()
+            diff = diff.pow(pow)
+
+        # grid_u = tps.grid_unnormalize(grid[b], H_input, W_input)
+        # diff = grid_u[:, :, None, None, :] - xxyy[None, None, :, :, :]
+
+        # Equivalent to this
+        #
+        # diff = torch.zeros(H_input, W_input, H_input, W_input, 2)
+        # for I in range(H_input):
+        #     for J in range(W_input):
+        #         for i in range(H_input):
+        #             for j in range(W_input):
+        #                 diff[I, J, i, j, 0] = J + flow[b, I, J, 0] - j
+        #                 diff[I, J, i, j, 1] = I + flow[b, I, J, 1] - i
+
+        # diff = diff[::stride, ::stride, ::stride, ::stride]
+        # diff = (diff * diff).sum(4).sqrt()
+        # diff = diff.pow(pow)
+
+        smcorr = F.softmax(corr.reshape(H, W, -1), dim=2).reshape(corr.shape)
+
+        L = diff * smcorr
+
+        loss += L.sum()
+
+    return loss / (H * W * B)
+
+
+def rel_diff(x1, x2, name):
+    out = torch.abs(x1 - x2).sum() / torch.abs(x2).mean()
+    print("rel diff for {}: {}".format(name, out))
+
+
+def dense_corr_trick_check():
+    dve_dim = 4
+    B, C, H, W = 4, dve_dim, 4, 4
+
+    common = {"dtype": torch.double, "requires_grad": True}
+    feats = torch.randn(B, C, H, W, **common)
+    batch_grid_u = torch.randn(B, H, W, 2, dtype=torch.double,
+                               requires_grad=False)
+
+    feats = feats.cuda().float()
+    batch_grid_u = batch_grid_u.cuda().float()
+    out = dense_correlation_loss([feats], {"grid": batch_grid_u})
+    out2 = dense_correlation_loss_trick([feats], {"grid": batch_grid_u})
+    rel_diff(out, out2, "trick")
+
+
+if __name__ == "__main__":
+    dense_corr_trick_check()

@@ -1,0 +1,38 @@
+{
+    "name": "warp_ims_smallnet_chimps_64d_dve",
+    "n_gpu": 1,
+    "weights": "data/saved/smallnet_chimps_64d_dve_70in/0621_075956/checkpoint-epoch300.pth",
+    "batch_size": 4,
+    "keypoint_regressor_upsample": false,
+    "arch": {
+        "type": "SmallNet",
+        "args": {
+            "num_output_channels": 64
+        }
+    },
+    "dataset": {
+        "type": "Chimps",
+        "args": {
+            "root": "data/chimpanzee_faces/datasets_cropped_chimpanzee_faces/data_CZoo",
+            "imwidth": 128,
+            "crop": 0,
+            "use_keypoints": false,
+            "do_augmentations": false
+        }
+    },
+    "warp_val": false,
+    "optimizer": {
+        "type": "Adam",
+        "args": {
+            "lr": 0.01,
+            "weight_decay": 0.0005,
+            "amsgrad": true
+        }
+    },
+    "warp_dir": "data/warped",
+    "warper": {
+        "type": "Warper",
+        "args": {
+        }
+    }
+}
