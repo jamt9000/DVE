@@ -64,6 +64,7 @@ def parse_log(log_path):
         tokens = row.split(" ")
         val = float(tokens[-1])
         results[metric] = val
+        print(f"{log_path.parent.parent.stem}: {metric} {val}")
     for row in log:
         if "Trainable parameters" in row:
             results["params"] = int(row.split(" ")[-1])
