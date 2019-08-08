@@ -4,15 +4,13 @@ python test_matching.py \
     --dense_match \
     --device=3
 """
-import os
 import argparse
 import torch
 from tqdm import tqdm
 import data_loader.data_loaders as module_data
 from parse_config import ConfigParser
 import model.model as module_arch
-from train import get_instance
-from utils import tps, clean_state_dict
+from utils import tps, clean_state_dict, get_instance
 from torch.utils.data import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,6 +28,33 @@ import matplotlib.pyplot as plt  # NOQA
 
 sys.path.insert(0, str(Path.home() / "coding/src/zsvision/python"))
 from zsvision.zs_iterm import zs_dispFig # NOQA
+
+
+def compute_pixel_err(pred_x, pred_y, gt_x, gt_y, imwidth, crop):
+    """Compute the pixel error of the corresponding keypoints
+
+    Args:
+        pred_x (float): predicted x-coordinate for keypoint
+        pred_y (float): predicted y-coordinate for keypoint
+        gt_x (float): ground truth x-coordinate for keypoint
+        gt_y (float): ground truth y-coordinate for keypoint
+        imwidth (int): the width of the image (pixels)
+        crop (int): the size of the crop from the boundary (pixels)
+
+    Returns:
+        (float) pixel error
+    NOTE: To account for different input sizes, we scale all distances as
+    though they occured in pixel space for a 70x70 (post-crop) image
+    (this was used in the original version of the model so allows
+    for comparison).
+    """
+    canonical_sz = 70
+    scale = canonical_sz / (imwidth - 2 * crop)
+    pred_x = pred_x * scale
+    pred_y = pred_y * scale
+    gt_x = gt_x * scale
+    gt_y = gt_y * scale
+    return np.sqrt((gt_x - pred_x)**2 + (gt_y - pred_y)**2)
 
 
 def find_descriptor(x, y, source_descs, target_descs, stride):
@@ -118,41 +143,19 @@ def evaluation(config, logger=None):
         scalesd=0.01,
         rotsd=2
     )
-
-    if False:
-        train_dataset = module_data.MAFLAligned(
-            root='data/celeba',
-            imwidth=imwidth,
-            crop=crop,
-            train=True,
-            pair_warper=warper1,
-            do_augmentations=False
-        )
-        val_dataset = module_data.MAFLAligned(
-            root='data/celeba',
-            imwidth=imwidth,
-            crop=crop,
-            train=False,
-            pair_warper=warper,
-            use_keypoints=True
-        )
-    else:
-        train_dataset = get_instance(
-            module_data,
-            'dataset',
-            config,
-            pair_warper=warper1,
-            train=True,
-            use_keypoints=True,
-        )
-        val_dataset = get_instance(
-            module_data,
-            'dataset',
-            config,
-            pair_warper=warper,
-            train=False,
-            use_keypoints=True,
-        )
+    kwargs = {"imwidth": imwidth, "crop": crop, "root": "data/celeba"}
+    train_dataset = module_data.MAFLAligned(
+        train=True,
+        pair_warper=warper1,
+        do_augmentations=False,
+        **kwargs
+    )
+    val_dataset = module_data.MAFLAligned(
+        train=False,
+        pair_warper=warper,
+        use_keypoints=True,
+        **kwargs
+    )
 
     val_batch_size = 2
     train_loader = DataLoader(train_dataset, batch_size=val_batch_size, shuffle=False)
@@ -209,15 +212,15 @@ def evaluation(config, logger=None):
     same_errs = []
     diff_errs = []
     # Use 200 pairs to reproduce the experiment in the paper
-    num_batches = 200 / val_batch_size
+    # num_batches = 200 / val_batch_size
 
     torch.manual_seed(0)
     with torch.no_grad():
         for i, batch in enumerate(tqdm(data_loader)):
             data, meta = batch["data"], batch["meta"]
 
-            if (config.get("mini_eval", False) and i > 3) or (i > num_batches):
-                break
+            # if (config.get("mini_eval", False) and i > 3) or (i > num_batches):
+            #     break
 
             if i == 0:
                 # Checksum to make sure warps are deterministic
@@ -256,7 +259,7 @@ def evaluation(config, logger=None):
                 kp_same = kp2[0]
                 kp_diff = kp2[1]
 
-            if config["vis"]:
+            if config.get("vis", False):
                 fig = plt.figure()  # a new figure window
                 ax1 = fig.add_subplot(1, 3, 1)
                 ax2 = fig.add_subplot(1, 3, 2)
@@ -320,19 +323,34 @@ def evaluation(config, logger=None):
             else:
                 for ki, kp in enumerate(kp_source):
                     x, y = np.array(kp)
-                    gt_samex, gt_samey = np.array(kp_same[ki])
-                    gt_diffx, gt_diffy = np.array(kp_diff[ki])
-                    samex, samey = find_descriptor(x, y, fsrc, fsame, stride)
-                    err = np.sqrt((gt_samex - samex)**2 + (gt_samey - samey)**2)
-                    same_errs.append(err)
-                    diffx, diffy = find_descriptor(x, y, fsrc, fdiff, stride)
-                    err = np.sqrt((gt_diffx - diffx)**2 + (gt_diffy - diffy)**2)
-                    diff_errs.append(err)
-                    if config["vis"]:
-                        ax2.scatter(samex, samey, c='b')
-                        ax3.scatter(diffx, diffy, c='b')
+                    gt_same_x, gt_same_y = np.array(kp_same[ki])
+                    gt_diff_x, gt_diff_y = np.array(kp_diff[ki])
+                    same_x, same_y = find_descriptor(x, y, fsrc, fsame, stride)
 
-            if config["vis"]:
+                    err = compute_pixel_err(
+                        pred_x=same_x,
+                        pred_y=same_y,
+                        gt_x=gt_same_x,
+                        gt_y=gt_same_y,
+                        imwidth=imwidth,
+                        crop=crop,
+                    )
+                    same_errs.append(err)
+                    diff_x, diff_y = find_descriptor(x, y, fsrc, fdiff, stride)
+                    err = compute_pixel_err(
+                        pred_x=diff_x,
+                        pred_y=diff_y,
+                        gt_x=gt_diff_x,
+                        gt_y=gt_diff_y,
+                        imwidth=imwidth,
+                        crop=crop,
+                    )
+                    diff_errs.append(err)
+                    if config.get("vis", False):
+                        ax2.scatter(same_x, same_y, c='b')
+                        ax3.scatter(diff_x, diff_y, c='b')
+
+            if config.get("vis", False):
                 zs_dispFig()
                 fig.savefig('/tmp/matching.pdf')
 

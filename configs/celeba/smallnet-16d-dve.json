@@ -5,7 +5,7 @@
     "arch": {
         "type": "SmallNet",
         "args": {
-            "num_output_channels": 16
+            "num_output_channels": 32
         }
     },
     "dataset": {
@@ -39,14 +39,14 @@
         "sphere_rand_proj_colormap"
     ],
     "lr_scheduler": {
-        "type": "StepLR",
+        "type": "MultiStepLR",
         "args": {
-            "step_size": 100,
+            "milestones":  [70, 90],
             "gamma": 0.1
         }
     },
     "trainer": {
-        "epochs": 300,
+        "epochs": 100,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,

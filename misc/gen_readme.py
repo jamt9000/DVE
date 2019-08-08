@@ -56,13 +56,15 @@ def parse_log(log_path):
         tag = f"Mean Pixel Error ({metric})"
         results[metric] = OrderedDict()
         presence = [tag in row for row in log]
-        assert sum(presence) == 1, "expected single occurence of log tag"
+        msg = f"expected single occurence of Mean Pixel Error tag in {log_path}"
+        assert sum(presence) == 1, msg
         # metrics = ["R1", "R5", "R10", "R50", "MedR", "MeanR"]
         pos = np.where(presence)[0].item()
         row = log[pos]
         tokens = row.split(" ")
         val = float(tokens[-1])
         results[metric] = val
+        print(f"{log_path.parent.parent.stem}: {metric} {val}")
     for row in log:
         if "Trainable parameters" in row:
             results["params"] = int(row.split(" ")[-1])

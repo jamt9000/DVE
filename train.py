@@ -21,7 +21,9 @@ import torch.utils.data.dataloader
 def main(config, resume):
     logger = config.get_logger('train')
     seed = int(config._args.seed)
-    # torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.benchmark = True
+    logger.info("Launching experiment with config:")
+    logger.info(config)
 
     tic = time.time()
     logger.info(f"Setting experiment random seed to {seed}")
@@ -159,14 +161,15 @@ def main(config, resume):
     trainer.train()
     duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - tic))
     logger.info(f"Training took {duration}")
-    config._args.resume = config.save_dir / "model_best.pth"
-    config["mini_eval"] = config._args.mini_train
-    evaluation(config, logger=logger)
-    logger.info(f"Log written to {config.log_path}")
+    if "keypoint_regressor" not in config.keys():
+        config._args.resume = config.save_dir / "model_best.pth"
+        config["mini_eval"] = config._args.mini_train
+        evaluation(config, logger=logger)
+        logger.info(f"Log written to {config.log_path}")
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='PyTorch Template')
+    parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', default=None, type=str,
                         help='config file path (default: None)')
     parser.add_argument('-r', '--resume', default=None, type=str,

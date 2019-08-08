@@ -1,8 +1,8 @@
 {
-    "name": "hourglass_mafl_64d_dve_128in_keypoints-ep45",
     "n_gpu": 1,
-    "finetune_from": "data/saved/celeba_64d_dve_hourglass/0618_103501/checkpoint-epoch45.pth",
+    "finetune_from": "data/saved/models/celeba-hourglass-64d-dve/0618_103501/checkpoint-epoch45.pth",
     "batch_size": 128,
+    "cache_descriptors": true,
     "keypoint_regressor_upsample": true,
     "arch": {
         "type": "HourglassNet",
@@ -59,7 +59,7 @@
         "save_period": 1,
         "verbosity": 2,
         "monitor": "min val_loss",
-        "early_stop": 10,
+        "early_stop": 500,
         "tensorboardX": true,
         "log_dir": "saved/"
     }

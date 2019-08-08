@@ -191,7 +191,6 @@ class CelebABase(Dataset):
                         kp_x = kp[:, 0].numpy()
                         kp_y = kp[:, 1].numpy()
                     ax.scatter(kp_x, kp_y)
-            import ipdb; ipdb.set_trace()
             #     zs.
             # if self.train:
             # else:
@@ -287,6 +286,12 @@ class AFLW(CelebABase):
         self.keypoints = keypoints.astype(np.float32)
         self.subdir = os.path.join(root, 'output')
 
+        # print("HARDCODING DEBGGER")
+        # self.filenames = self.filenames[:100]
+        # self.keypoints = self.keypoints[:100]
+        # sizes = sizes[:100]
+        # self.sizes = sizes
+
         # check raw
         # im_path = pjoin(self.subdir, self.filenames[0])
         # im = Image.open(im_path).convert("RGB")
@@ -318,6 +323,10 @@ class AFLW(CelebABase):
         mat = loadmat(os.path.join(data_dir, 'aflw_' + load_subset + '_keypoints.mat'))
         keypoints = mat['gt'][:, :, [1, 0]]
         sizes = mat['hw']
+
+        # import ipdb; ipdb.set_trace()
+        # if self.data.shape[0] == 19000:
+        #     self.data = self.data[:20]
 
         if load_subset == 'train':
             # put the last 10 percent of the training aside for validation
@@ -555,8 +564,8 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
     eye_kp_idxs = [0, 1]
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
-                 do_augmentations=True, use_keypoints=False, use_hq_ims=False,
-                 visualize=False, **kwargs):
+                 do_augmentations=True, use_keypoints=False, use_hq_ims=True,
+                 visualize=False, val_split="celeba", val_size=2000, **kwargs):
         self.root = root
         self.imwidth = imwidth
         self.train = train
@@ -579,14 +588,22 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
                             header=None, delim_whitespace=True, index_col=0)
         assert len(split.index) == 202599
 
+        mafltrain = pd.read_csv(os.path.join(root, 'MAFL', 'training.txt'), header=None,
+                                delim_whitespace=True, index_col=0)
         mafltest = pd.read_csv(os.path.join(root, 'MAFL', 'testing.txt'), header=None,
                                delim_whitespace=True, index_col=0)
+        # Ensure that we are not using mafl images
+        split.loc[mafltrain.index] = 3
         split.loc[mafltest.index] = 4
+
         assert (split[1] == 4).sum() == 1000
 
         if train:
             self.data = anno.loc[split[split[1] == 0].index]
-        else:
+        elif val_split == "celeba":
+            # subsample images from CelebA val, otherwise training gets slow
+            self.data = anno.loc[split[split[1] == 2].index][:val_size]
+        elif val_split == "mafl":
             self.data = anno.loc[split[split[1] == 4].index]
 
         # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ;
@@ -620,7 +637,7 @@ class MAFLAligned(CelebABase):
     eye_kp_idxs = [0, 1]
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
-                 do_augmentations=True, use_keypoints=False, use_hq_ims=False,
+                 do_augmentations=True, use_keypoints=False, use_hq_ims=True,
                  visualize=False, **kwargs):
         self.root = root
         self.imwidth = imwidth
@@ -662,6 +679,7 @@ class MAFLAligned(CelebABase):
             self.data = anno.loc[split[split[1] == 5].index]
         else:
             self.data = anno.loc[split[split[1] == 4].index]
+
 
         # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ;
         # leftmouth_x leftmouth_y ; rightmouth_x rightmouth_y
