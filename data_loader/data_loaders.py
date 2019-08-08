@@ -282,6 +282,12 @@ class AFLW(CelebABase):
         self.keypoints = keypoints.astype(np.float32)
         self.subdir = os.path.join(root, 'output')
 
+        # print("HARDCODING DEBGGER")
+        # self.filenames = self.filenames[:100]
+        # self.keypoints = self.keypoints[:100]
+        # sizes = sizes[:100]
+        # self.sizes = sizes
+
         # check raw
         # im_path = pjoin(self.subdir, self.filenames[0])
         # im = Image.open(im_path).convert("RGB")
@@ -313,6 +319,10 @@ class AFLW(CelebABase):
         mat = loadmat(os.path.join(data_dir, 'aflw_' + load_subset + '_keypoints.mat'))
         keypoints = mat['gt'][:, :, [1, 0]]
         sizes = mat['hw']
+
+        # import ipdb; ipdb.set_trace()
+        # if self.data.shape[0] == 19000:
+        #     self.data = self.data[:20]
 
         if load_subset == 'train':
             # put the last 10 percent of the training aside for validation
@@ -666,9 +676,6 @@ class MAFLAligned(CelebABase):
         else:
             self.data = anno.loc[split[split[1] == 4].index]
 
-        # print("HARDCODING DEBGGER")
-        # if self.data.shape[0] == 19000:
-        #     self.data = self.data[:20]
 
         # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ;
         # leftmouth_x leftmouth_y ; rightmouth_x rightmouth_y
