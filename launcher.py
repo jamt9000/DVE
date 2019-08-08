@@ -1,12 +1,18 @@
 import argparse
+import socket
 import subprocess
 from pathlib import Path
 
 
 def main(grid_dir, max_jobs_per_device, refresh, device):
     configs = sorted(list(Path(grid_dir).glob("*.json")))
+    hostname = socket.gethostname()
     print(f"found {len(configs)} configs in grid dir")
     jobs_launched = 0
+    if hostname == "ip-172-31-15-159":
+        python_bin = str(Path.home() / "anaconda3/envs/pytorch_p36/bin/python")
+    else:
+        python_bin = str(Path.home() / "local/anaconda3/envs/pt37/bin/python")
     for config in configs:
         # exp_dir = Path("data/saved/models") / f"grid-{config.stem}"
         # if exp_dir.exists() and not refresh:
@@ -18,7 +24,6 @@ def main(grid_dir, max_jobs_per_device, refresh, device):
         if jobs_launched >= max_jobs_per_device:
             print("launched maximum number of jobs, exiting....")
             exit()
-        python_bin = str(Path.home() / "local/anaconda3/envs/pt37/bin/python")
         cmd_args = [python_bin, "train.py", "--config", str(config), "--device", device]
         print(f"launching job with args: {' '.join(cmd_args)}")
         std_out.parent.mkdir(exist_ok=True, parents=True)

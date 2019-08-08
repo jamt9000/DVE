@@ -13,7 +13,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # NOQA
 
 sys.path.insert(0, str(Path.home() / "coding/src/zsvision/python"))
-from zsvision.zs_iterm import zs_dispFig # NOQA
+try:
+    from zsvision.zs_iterm import zs_dispFig # NOQA
+except:
+    print('No zs_dispFig, figures will not be displayed in iterm')
 
 
 def label_colormap(x):

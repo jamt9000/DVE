@@ -5,7 +5,7 @@
     "arch": {
         "type": "SmallNet",
         "args": {
-            "num_output_channels": 16
+            "num_output_channels": 32
         }
     },
     "dataset": {

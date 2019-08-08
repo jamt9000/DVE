@@ -34,7 +34,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # NOQA
 
 sys.path.insert(0, str(Path.home() / "coding/src/zsvision/python"))
-from zsvision.zs_iterm import zs_dispFig # NOQA
+try:
+    from zsvision.zs_iterm import zs_dispFig # NOQA
+except:
+    print('No zs_dispFig, figures will not be plotted in terminal')
+
 
 
 class PcaAug(object):
@@ -556,14 +560,12 @@ class Helen(Dataset):
     def __len__(self):
         return len(self.im_list)
 
-
 class CelebAPrunedAligned_MAFLVal(CelebABase):
     eye_kp_idxs = [0, 1]
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
                  do_augmentations=True, use_keypoints=False, use_hq_ims=True,
                  visualize=False, val_split="celeba", val_size=2000, **kwargs):
-
         self.root = root
         self.imwidth = imwidth
         self.train = train
@@ -655,6 +657,7 @@ class MAFLAligned(CelebABase):
         anno = pd.read_csv(
             os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt'), header=1,
             delim_whitespace=True)
+
         assert len(anno.index) == 202599
         split = pd.read_csv(os.path.join(root, 'Eval', 'list_eval_partition.txt'),
                             header=None, delim_whitespace=True, index_col=0)
@@ -663,6 +666,7 @@ class MAFLAligned(CelebABase):
         mafltest = pd.read_csv(os.path.join(root, 'MAFL', 'testing.txt'), header=None,
                                delim_whitespace=True, index_col=0)
         split.loc[mafltest.index] = 4
+
 
         mafltrain = pd.read_csv(os.path.join(root, 'MAFL', 'training.txt'), header=None,
                                 delim_whitespace=True, index_col=0)
@@ -705,6 +709,132 @@ class MAFLAligned(CelebABase):
 
     def __len__(self):
         return len(self.data.index)
+
+
+class AFLW_MTFL(Dataset):
+    """Used for testing on the 5-point version of AFLW included in the MTFL download from the
+       Facial Landmark Detection by Deep Multi-task Learning (TCDCN) paper
+       http://mmlab.ie.cuhk.edu.hk/projects/TCDCN.html
+
+       For training this uses a cropped 5-point version of AFLW used in
+       http://openaccess.thecvf.com/content_ICCV_2017/papers/Thewlis_Unsupervised_Learning_of_ICCV_2017_paper.pdf
+       """
+    eye_kp_idxs = [0, 1]
+
+    def __init__(self, root, train=True, pair_warper=None, imwidth=70,
+                 crop=0, do_augmentations=True, use_keypoints=False, **kwargs):
+        self.test_root = os.path.join(root, 'MTFL')  # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
+        self.train_root = os.path.join(root, 'aflw_cropped')  # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
+
+        self.imwidth = imwidth
+        self.train = train
+        self.warper = pair_warper
+        self.crop = crop
+        self.use_keypoints = use_keypoints
+
+        initial_crop = lambda im: im
+
+        test_anno = pd.read_csv(os.path.join(self.test_root, 'testing.txt'), header=None, delim_whitespace=True)
+
+        if train:
+            self.root = self.train_root
+            all_anno = pd.read_csv(os.path.join(self.train_root, 'facedata_cropped.csv'), sep=',', header=0)
+            allims = all_anno.image_file.to_list()
+            trainims = all_anno[all_anno.set == 1].image_file.to_list()
+            testims = [t.split('-')[-1] for t in test_anno.loc[:, 0].to_list()]
+
+            for x in trainims:
+                assert x not in testims
+
+            for x in testims:
+                assert x in allims
+
+            self.filenames = all_anno[all_anno.set == 1].crop_file.to_list()
+            self.keypoints = np.array(all_anno[all_anno.set == 1].iloc[:, 4:14], dtype=np.float32).reshape(-1, 5, 2)
+
+            self.keypoints -= 1  # matlab to python
+            self.keypoints *= self.imwidth / 150.
+
+            assert len(self.filenames) == 10122
+        else:
+            self.root = self.test_root
+            self.keypoints = np.array(test_anno.iloc[:, 1:11], dtype=np.float32).reshape(-1, 2, 5).transpose(0,2,1)
+            self.filenames = test_anno[0].to_list()
+
+            self.keypoints -= 1  # matlab to python
+            self.keypoints *= self.imwidth / 150.
+
+            assert len(self.filenames) == 2995
+
+
+        normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
+        augmentations = [JPEGNoise(), transforms.transforms.ColorJitter(.4, .4, .4),
+                         transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
+
+        self.initial_transforms = transforms.Compose([initial_crop, transforms.Resize(self.imwidth)])
+        self.transforms = transforms.Compose(augmentations + [normalize])
+
+    def __len__(self):
+        return len(self.filenames)
+
+    def __getitem__(self, index):
+        im = Image.open(os.path.join(self.root, self.filenames[index]))
+        kp = None
+        if self.use_keypoints:
+            kp = self.keypoints[index].copy()
+        meta = {}
+
+        if self.warper is not None:
+            if self.warper.returns_pairs:
+                im1 = self.initial_transforms(im)
+                im1 = TF.to_tensor(im1) * 255
+
+                im1, im2, flow, grid, kp1, kp2 = self.warper(im1, keypts=kp, crop=self.crop)
+
+                im1 = im1.to(torch.uint8)
+                im2 = im2.to(torch.uint8)
+
+                C, H, W = im1.shape
+
+                im1 = TF.to_pil_image(im1)
+                im2 = TF.to_pil_image(im2)
+
+                im1 = self.transforms(im1)
+                im2 = self.transforms(im2)
+
+                C, H, W = im1.shape
+                data = torch.stack((im1, im2), 0)
+                meta = {'flow': flow[0], 'grid': grid[0], 'im1': im1, 'im2': im2, 'index': index}
+                if self.use_keypoints:
+                    meta = {**meta, **{'kp1': kp1, 'kp2': kp2}}
+            else:
+                im1 = self.initial_transforms(im)
+                im1 = TF.to_tensor(im1) * 255
+
+                im1, kp = self.warper(im1, keypts=kp, crop=self.crop)
+
+                im1 = im1.to(torch.uint8)
+                im1 = TF.to_pil_image(im1)
+                im1 = self.transforms(im1)
+
+                C, H, W = im1.shape
+                data = im1
+                if self.use_keypoints:
+                    meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
+
+        else:
+            data = self.transforms(self.initial_transforms(im))
+
+            if self.crop != 0:
+                data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+                kp = kp - self.crop
+                kp = torch.tensor(kp)
+
+            C, H, W = data.shape
+            if self.use_keypoints:
+                meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
+
+        return data, meta
 
 
 if __name__ == '__main__':
@@ -761,6 +891,10 @@ if __name__ == '__main__':
             dataset[ii]
     elif args.dataset == "AFLW":
         dataset = AFLW(**kwargs)
+        for ii in range(show):
+            dataset[ii]
+    elif args.dataset == "AFLW_MTFL":
+        dataset = AFLW_MTFL(**kwargs)
         for ii in range(show):
             dataset[ii]
     elif args.dataset == "Chimps":
