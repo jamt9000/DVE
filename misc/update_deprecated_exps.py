@@ -120,7 +120,7 @@ def parse_old_log(log_path, config_path, fixed_epochs):
     pos = np.where(presence)[0].item()
     timestamp = Path(log_path).parent.stem
     gen_log = [f"This log was generated from an existing log for experiemnt {timestamp}"]
-    gen_log =+ ["Launching experiment with config:"]
+    gen_log += ["Launching experiment with config:"]
     return gen_log + config + log[:pos + 1]
 
 
