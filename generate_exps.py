@@ -1,89 +1,101 @@
-"""Module to generate experiments"""
-
 import json
 import copy
-import shutil
-import numpy as np
-from pathlib import Path
-
 import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("--exp_name", default="scarce-data")
-parser.add_argument("--gen_config_dir", default="data/gen_configs")
-parser.add_argument("--refresh", action="store_true")
-args = parser.parse_args()
-
-dve_celeba_ckpt = "aws-saved/smallnet_celeba_64d_dve_128in_checkpoint-epoch57.pth"
-non_dve_3d_celeba_ckpt = "saved/smallnet_celeba_3d/0618_085842/checkpoint-epoch161.pth"
+import itertools
+from pathlib import Path
+from collections import OrderedDict
 
 
-def update_dict(orig, updater):
-    for key, val in updater.items():
-        assert key in orig, "unknown key: {}".format(key)
-        if isinstance(val, dict):
-            orig[key] = update_dict(orig[key], val)
-        elif val == "REMOVE-KEY":
-            del orig[key]
-        else:
-            orig[key] = val
-    return orig
-
-
-if args.exp_name == "scarce-data":
-    gen_config_root = Path(args.gen_config_dir, args.exp_name)
-    template = "configs/smallnet_helen_64d_dve_128in-scarce-data-template.json"
-    if args.refresh and gen_config_root.exists():
-        shutil.rmtree(str(gen_config_root))
-    gen_config_root.mkdir(exist_ok=True, parents=True)
-    with open(template, "r") as f:
+def generate_configs(base_config, dest_dir, embeddings, grid, refresh, experiments_path):
+    with open(base_config, "r") as f:
         base = json.load(f)
-    restrict_to_args = [1, 10, 100, 0]
-    save_period = 100
-    log_dir = "data/saved-gen"
-    visualizations = []
-    epochs = 20
-    milestones = [15]
-    tensorboardX = True
-    # seeds = [0, 1, 2]
-    seeds = [0, 1, 2]
-    dataset = "Helen"
-    Path(log_dir).mkdir(exist_ok=True, parents=True)
-    named_models = [
-        ("scratch_64d", {
-            "arch": {"type": "SmallNet", "args": {"num_output_channels": 64}},
-            "finetune_from": "REMOVE-KEY",
-            "segmentation_head": {"args": {"freeze_base": False}},
-        }),
-        ("smallnet_non_dve_3d", {
-            "arch": {"type": "SmallNet", "args": {"num_output_channels": 3}},
-            "finetune_from": non_dve_3d_celeba_ckpt,
-        }),
-        ("smallnet_dve_64d", {
-            "arch": {"type": "SmallNet", "args": {"num_output_channels": 64}},
-            "finetune_from": dve_celeba_ckpt,
-        }),
-    ]
-    total = np.prod(list(map(len, [restrict_to_args, seeds, named_models])))
-    count = 0
-    for restrict_to in restrict_to_args:
-        for seed in seeds:
-            for model_name, model in named_models:
-                exp = copy.deepcopy(base)
-                name = "{:03d}-of-{:03d}-{}-{}-restrict{}-seed{}"
-                exp["name"] = name.format(count, total, model_name, dataset,
-                                          restrict_to, seed)
-                exp["dataset"]["args"]["restrict_to"] = restrict_to
-                exp["dataset"]["args"]["restrict_seed"] = seed
-                exp["trainer"]["epochs"] = epochs
-                exp["trainer"]["log_dir"] = log_dir
-                exp["trainer"]["save_period"] = save_period
-                exp["trainer"]["tensorboardX"] = tensorboardX
-                exp["visualizations"] = visualizations
-                exp["lr_scheduler"]["args"]["milestones"] = milestones
-                update_dict(exp, model)
-                exp_str = json.dumps(exp)
-                config_path = gen_config_root / "{}.json".format(exp["name"])
-                print("{} generating config -> {}".format(count, exp["name"]))
-                with open(str(config_path), "w") as f:
-                    f.write(exp_str)
-                count += 1
+
+    with open(experiments_path, "r") as f:
+        exps = json.load(f)
+
+    model_family = {
+        "smallnet": {"crop": 15, "imwidth": 100},
+        "hourglass": {"crop": 20, "imwidth": 136},
+    }
+
+    for model_name, epoch in embeddings.items():
+
+        # model naming convention: <dataset>-<model_type>-<embedding-dim>
+        tokens = model_name.split("-")
+        model_type, embedding_dim = tokens[1], int(tokens[2][:-1])
+        preproc_kwargs = model_family[model_type]
+        
+        hparam_vals = [x for x in grid.values()]
+        grid_vals = list(itertools.product(*hparam_vals))
+        hparams = list(grid.keys())
+
+        for cfg_vals in grid_vals:
+            # dest_name = Path(base_config).stem
+            config = copy.deepcopy(base)
+            for hparam, val in zip(hparams, cfg_vals):
+                if hparam == "smax":
+                    config["keypoint_regressor"]["softmaxarg_mul"] = val
+                elif hparam == "lr":
+                    config["optimizer"]["args"]["lr"] = val
+                elif hparam == "bs":
+                    val = int(val)
+                    config["batch_size"] = val
+                elif hparam == "upsample":
+                    val = bool(val)
+                    config["keypoint_regressor_upsample"] = val
+                else:
+                    raise ValueError(f"unknown hparam: {hparam}")
+            ckpt = f"checkpoint-epoch{epoch}.pth"
+            ckpt_path = Path("data/saved/models") / model_name / exps[model_name] / ckpt
+            config["dataset"]["args"].update(preproc_kwargs)
+            config["finetune_from"] = str(ckpt_path)
+            config["arch"]["args"]["num_output_channels"] = embedding_dim
+                
+            dest_path = Path(dest_dir) / f"{model_name}.json"
+            dest_path.parent.mkdir(exist_ok=True, parents=True)
+            if not dest_path.exists() or refresh:
+                with open(str(dest_path), "w") as f:
+                    json.dump(config, f, indent=4, sort_keys=False)
+            else:
+                print(f"config file at {str(dest_path)} exists, skipping....")
+        print(f"Wrote {len(grid_vals)} configs to disk")
+    import ipdb; ipdb.set_trace()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--target', default="mafl-keypoints")
+    parser.add_argument('--bs', default="32")
+    parser.add_argument("--experiments_path", default="misc/experiments.json")
+    parser.add_argument('--smax', default="100")
+    parser.add_argument('--lr', default="1E-3")
+    parser.add_argument('--upsample', default="0")
+    parser.add_argument('--refresh', action="store_true")
+    args = parser.parse_args()
+
+    grid_args = OrderedDict()
+    for key in ["bs", "smax", "lr", "upsample"]:
+        grid_args[key] = [float(x) for x in getattr(args, key).split(",")]
+    dest_config_dir = Path("configs") / args.target
+    base_config_path = Path("configs/templates") / f"{args.target}.json"
+
+    pretrained_embeddings = {
+        "celeba-smallnet-3d": 100,
+        "celeba-smallnet-16d": 100,
+        "celeba-smallnet-32d": 100,
+        "celeba-smallnet-64d": 100,
+        "celeba-smallnet-3d-dve": 100,
+        "celeba-smallnet-16d-dve": 100,
+        "celeba-smallnet-32d-dve": 100,
+        "celeba-smallnet-64d-dve": 100,
+        "celeba-hourglass-64d-dve": 45,
+    }
+
+    generate_configs(
+        base_config=base_config_path,
+        embeddings=pretrained_embeddings,
+        experiments_path=args.experiments_path,
+        refresh=args.refresh,
+        dest_dir=dest_config_dir,
+        grid=grid_args,
+    )

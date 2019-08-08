@@ -33,7 +33,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--device')
     parser.add_argument('--refresh', action="store_true")
-    parser.add_argument('--max_jobs_per_device', default=3)
+    parser.add_argument('--max_jobs_per_device', type=int, default=1)
     parser.add_argument('--grid_dir', default="configs/grid")
     args = parser.parse_args()
 
