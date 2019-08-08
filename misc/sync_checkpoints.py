@@ -15,7 +15,7 @@ def sync_between_servers(save_dir, src_server, dest_server, local_tmp_dir, refre
 
     filetypes = {
         "log": ["info.log"],
-        "models": ["checkpoint-epoch45.pth", "config.json"]
+        "models": ["checkpoint-epoch100.pth", "config.json"]
     }
     for key, rel_dir in ckpts.items():
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument("--action", default="sync", choices=["sync", "fetch"])
     parser.add_argument("--ckpt_list", default="misc/server_checkpoints.json")
     parser.add_argument("--src_server", default="aws-albanie")
-    parser.add_argument("--dest_server", default="shallow8")
+    parser.add_argument("--dest_server", default="gnodeb2")
     parser.add_argument("--local_tmp_dir", default="/tmp/server-sync")
     parser.add_argument("--refresh_server", action="store_true")
     parser.add_argument("--save_dir", default="~/data/exp/objectframe-pytorch/saved")
