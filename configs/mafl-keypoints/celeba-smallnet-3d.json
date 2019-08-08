@@ -5,7 +5,7 @@
     "cache_descriptors": true,
     "keypoint_regressor_upsample": false,
     "arch": {
-        "type": "HourglassNet",
+        "type": "SmallNet",
         "args": {
             "num_output_channels": 3
         }

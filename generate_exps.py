@@ -14,8 +14,8 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, experimen
         exps = json.load(f)
 
     model_family = {
-        "smallnet": {"crop": 15, "imwidth": 100},
-        "hourglass": {"crop": 20, "imwidth": 136},
+        "smallnet": {"preproc": {"crop": 15, "imwidth": 100}, "name": "SmallNet"},
+        "hourglass": {"preproc": {"crop": 20, "imwidth": 136}, "name": "HourglassNet"},
     }
 
     for model_name, epoch in embeddings.items():
@@ -23,7 +23,7 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, experimen
         # model naming convention: <dataset>-<model_type>-<embedding-dim>
         tokens = model_name.split("-")
         model_type, embedding_dim = tokens[1], int(tokens[2][:-1])
-        preproc_kwargs = model_family[model_type]
+        preproc_kwargs = model_family[model_type]["preproc"]
         
         hparam_vals = [x for x in grid.values()]
         grid_vals = list(itertools.product(*hparam_vals))
@@ -47,9 +47,10 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, experimen
                     raise ValueError(f"unknown hparam: {hparam}")
             ckpt = f"checkpoint-epoch{epoch}.pth"
             ckpt_path = Path("data/saved/models") / model_name / exps[model_name] / ckpt
+            config["arch"]["type"] = model_family[model_type]["name"]
+            config["arch"]["args"]["num_output_channels"] = embedding_dim
             config["dataset"]["args"].update(preproc_kwargs)
             config["finetune_from"] = str(ckpt_path)
-            config["arch"]["args"]["num_output_channels"] = embedding_dim
                 
             dest_path = Path(dest_dir) / f"{model_name}.json"
             dest_path.parent.mkdir(exist_ok=True, parents=True)
@@ -59,7 +60,6 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, experimen
             else:
                 print(f"config file at {str(dest_path)} exists, skipping....")
         print(f"Wrote {len(grid_vals)} configs to disk")
-    import ipdb; ipdb.set_trace()
 
 
 if __name__ == "__main__":
