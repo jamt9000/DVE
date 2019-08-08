@@ -716,16 +716,15 @@ class AFLW_MTFL(Dataset):
        Facial Landmark Detection by Deep Multi-task Learning (TCDCN) paper
        http://mmlab.ie.cuhk.edu.hk/projects/TCDCN.html
 
-       For training this can use either MAFL or a cropped 5-point version of AFLW used in
+       For training this uses a cropped 5-point version of AFLW used in
        http://openaccess.thecvf.com/content_ICCV_2017/papers/Thewlis_Unsupervised_Learning_of_ICCV_2017_paper.pdf
        """
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, train_root, test_root, train_set='aflw_cropped', train=True, pair_warper=None, imwidth=70,
-                 crop=0, do_augmentations=True, use_keypoints=False):
-        self.test_root = test_root  # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
-        self.train_root = train_root  # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
-        self.train_set = train_set  # 'aflw_cropped' or 'mafl'
+    def __init__(self, root, train=True, pair_warper=None, imwidth=70,
+                 crop=0, do_augmentations=True, use_keypoints=False, **kwargs):
+        self.test_root = os.path.join(root, 'MTFL')  # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
+        self.train_root = os.path.join(root, 'aflw_cropped')  # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
 
         self.imwidth = imwidth
         self.train = train
@@ -735,53 +734,30 @@ class AFLW_MTFL(Dataset):
 
         initial_crop = lambda im: im
 
-        test_anno = pd.read_csv(os.path.join(test_root, 'testing.txt'), header=None, delim_whitespace=True)
+        test_anno = pd.read_csv(os.path.join(self.test_root, 'testing.txt'), header=None, delim_whitespace=True)
 
         if train:
-            self.root = train_root
-            if train_set == 'aflw_cropped':
-                all_anno = pd.read_csv(os.path.join(train_root, 'facedata_cropped.csv'), sep=',', header=0)
-                allims = all_anno.image_file.to_list()
-                trainims = all_anno[all_anno.set == 1].image_file.to_list()
-                testims = [t.split('-')[-1] for t in test_anno.loc[:, 0].to_list()]
+            self.root = self.train_root
+            all_anno = pd.read_csv(os.path.join(self.train_root, 'facedata_cropped.csv'), sep=',', header=0)
+            allims = all_anno.image_file.to_list()
+            trainims = all_anno[all_anno.set == 1].image_file.to_list()
+            testims = [t.split('-')[-1] for t in test_anno.loc[:, 0].to_list()]
 
-                for x in trainims:
-                    assert x not in testims
+            for x in trainims:
+                assert x not in testims
 
-                for x in testims:
-                    assert x in allims
+            for x in testims:
+                assert x in allims
 
-                self.filenames = all_anno[all_anno.set == 1].crop_file.to_list()
-                self.keypoints = np.array(all_anno[all_anno.set == 1].iloc[:, 4:14], dtype=np.float32).reshape(-1, 5, 2)
+            self.filenames = all_anno[all_anno.set == 1].crop_file.to_list()
+            self.keypoints = np.array(all_anno[all_anno.set == 1].iloc[:, 4:14], dtype=np.float32).reshape(-1, 5, 2)
 
-                self.keypoints -= 1  # matlab to python
-                self.keypoints *= self.imwidth / 150.
+            self.keypoints -= 1  # matlab to python
+            self.keypoints *= self.imwidth / 150.
 
-                assert len(self.filenames) == 10122
-
-            if train_set == 'mafl':
-                # todo will probably need different imwidth/crop for train vs test
-                # should maybe just allow setting different datasets for train/test rather than making it an option here
-                anno = pd.read_csv(os.path.join(train_root, 'Anno', 'list_landmarks_align_celeba.txt'), header=1,
-                                   delim_whitespace=True)
-                split = pd.read_csv(os.path.join(train_root, 'Eval', 'list_eval_partition.txt'), header=None,
-                                    delim_whitespace=True, index_col=0)
-                mafltrain = pd.read_csv(os.path.join(train_root, 'MAFL', 'training.txt'), header=None,
-                                        delim_whitespace=True,
-                                        index_col=0)
-                split.loc[mafltrain.index] = 5
-                data = anno.loc[split[split[1] == 5].index]
-
-                self.keypoints = np.array(data, dtype=np.float32).reshape(-1, 5, 2)
-                self.filenames = list(data.index)
-
-                # Move head up a bit
-                initial_crop = lambda im: transforms.functional.crop(im, 30, 0, 178, 178)
-                self.keypoints[:, :, 1] -= 30
-                self.keypoints *= self.imwidth / 178.
-
+            assert len(self.filenames) == 10122
         else:
-            self.root = test_root
+            self.root = self.test_root
             self.keypoints = np.array(test_anno.iloc[:, 1:11], dtype=np.float32).reshape(-1, 2, 5).transpose(0,2,1)
             self.filenames = test_anno[0].to_list()
 
@@ -789,7 +765,6 @@ class AFLW_MTFL(Dataset):
             self.keypoints *= self.imwidth / 150.
 
             assert len(self.filenames) == 2995
-
 
 
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
@@ -916,6 +891,10 @@ if __name__ == '__main__':
             dataset[ii]
     elif args.dataset == "AFLW":
         dataset = AFLW(**kwargs)
+        for ii in range(show):
+            dataset[ii]
+    elif args.dataset == "AFLW_MTFL":
+        dataset = AFLW_MTFL(**kwargs)
         for ii in range(show):
             dataset[ii]
     elif args.dataset == "Chimps":
