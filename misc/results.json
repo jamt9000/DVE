@@ -2,32 +2,32 @@
     "celeba-smallnet-3d": {
         "timestamp": "2019-08-04_17-55-48",
         "results": {
-            "same-identity": 1.3343133259974413,
             "different-identity": 2.891541310561818,
+            "same-identity": 1.3343133259974413,
             "params": 334875
         }
     },
     "celeba-smallnet-16d": {
         "timestamp": "2019-08-04_17-55-52",
         "results": {
-            "same-identity": 1.249850663909267,
             "different-identity": 5.645454607671682,
+            "same-identity": 1.249850663909267,
             "params": 338216
         }
     },
     "celeba-smallnet-32d": {
         "timestamp": "2019-08-04_17-55-57",
         "results": {
-            "same-identity": 1.2570776241953114,
             "different-identity": 5.805663559298475,
+            "same-identity": 1.2570776241953114,
             "params": 342328
         }
     },
     "celeba-smallnet-64d": {
         "timestamp": "2019-08-04_17-56-04",
         "results": {
-            "same-identity": 1.2530637518406809,
             "different-identity": 5.684878522781191,
+            "same-identity": 1.2530637518406809,
             "params": 350552
         }
     },
@@ -38,32 +38,32 @@
     "celeba-smallnet-16d-dve": {
         "timestamp": "2019-08-02_06-20-13",
         "results": {
-            "same-identity": 1.2834090457744578,
             "different-identity": 2.7870315401680257,
+            "same-identity": 1.2834090457744578,
             "params": 338216
         }
     },
     "celeba-smallnet-32d-dve": {
         "timestamp": "2019-08-02_06-19-59",
         "results": {
-            "same-identity": 1.2915763660018833,
             "different-identity": 2.787983394560007,
+            "same-identity": 1.2915763660018833,
             "params": 342328
         }
     },
     "celeba-smallnet-64d-dve": {
         "timestamp": "2019-08-02_06-20-28",
         "results": {
-            "same-identity": 1.2782988528206038,
             "different-identity": 2.7683083117734326,
+            "same-identity": 1.2782988528206038,
             "params": 350552
         }
     },
     "celeba-hourglass-64d-dve": {
         "timestamp": "0618_103501",
         "results": {
-            "same-identity": 0.92915186948157,
             "different-identity": 2.365658230283113,
+            "same-identity": 0.92915186948157,
             "params": 12609472
         }
     },
@@ -118,7 +118,10 @@
         "results": {}
     },
     "mafl-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-09_07-34-46",
+        "results": {
+            "iod": 2.866323667526245,
+            "params": 12609472
+        }
     }
 }
