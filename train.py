@@ -22,6 +22,8 @@ def main(config, resume):
     logger = config.get_logger('train')
     seed = int(config._args.seed)
     torch.backends.cudnn.benchmark = True
+    logger.info("Launching experiment with config:")
+    logger.info(config)
 
     tic = time.time()
     logger.info(f"Setting experiment random seed to {seed}")

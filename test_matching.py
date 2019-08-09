@@ -259,7 +259,7 @@ def evaluation(config, logger=None):
                 kp_same = kp2[0]
                 kp_diff = kp2[1]
 
-            if config["vis"]:
+            if config.get("vis", False):
                 fig = plt.figure()  # a new figure window
                 ax1 = fig.add_subplot(1, 3, 1)
                 ax2 = fig.add_subplot(1, 3, 2)
@@ -346,11 +346,11 @@ def evaluation(config, logger=None):
                         crop=crop,
                     )
                     diff_errs.append(err)
-                    if config["vis"]:
+                    if config.get("vis", False):
                         ax2.scatter(same_x, same_y, c='b')
                         ax3.scatter(diff_x, diff_y, c='b')
 
-            if config["vis"]:
+            if config.get("vis", False):
                 zs_dispFig()
                 fig.savefig('/tmp/matching.pdf')
 
