@@ -147,7 +147,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_dir", default="data/saved")
     parser.add_argument("--webserver", default="login.robots.ox.ac.uk")
     parser.add_argument("--results_path", default="misc/results.json")
-    parser.add_argument("--experiments_path", default="misc/server_checkpoints.json")
+    parser.add_argument("--experiments_path", default="misc/server-checkpoints.json")
     parser.add_argument("--readme_template", default="misc/README-template.md")
     parser.add_argument("--readme_dest", default="README.md")
     parser.add_argument("--task", default="generate_readme",

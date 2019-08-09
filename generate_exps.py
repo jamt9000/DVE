@@ -6,19 +6,19 @@ from pathlib import Path
 from collections import OrderedDict
 
 
-def generate_configs(base_config, dest_dir, embeddings, grid, refresh, experiments_path):
+def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_path):
     with open(base_config, "r") as f:
         base = json.load(f)
 
-    with open(experiments_path, "r") as f:
-        exps = json.load(f)
+    with open(ckpts_path, "r") as f:
+        ckpts = json.load(f)
 
     model_family = {
         "smallnet": {"preproc": {"crop": 15, "imwidth": 100}, "name": "SmallNet"},
         "hourglass": {"preproc": {"crop": 20, "imwidth": 136}, "name": "HourglassNet"},
     }
 
-    for model_name, epoch in embeddings.items():
+    for model_name in embeddings:
 
         # model naming convention: <dataset>-<model_type>-<embedding-dim>
         tokens = model_name.split("-")
@@ -28,6 +28,7 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, experimen
         hparam_vals = [x for x in grid.values()]
         grid_vals = list(itertools.product(*hparam_vals))
         hparams = list(grid.keys())
+        epoch = ckpts[model_name]["epoch"]
 
         for cfg_vals in grid_vals:
             # dest_name = Path(base_config).stem
@@ -46,7 +47,8 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, experimen
                 else:
                     raise ValueError(f"unknown hparam: {hparam}")
             ckpt = f"checkpoint-epoch{epoch}.pth"
-            ckpt_path = Path("data/saved/models") / model_name / exps[model_name] / ckpt
+            timestamp = ckpts[model_name]["timestamp"]
+            ckpt_path = Path("data/saved/models") / model_name / timestamp / ckpt
             config["arch"]["type"] = model_family[model_type]["name"]
             config["arch"]["args"]["num_output_channels"] = embedding_dim
             config["dataset"]["args"].update(preproc_kwargs)
@@ -64,16 +66,15 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, experimen
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--target', default="mafl-keypoints")
+    parser.add_argument('--target', default="mafl-keypoints",
+                        choices=["mafl-keypoints", "aflw-keypoints"])
     parser.add_argument('--bs', default="32")
-    parser.add_argument("--experiments_path", default="misc/experiments.json")
+    parser.add_argument("--ckpts_path", default="misc/server-checkpoints.json")
     parser.add_argument('--smax', default="100")
     parser.add_argument('--lr', default="1E-3")
     parser.add_argument('--upsample', default="0")
     parser.add_argument('--refresh', action="store_true")
     args = parser.parse_args()
-
-    raise NotImplementedError("update experiments.json -> server_checkpoints.json")
 
     grid_args = OrderedDict()
     for key in ["bs", "smax", "lr", "upsample"]:
@@ -81,22 +82,22 @@ if __name__ == "__main__":
     dest_config_dir = Path("configs") / args.target
     base_config_path = Path("configs/templates") / f"{args.target}.json"
 
-    pretrained_embeddings = {
-        "celeba-smallnet-3d": 100,
-        "celeba-smallnet-16d": 100,
-        "celeba-smallnet-32d": 100,
-        "celeba-smallnet-64d": 100,
-        "celeba-smallnet-3d-dve": 100,
-        "celeba-smallnet-16d-dve": 100,
-        "celeba-smallnet-32d-dve": 100,
-        "celeba-smallnet-64d-dve": 100,
-        "celeba-hourglass-64d-dve": 45,
-    }
+    pretrained_embeddings = [
+        "celeba-smallnet-3d",
+        "celeba-smallnet-16d",
+        "celeba-smallnet-32d",
+        "celeba-smallnet-64d",
+        "celeba-smallnet-3d-dve",
+        "celeba-smallnet-16d-dve",
+        "celeba-smallnet-32d-dve",
+        "celeba-smallnet-64d-dve",
+        "celeba-hourglass-64d-dve",
+    ]
 
     generate_configs(
         base_config=base_config_path,
         embeddings=pretrained_embeddings,
-        experiments_path=args.experiments_path,
+        ckpts_path=args.ckpts_path,
         refresh=args.refresh,
         dest_dir=dest_config_dir,
         grid=grid_args,

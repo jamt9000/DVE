@@ -59,8 +59,9 @@ def parse_tboard_files(rel_dir):
     return gen_log
 
 
-def modernize_exp_dir(experiments, save_dir, refresh):
-    for key, rel_dir in experiments.items():
+def modernize_exp_dir(experiments, checkpoints, save_dir, refresh):
+    for key in experiments:
+        rel_dir = checkpoints[key]["timestamp"]
 
         timestamp = rel_dir.split("/")[-1]
         src_config = Path(rel_dir) / "config.json"
@@ -124,15 +125,17 @@ def parse_old_log(log_path, config_path, fixed_epochs):
     return gen_log + config + log[:pos + 1]
 
 
-def standardize_exp_dir(experiments, save_dir, refresh, fixed_epochs):
+def standardize_exp_dir(experiments, save_dir, checkpoints, refresh):
     """Restructure logs in canonical format (deals with older versions that were
     run different config setups).
     """
-    for key, timestamp in experiments.items():
+    for key in experiments:
+        timestamp = checkpoints[key]["timestamp"]
+        epoch = checkpoints[key]["epoch"]
 
         log_path = Path(save_dir) / "log" / key / timestamp / "info.log"
         config_path = Path(save_dir) / "models" / key / timestamp / "config.json"
-        ckpt_name = f"checkpoint-epoch{fixed_epochs}.pth"
+        ckpt_name = f"checkpoint-epoch{epoch}.pth"
         model_path = Path(save_dir) / "models" / key / timestamp / ckpt_name
         assert log_path.exists(), "log was not found"
         assert config_path.exists(), "config was not found"
@@ -143,7 +146,7 @@ def standardize_exp_dir(experiments, save_dir, refresh, fixed_epochs):
 
         if not Path(backup_log).exists() or refresh:
             shutil.copyfile(str(log_path), backup_log)
-            generated_log = parse_old_log(backup_log, config_path, fixed_epochs)
+            generated_log = parse_old_log(backup_log, config_path, epoch)
             log_path.unlink()
             setup_logging(save_dir=log_path.parent)
             logger = logging.getLogger("log-gen")
@@ -164,26 +167,32 @@ def standardize_exp_dir(experiments, save_dir, refresh, fixed_epochs):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--save_dir", default="data/saved")
     parser.add_argument("--task", default="modernize")
     parser.add_argument("--refresh", action="store_true")
-    parser.add_argument("--fixed_epochs", default=100)
-    parser.add_argument("--experiments_path", default="misc/experiments-deprecated.json")
+    parser.add_argument("--save_dir", default="data/saved")
+    parser.add_argument("--dep_exps", default="misc/experiments-deprecated.json")
+    parser.add_argument("--non_std_exps", default="misc/experiments-non-standard.json")
+    parser.add_argument("--ckpts_path", default="misc/server-checkpoints.json")
     args = parser.parse_args()
 
-    with open(args.experiments_path, "r") as f:
-        old_format_experiments = json.load(f)
+    with open(args.ckpts_path, "r") as f:
+        ckpts = json.load(f)
 
     if args.task == "modernize":
+        with open(args.dep_exps, "r") as f:
+            dep_experiments = json.load(f)
         modernize_exp_dir(
-            save_dir=args.save_dir,
-            experiments=old_format_experiments,
             refresh=args.refresh,
+            checkpoints=ckpts,
+            save_dir=args.save_dir,
+            experiments=dep_experiments,
         )
     elif args.task == "standardize":
+        with open(args.non_std_exps, "r") as f:
+            non_std_experiments = json.load(f)
         standardize_exp_dir(
-            save_dir=args.save_dir,
-            experiments=old_format_experiments,
-            fixed_epochs=args.fixed_epochs,
             refresh=args.refresh,
+            checkpoints=ckpts,
+            save_dir=args.save_dir,
+            experiments=non_std_experiments,
         )
