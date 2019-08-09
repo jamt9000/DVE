@@ -26,11 +26,20 @@ def generate_url(root_url, target, exp_name, experiments):
 
 
 def sync_files(experiments, save_dir, webserver, web_dir):
-    filetypes = {
-        "log": ["info.log"],
-        "models": ["model_best.pth", "config.json"]
-    }
-    for key, rel_dir in experiments.items():
+    # filetypes = {
+    #     "log": ["info.log"],
+    #     "models": ["model_best.pth", "config.json"]
+    # }
+    # for key, rel_dir in experiments.items():
+
+    for key, subdict in experiments.items():
+        rel_dir = subdict["timestamp"]
+        epoch = subdict["epoch"]
+
+        filetypes = {
+            "log": ["info.log"],
+            "models": [f"checkpoint-epoch{epoch}.pth", "config.json"]
+        }
 
         # copy experiment artifacts
         for filetype, fnames in filetypes.items():
@@ -40,6 +49,7 @@ def sync_files(experiments, save_dir, webserver, web_dir):
                 rel_path = Path(rel_dir) / fname
                 local_path = Path(save_dir) / filetype / key / rel_path
                 server_path = Path(web_dir).expanduser() / filetype / key / rel_path
+                import ipdb; ipdb.set_trace()
                 dest = f"{webserver}:{str(server_path)}"
                 print(f"{key} -> {webserver} [{local_path} -> {server_path}]")
                 subprocess.call(["ssh", webserver, "mkdir -p", str(server_path.parent)])
@@ -133,7 +143,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_dir", default="data/saved")
     parser.add_argument("--webserver", default="login.robots.ox.ac.uk")
     parser.add_argument("--results_path", default="misc/results.json")
-    parser.add_argument("--experiments_path", default="misc/experiments.json")
+    parser.add_argument("--experiments_path", default="misc/server_checkpoints.json")
     parser.add_argument("--readme_template", default="misc/README-template.md")
     parser.add_argument("--readme_dest", default="README.md")
     parser.add_argument("--task", default="generate_readme",

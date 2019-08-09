@@ -73,6 +73,8 @@ if __name__ == "__main__":
     parser.add_argument('--refresh', action="store_true")
     args = parser.parse_args()
 
+    raise NotImplementedError("update experiments.json -> server_checkpoints.json")
+
     grid_args = OrderedDict()
     for key in ["bs", "smax", "lr", "upsample"]:
         grid_args[key] = [float(x) for x in getattr(args, key).split(",")]

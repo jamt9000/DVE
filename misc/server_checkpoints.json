@@ -15,6 +15,10 @@
         "timestamp": "2019-08-04_17-56-04",
         "epoch": 100
     },
+    "celeba-smallnet-3d-dve": {
+        "timestamp": "TODO",
+        "epoch": 100
+    },
     "celeba-smallnet-16d-dve": {
         "timestamp": "2019-08-02_06-20-13",
         "epoch": 100
@@ -22,6 +26,14 @@
     "celeba-smallnet-32d-dve": {
         "timestamp": "2019-08-02_06-19-59",
         "epoch": 100
+    },
+    "celeba-smallnet-64d-dve": {
+        "timestamp": "TODO",
+        "epoch": 100
+    },
+    "celeba-hourglass-64d-dve": {
+        "timestamp": "0618_103501",
+        "epoch": 45
     },
 
     "mafl-keypoints-celeba-smallnet-3d": {
