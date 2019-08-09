@@ -45,8 +45,21 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 ### Landmark Regression
 
-
 **Protocol Description**: TODO (Train on 19k test on 1k).
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | {{mafl-keypoints-celeba-smallnet-3d.iod}} | [config]({{mafl-keypoints-celeba-smallnet-3d.config}}), [model]({{mafl-keypoints-celeba-smallnet-3d.model}}), [log]({{mafl-keypoints-celeba-smallnet-3d.log}}) |
+|  16 | smallnet | :heavy_multiplication_x: | {{mafl-keypoints-celeba-smallnet-16d.iod}}  | [config]({{mafl-keypoints-celeba-smallnet-16d.config}}), [model]({{mafl-keypoints-celeba-smallnet-16d.model}}), [log]({{mafl-keypoints-celeba-smallnet-16d.log}}) |
+|  32 | smallnet | :heavy_multiplication_x: | {{mafl-keypoints-celeba-smallnet-32d.iod}}  | [config]({{mafl-keypoints-celeba-smallnet-32d.config}}), [model]({{mafl-keypoints-celeba-smallnet-32d.model}}), [log]({{mafl-keypoints-celeba-smallnet-32d.log}}) |
+|  64 | smallnet | :heavy_multiplication_x: | {{mafl-keypoints-celeba-smallnet-64d.iod}} | [config]({{mafl-keypoints-celeba-smallnet-64d.config}}), [model]({{mafl-keypoints-celeba-smallnet-64d.model}}), [log]({{mafl-keypoints-celeba-smallnet-64d.log}}) |
+|  3 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-3d-dve.log}}) |
+|  16 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-16d-dve.log}}) |
+|  32 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-32d-dve.log}}) |
+|  64 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-64d-dve.log}}) |
+|  64 | hourglass | :heavy_check_mark: | {{mafl-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{mafl-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{mafl-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{mafl-keypoints-celeba-hourglass-64d-dve.log}}) |
+
+
 
 
 ### Learning new embeddings
