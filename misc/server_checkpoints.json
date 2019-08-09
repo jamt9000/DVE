@@ -1,9 +1,59 @@
 {
-    "celeba-smallnet-3d": "2019-08-04_17-55-48",
-    "celeba-smallnet-16d": "2019-08-04_17-55-52",
-    "celeba-smallnet-32d": "2019-08-04_17-55-57",
-    "celeba-smallnet-64d": "2019-08-04_17-56-04",
-    "celeba-smallnet-3d-dve": "2019-08-02_06-19-39",
-    "celeba-smallnet-16d-dve": "2019-08-02_06-20-13",
-    "celeba-smallnet-32d-dve": "2019-08-02_06-19-59"
+    "celeba-smallnet-3d": {
+        "timestamp": "2019-08-04_17-55-48",
+        "epoch": 100
+    },
+    "celeba-smallnet-16d": {
+        "timestamp": "2019-08-04_17-55-52",
+        "epoch": 100
+    },
+    "celeba-smallnet-32d": {
+        "timestamp": "2019-08-04_17-55-57",
+        "epoch": 100
+    },
+    "celeba-smallnet-64d": {
+        "timestamp": "2019-08-04_17-56-04",
+        "epoch": 100
+    },
+    "celeba-smallnet-16d-dve": {
+        "timestamp": "2019-08-02_06-20-13",
+        "epoch": 100
+    },
+    "celeba-smallnet-32d-dve": {
+        "timestamp": "2019-08-02_06-19-59",
+        "epoch": 100
+    },
+
+    "mafl-keypoints-celeba-smallnet-3d": {
+        "timestamp": "2019-08-08_17-49-48",
+        "epoch": 300
+    },
+    "mafl-keypoints-celeba-smallnet-16d": {
+        "timestamp": "2019-08-08_17-55-03",
+        "epoch": 300
+    },
+    "mafl-keypoints-celeba-smallnet-32d": {
+        "timestamp": "2019-08-08_17-56-06",
+        "epoch": 300
+    },
+    "mafl-keypoints-celeba-smallnet-64d": {
+        "timestamp": "2019-08-08_17-56-47",
+        "epoch": 300
+    },
+    "mafl-keypoints-celeba-smallnet-3d-dve": {
+        "timestamp": "TODO------------------",
+        "epoch": 300
+    },
+    "mafl-keypoints-celeba-smallnet-16d-dve": {
+        "timestamp": "2019-08-08_17-55-34",
+        "epoch": 300
+    },
+    "mafl-keypoints-celeba-smallnet-32d-dve": {
+        "timestamp": "2019-08-08_17-56-24",
+        "epoch": 300
+    },
+    "mafl-keypoints-celeba-smallnet-64d-dve": {
+        "timestamp": "TODO------------------",
+        "epoch": 300
+    }
 }
