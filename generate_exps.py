@@ -53,7 +53,6 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
             config["arch"]["args"]["num_output_channels"] = embedding_dim
             config["dataset"]["args"].update(preproc_kwargs)
             config["finetune_from"] = str(ckpt_path)
-                
             dest_path = Path(dest_dir) / f"{model_name}.json"
             dest_path.parent.mkdir(exist_ok=True, parents=True)
             if not dest_path.exists() or refresh:
@@ -68,8 +67,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--target', default="mafl-keypoints",
                         choices=["mafl-keypoints", "aflw-keypoints"])
-    parser.add_argument('--bs', default="32")
     parser.add_argument("--ckpts_path", default="misc/server-checkpoints.json")
+    parser.add_argument('--bs', default="32")
     parser.add_argument('--smax', default="100")
     parser.add_argument('--lr', default="1E-3")
     parser.add_argument('--upsample', default="0")

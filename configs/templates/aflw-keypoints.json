@@ -11,9 +11,9 @@
         }
     },
     "dataset": {
-        "type": "MAFLAligned",
+        "type": "AFLW",
         "args": {
-            "root": "data/celeba",
+            "root": "data/aflw/aflw_release-2",
             "imwidth": 136,
             "crop": 20,
             "use_hq_ims": true,
