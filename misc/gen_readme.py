@@ -21,17 +21,11 @@ def generate_url(root_url, target, exp_name, experiments):
         "model": {"parent": "models", "fname": "model_best.pth"}
     }
     paths = path_store[target]
-    timestamp = experiments[exp_name]
+    timestamp = experiments[exp_name]["timestamp"]
     return str(Path(root_url) / paths["parent"] / exp_name / timestamp / paths["fname"])
 
 
 def sync_files(experiments, save_dir, webserver, web_dir):
-    # filetypes = {
-    #     "log": ["info.log"],
-    #     "models": ["model_best.pth", "config.json"]
-    # }
-    # for key, rel_dir in experiments.items():
-
     for key, subdict in experiments.items():
         rel_dir = subdict["timestamp"]
         epoch = subdict["epoch"]
@@ -40,7 +34,6 @@ def sync_files(experiments, save_dir, webserver, web_dir):
             "log": ["info.log"],
             "models": [f"checkpoint-epoch{epoch}.pth", "config.json"]
         }
-
         # copy experiment artifacts
         for filetype, fnames in filetypes.items():
             for fname in fnames:
@@ -56,19 +49,30 @@ def sync_files(experiments, save_dir, webserver, web_dir):
                 print(f"running command {' '.join(rsync_args)}")
                 subprocess.call(rsync_args)
 
-           
+
 def parse_log(log_path):
     with open(log_path, "r") as f:
         log = f.read().splitlines()
     results = {}
-    for metric in {"same-identity", "different-identity"}:
-        tag = f"Mean Pixel Error ({metric})"
+    # Keypoint regression uses a different evaluation to the standard embedding learning
+    if "keypoints" in str(log_path):
+        metrics = {"iod"}
+        expected_occurences = 300
+    else:
+        metrics = {"same-identity", "different-identity"}
+        expected_occurences = 1
+
+    for metric in metrics:
+        if metric == "iod":
+            tag = "val_inter_ocular_error"
+        else:
+            tag = f"Mean Pixel Error ({metric})"
         results[metric] = OrderedDict()
         presence = [tag in row for row in log]
-        msg = f"expected single occurence of Mean Pixel Error tag in {log_path}"
-        assert sum(presence) == 1, msg
-        # metrics = ["R1", "R5", "R10", "R50", "MedR", "MeanR"]
-        pos = np.where(presence)[0].item()
+        msg = f"expected {expected_occurences} occurences of {metric} tag in {log_path}"
+        assert sum(presence) == expected_occurences, msg
+        # Always use the final reported value
+        pos = np.where(presence)[0][-1]
         row = log[pos]
         tokens = row.split(" ")
         val = float(tokens[-1])
@@ -82,7 +86,8 @@ def parse_log(log_path):
 
 def parse_results(experiments, save_dir):
     log_results = {}
-    for exp_name, timestamp in experiments.items():
+    for exp_name, subdict in experiments.items():
+        timestamp = subdict["timestamp"]
         if timestamp.startswith("TODO"):
             log_results[exp_name] = {"timestamp": "TODO", "results": {}}
             continue
@@ -115,7 +120,7 @@ def generate_readme(experiments, readme_template, root_url, readme_dest, results
                 token = "TODO"
             elif target in {"config", "model", "log"}:
                 token = generate_url(root_url, target, exp_name, experiments=experiments)
-            elif target in {"same-identity", "different-identity"}:
+            elif target in {"same-identity", "different-identity", "iod"}:
                 token = f"{results[exp_name]['results'][target]:.2f}"
             elif target in {"params"}:
                 token = millify(results[exp_name]["results"]["params"], precision=2)
@@ -152,15 +157,15 @@ if __name__ == "__main__":
                         default="http://www.robots.ox.ac.uk/~vgg/research/DVE/data")
     args = parser.parse_args()
 
-    with open(args.experiments_path, "r") as f:
-        experiments = json.load(f)
+    with open(args.experiments_path, "r") as fh:
+        exps = json.load(fh)
 
     if args.task == "sync_files":
         sync_files(
             web_dir=args.web_dir,
             save_dir=args.save_dir,
             webserver=args.webserver,
-            experiments=experiments,
+            experiments=exps,
         )
     elif args.task == "generate_readme":
         generate_readme(
@@ -169,5 +174,5 @@ if __name__ == "__main__":
             readme_dest=args.readme_dest,
             results_path=args.results_path,
             save_dir=args.save_dir,
-            experiments=experiments,
+            experiments=exps,
         )
