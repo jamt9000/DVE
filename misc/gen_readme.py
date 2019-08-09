@@ -49,7 +49,6 @@ def sync_files(experiments, save_dir, webserver, web_dir):
                 rel_path = Path(rel_dir) / fname
                 local_path = Path(save_dir) / filetype / key / rel_path
                 server_path = Path(web_dir).expanduser() / filetype / key / rel_path
-                import ipdb; ipdb.set_trace()
                 dest = f"{webserver}:{str(server_path)}"
                 print(f"{key} -> {webserver} [{local_path} -> {server_path}]")
                 subprocess.call(["ssh", webserver, "mkdir -p", str(server_path.parent)])

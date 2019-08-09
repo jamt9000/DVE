@@ -1,6 +1,6 @@
 {
     "n_gpu": 1,
-    "finetune_from": "data/saved/models/celeba-hourglass-64d-dve/0618_103501/checkpoint-epoch100.pth",
+    "finetune_from": "data/saved/models/celeba-hourglass-64d-dve/0618_103501/checkpoint-epoch50.pth",
     "batch_size": 32,
     "cache_descriptors": true,
     "keypoint_regressor_upsample": false,
