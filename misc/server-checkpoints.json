@@ -73,6 +73,8 @@
         "epoch": 300
     },
 
+
+
     "aflw-keypoints-celeba-smallnet-3d": {
         "timestamp": "2019-08-09_15-30-25",
         "epoch": 300
@@ -86,7 +88,7 @@
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-64d": {
-        "timestamp": "TODO",
+        "timestamp": "2019-08-09_14-20-30",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-3d-dve": {
@@ -109,6 +111,8 @@
         "timestamp": "2019-08-09_14-29-19",
         "epoch": 300
     },
+
+
 
     "300w-keypoints-celeba-smallnet-3d": {
         "timestamp": "TODO",
