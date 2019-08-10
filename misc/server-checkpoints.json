@@ -74,15 +74,15 @@
     },
 
     "aflw-keypoints-celeba-smallnet-3d": {
-        "timestamp": "TODO",
+        "timestamp": "2019-08-09_15-30-25",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-16d": {
-        "timestamp": "TODO",
+        "timestamp": "",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-32d": {
-        "timestamp": "TODO",
+        "timestamp": "2019-08-09_14-20-13",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-64d": {
@@ -94,19 +94,19 @@
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-16d-dve": {
-        "timestamp": "TODO",
+        "timestamp": "2019-08-09_14-19-34",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-32d-dve": {
-        "timestamp": "TODO",
+        "timestamp": "2019-08-09_14-20-18",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-64d-dve": {
-        "timestamp": "TODO",
+        "timestamp": "2019-08-09_14-21-32",
         "epoch": 300
     },
     "aflw-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
+        "timestamp": "2019-08-09_14-29-19",
         "epoch": 300
     },
 
