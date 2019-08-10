@@ -41,7 +41,7 @@
         "epoch": 300
     },
     "mafl-keypoints-celeba-smallnet-16d": {
-        "timestamp": "TODO",
+        "timestamp": "2019-08-08_17-55-03",
         "epoch": 300
     },
     "mafl-keypoints-celeba-smallnet-32d": {
@@ -78,7 +78,7 @@
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-16d": {
-        "timestamp": "",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-32d": {
