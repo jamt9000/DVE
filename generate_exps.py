@@ -53,6 +53,15 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
             config["arch"]["args"]["num_output_channels"] = embedding_dim
             config["dataset"]["args"].update(preproc_kwargs)
             config["finetune_from"] = str(ckpt_path)
+            if "-ft" in str(dest_dir):
+                loss = "dense_correlation_loss"
+                if "dve" in str(dest_dir):
+                    loss += "_dve"
+                config["loss"] = loss
+                # avoid OOM for hourglass
+                if "hourglass" in model_name:
+                    config["batch_size"] = 16
+
             dest_path = Path(dest_dir) / f"{model_name}.json"
             dest_path.parent.mkdir(exist_ok=True, parents=True)
             if not dest_path.exists() or refresh:
@@ -66,7 +75,8 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--target', default="mafl-keypoints",
-                        choices=["mafl-keypoints", "aflw-keypoints"])
+                        choices=["mafl-keypoints", "aflw-keypoints",
+                                 "aflw-ft", "aflw-mtfl-ft"])
     parser.add_argument("--ckpts_path", default="misc/server-checkpoints.json")
     parser.add_argument('--bs', default="32")
     parser.add_argument('--smax', default="100")
@@ -76,7 +86,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     grid_args = OrderedDict()
-    for key in ["bs", "smax", "lr", "upsample"]:
+    keys = ["lr", "bs"]
+    if "keypoints" in args.target:
+        keys += ["smax", "upsample"]
+
+    for key in keys:
         grid_args[key] = [float(x) for x in getattr(args, key).split(",")]
     dest_config_dir = Path("configs") / args.target
     base_config_path = Path("configs/templates") / f"{args.target}.json"

@@ -87,6 +87,5 @@
     "aflw-mtfl-ft-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
     "aflw-mtfl-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
     "aflw-mtfl-ft-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
-    "aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300},
-
+    "aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300}
 }
