@@ -23,8 +23,7 @@ In this work we use the following datasets:
 
 **AFLW** is a dataset of faces which also includes landmark annotations. We use the P = 5 landmark test split (10,122 training images and 2,991 test images). The dataset can be obtained [here](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) and is described in this [2011 ICCV workshop paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.2988&rep=rep1&type=pdf). This dataset is implemented in the `AFLW` class in [data_loaders.py](data_loader/data_loaders.py).
 
-
-**300-W** This dataset contains 3,158 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
+**300-W** This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
 
 
 ### Learned Embeddings
@@ -49,7 +48,9 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 ### Landmark Regression
 
-**Protocol Description**: To transform the learned dense embeddings into landmark predictions, we use the same approach as [3], which learns a set of 50 "virtual" keypoints (via a spatial softmax).
+**Protocol Description**: To transform the learned dense embeddings into landmark predictions, we use the same approach as [3].  For each target dataset, we freeze the dense embeddings and learn to peg onto them a collection of 50 "virtual" keypoints via a spatial softmax (see the [regressor code](model/keypoint_prediction.py) for details).  These virtual keypoints are then used to regress the target keypoints of the dataset.
+
+**MAFL landmark regression**
 
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
@@ -62,6 +63,36 @@ We provide pretrained models for each dataset to reproduce the results reported 
 |  32 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-32d-dve.log}}) |
 |  64 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-64d-dve.log}}) |
 |  64 | hourglass | :heavy_check_mark: | {{mafl-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{mafl-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{mafl-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{mafl-keypoints-celeba-hourglass-64d-dve.log}}) |
+
+**AFLW landmark regression**
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-keypoints-celeba-smallnet-3d.log}}) |
+|  16 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-keypoints-celeba-smallnet-16d.log}}) |
+|  32 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-32d.iod}}  | [config]({{aflw-keypoints-celeba-smallnet-32d.config}}), [model]({{aflw-keypoints-celeba-smallnet-32d.model}}), [log]({{aflw-keypoints-celeba-smallnet-32d.log}}) |
+|  64 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-64d.iod}} | [config]({{aflw-keypoints-celeba-smallnet-64d.config}}), [model]({{aflw-keypoints-celeba-smallnet-64d.model}}), [log]({{aflw-keypoints-celeba-smallnet-64d.log}}) |
+|  3 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-3d-dve.log}}) |
+|  16 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-16d-dve.log}}) |
+|  32 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-32d-dve.log}}) |
+|  64 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-64d-dve.log}}) |
+|  64 | hourglass | :heavy_check_mark: | {{aflw-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{aflw-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{aflw-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{aflw-keypoints-celeba-hourglass-64d-dve.log}}) |
+
+
+**300-W landmark regression**
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-3d.iod}} | [config]({{300w-keypoints-celeba-smallnet-3d.config}}), [model]({{300w-keypoints-celeba-smallnet-3d.model}}), [log]({{300w-keypoints-celeba-smallnet-3d.log}}) |
+|  16 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-16d.iod}}  | [config]({{300w-keypoints-celeba-smallnet-16d.config}}), [model]({{300w-keypoints-celeba-smallnet-16d.model}}), [log]({{300w-keypoints-celeba-smallnet-16d.log}}) |
+|  32 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-32d.iod}}  | [config]({{300w-keypoints-celeba-smallnet-32d.config}}), [model]({{300w-keypoints-celeba-smallnet-32d.model}}), [log]({{300w-keypoints-celeba-smallnet-32d.log}}) |
+|  64 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-64d.iod}} | [config]({{300w-keypoints-celeba-smallnet-64d.config}}), [model]({{300w-keypoints-celeba-smallnet-64d.model}}), [log]({{300w-keypoints-celeba-smallnet-64d.log}}) |
+|  3 | smallnet | :heavy_check_mark: | {{300w-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{300w-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{300w-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{300w-keypoints-celeba-smallnet-3d-dve.log}}) |
+|  16 | smallnet | :heavy_check_mark: | {{300w-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{300w-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{300w-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{300w-keypoints-celeba-smallnet-16d-dve.log}}) |
+|  32 | smallnet | :heavy_check_mark: | {{300w-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{300w-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{300w-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{300w-keypoints-celeba-smallnet-32d-dve.log}}) |
+|  64 | smallnet | :heavy_check_mark: | {{300w-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{300w-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{300w-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{300w-keypoints-celeba-smallnet-64d-dve.log}}) |
+|  64 | hourglass | :heavy_check_mark: | {{300w-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{300w-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{300w-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{300w-keypoints-celeba-hourglass-64d-dve.log}}) |
+
 
 
 ### Evaluating a pretrained embedding

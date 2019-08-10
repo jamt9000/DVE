@@ -71,5 +71,79 @@
     "mafl-keypoints-celeba-hourglass-64d-dve": {
         "timestamp": "2019-08-09_07-34-46",
         "epoch": 300
+    },
+
+    "aflw-keypoints-celeba-smallnet-3d": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "aflw-keypoints-celeba-smallnet-16d": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "aflw-keypoints-celeba-smallnet-32d": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "aflw-keypoints-celeba-smallnet-64d": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "aflw-keypoints-celeba-smallnet-3d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "aflw-keypoints-celeba-smallnet-16d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "aflw-keypoints-celeba-smallnet-32d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "aflw-keypoints-celeba-smallnet-64d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "aflw-keypoints-celeba-hourglass-64d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+
+    "300w-keypoints-celeba-smallnet-3d": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "300w-keypoints-celeba-smallnet-16d": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "300w-keypoints-celeba-smallnet-32d": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "300w-keypoints-celeba-smallnet-64d": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "300w-keypoints-celeba-smallnet-3d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "300w-keypoints-celeba-smallnet-16d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "300w-keypoints-celeba-smallnet-32d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "300w-keypoints-celeba-smallnet-64d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
+    },
+    "300w-keypoints-celeba-hourglass-64d-dve": {
+        "timestamp": "TODO",
+        "epoch": 300
     }
 }

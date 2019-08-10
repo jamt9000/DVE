@@ -191,6 +191,8 @@ class CelebABase(Dataset):
                         kp_x = kp[:, 0].numpy()
                         kp_y = kp[:, 1].numpy()
                     ax.scatter(kp_x, kp_y)
+                zs_dispFig()
+                import ipdb; ipdb.set_trace()
             #     zs.
             # if self.train:
             # else:
@@ -711,6 +713,82 @@ class MAFLAligned(CelebABase):
         return len(self.data.index)
 
 
+class Faces300W(CelebABase):
+    eye_kp_idxs = [0, 1]
+
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
+                 do_augmentations=True, use_keypoints=False, use_hq_ims=False,
+                 visualize=False, **kwargs):
+        self.root = root
+        self.imwidth = imwidth
+        self.use_hq_ims = use_hq_ims
+        self.visualize = visualize
+        self.train = train
+        self.warper = pair_warper
+        self.crop = crop
+        self.use_keypoints = use_keypoints
+
+        self.subdir = pjoin(root, "300w")
+        mat = loadmat(os.path.join(root, 'imdb_300w.mat'))
+
+        anno = pd.read_csv(
+            os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt'), header=1,
+            delim_whitespace=True)
+
+        assert len(anno.index) == 202599
+        split = pd.read_csv(os.path.join(root, 'Eval', 'list_eval_partition.txt'),
+                            header=None, delim_whitespace=True, index_col=0)
+        assert len(split.index) == 202599
+
+        mafltest = pd.read_csv(os.path.join(root, 'MAFL', 'testing.txt'), header=None,
+                               delim_whitespace=True, index_col=0)
+        split.loc[mafltest.index] = 4
+
+
+        mafltrain = pd.read_csv(os.path.join(root, 'MAFL', 'training.txt'), header=None,
+                                delim_whitespace=True, index_col=0)
+        split.loc[mafltrain.index] = 5
+
+        assert (split[1] == 4).sum() == 1000
+        assert (split[1] == 5).sum() == 19000
+
+        if train:
+            self.data = anno.loc[split[split[1] == 5].index]
+        else:
+            self.data = anno.loc[split[split[1] == 4].index]
+
+
+        # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ;
+        # leftmouth_x leftmouth_y ; rightmouth_x rightmouth_y
+        self.keypoints = np.array(self.data, dtype=np.float32).reshape(-1, 5, 2)
+
+        self.filenames = list(self.data.index)
+
+        # Move head up a bit
+        vertical_shift = 30
+        crop_params = dict(i=vertical_shift, j=0, h=178, w=178)
+        initial_crop = lambda im: transforms.functional.crop(im, **crop_params)
+        self.keypoints[:, :, 1] -= vertical_shift
+        self.keypoints *= self.imwidth / 178.
+
+        normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769],
+                                         std=[0.2599, 0.2371, 0.2323])
+        augmentations = [
+            JPEGNoise(),
+            transforms.transforms.ColorJitter(.4, .4, .4),
+            transforms.ToTensor(),
+            PcaAug()
+        ] if (train and do_augmentations) else [transforms.ToTensor()]
+
+        self.initial_transforms = transforms.Compose(
+            [initial_crop, transforms.Resize(self.imwidth)])
+        self.transforms = transforms.Compose(augmentations + [normalize])
+
+    def __len__(self):
+        return len(self.data.index)
+
+
+
 class AFLW_MTFL(Dataset):
     """Used for testing on the 5-point version of AFLW included in the MTFL download from the
        Facial Landmark Detection by Deep Multi-task Learning (TCDCN) paper
@@ -773,6 +851,7 @@ class AFLW_MTFL(Dataset):
 
         self.initial_transforms = transforms.Compose([initial_crop, transforms.Resize(self.imwidth)])
         self.transforms = transforms.Compose(augmentations + [normalize])
+        import ipdb; ipdb.set_trace()
 
     def __len__(self):
         return len(self.filenames)
@@ -838,6 +917,7 @@ class AFLW_MTFL(Dataset):
 
 
 if __name__ == '__main__':
+    from zsvision.zs_iterm import zs_dispFig
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", default="Helen")
@@ -848,7 +928,7 @@ if __name__ == '__main__':
     parser.add_argument("--rand_in", action="store_true")
     parser.add_argument("--restrict_to", type=int, help="restrict to n images")
     parser.add_argument("--downsample_labels", type=int, default=2)
-    parser.add_argument("--show", type=int, default=20)
+    parser.add_argument("--show", type=int, default=2)
     parser.add_argument("--restrict_seed", type=int, default=0)
     parser.add_argument("--root")
     args = parser.parse_args()

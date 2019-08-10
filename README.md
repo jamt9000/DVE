@@ -23,8 +23,7 @@ In this work we use the following datasets:
 
 **AFLW** is a dataset of faces which also includes landmark annotations. We use the P = 5 landmark test split (10,122 training images and 2,991 test images). The dataset can be obtained [here](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) and is described in this [2011 ICCV workshop paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.2988&rep=rep1&type=pdf). This dataset is implemented in the `AFLW` class in [data_loaders.py](data_loader/data_loaders.py).
 
-
-**300-W** This dataset contains 3,158 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
+**300-W** This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
 
 
 ### Learned Embeddings
@@ -49,7 +48,9 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 ### Landmark Regression
 
-**Protocol Description**: To transform the learned dense embeddings into landmark predictions, we use the same approach as [3], which learns a set of 50 "virtual" keypoints (via a spatial softmax).
+**Protocol Description**: To transform the learned dense embeddings into landmark predictions, we use the same approach as [3].  For each target dataset, we freeze the dense embeddings and learn to peg onto them a collection of 50 "virtual" keypoints via a spatial softmax (see the [regressor code](model/keypoint_prediction.py) for details).  These virtual keypoints are then used to regress the target keypoints of the dataset.
+
+**MAFL landmark regression**
 
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
@@ -62,6 +63,36 @@ We provide pretrained models for each dataset to reproduce the results reported 
 |  32 | smallnet | :heavy_check_mark: | 3.86 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-32d-dve/2019-08-08_17-56-24/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-32d-dve/2019-08-08_17-56-24/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-32d-dve/2019-08-08_17-56-24/info.log) |
 |  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  64 | hourglass | :heavy_check_mark: | 2.87 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-hourglass-64d-dve/2019-08-09_07-34-46/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-hourglass-64d-dve/2019-08-09_07-34-46/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-hourglass-64d-dve/2019-08-09_07-34-46/info.log) |
+
+**AFLW landmark regression**
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+
+
+**300-W landmark regression**
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+
 
 
 ### Evaluating a pretrained embedding
