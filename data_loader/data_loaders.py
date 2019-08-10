@@ -20,6 +20,7 @@ import glob
 import torch
 from os.path import join as pjoin
 from utils.util import label_colormap
+from utils.util import pad_and_crop
 from scipy.io import loadmat
 from torchvision import transforms
 import torchvision.transforms.functional as TF
@@ -30,15 +31,17 @@ from io import BytesIO
 import sys
 from pathlib import Path
 import matplotlib
-matplotlib.use("Agg")
+
+if sys.platform == 'darwin':
+    matplotlib.use("macosx")
 import matplotlib.pyplot as plt  # NOQA
 
 sys.path.insert(0, str(Path.home() / "coding/src/zsvision/python"))
 try:
-    from zsvision.zs_iterm import zs_dispFig # NOQA
+    from zsvision.zs_iterm import zs_dispFig  # NOQA
 except:
+    zs_dispFig = lambda: None
     print('No zs_dispFig, figures will not be plotted in terminal')
-
 
 
 class PcaAug(object):
@@ -258,7 +261,8 @@ class IJBB(Dataset):
             from utils.visualization import norm_range
             ims = norm_range(make_grid(data)).permute(1, 2, 0).cpu().numpy()
             plt.imshow(ims)
-            import ipdb; ipdb.set_trace()
+            import ipdb;
+            ipdb.set_trace()
         return {"data": data, "im_path": im_path}
 
     def __len__(self):
@@ -560,6 +564,7 @@ class Helen(Dataset):
     def __len__(self):
         return len(self.im_list)
 
+
 class CelebAPrunedAligned_MAFLVal(CelebABase):
     eye_kp_idxs = [0, 1]
 
@@ -667,7 +672,6 @@ class MAFLAligned(CelebABase):
                                delim_whitespace=True, index_col=0)
         split.loc[mafltest.index] = 4
 
-
         mafltrain = pd.read_csv(os.path.join(root, 'MAFL', 'training.txt'), header=None,
                                 delim_whitespace=True, index_col=0)
         split.loc[mafltrain.index] = 5
@@ -679,7 +683,6 @@ class MAFLAligned(CelebABase):
             self.data = anno.loc[split[split[1] == 5].index]
         else:
             self.data = anno.loc[split[split[1] == 4].index]
-
 
         # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ;
         # leftmouth_x leftmouth_y ; rightmouth_x rightmouth_y
@@ -722,15 +725,18 @@ class AFLW_MTFL(Dataset):
     eye_kp_idxs = [0, 1]
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=70,
-                 crop=0, do_augmentations=True, use_keypoints=False, **kwargs):
-        self.test_root = os.path.join(root, 'MTFL')  # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
-        self.train_root = os.path.join(root, 'aflw_cropped')  # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
+                 crop=0, do_augmentations=True, use_keypoints=False, visualize=False, **kwargs):
+        self.test_root = os.path.join(root,
+                                      'MTFL')  # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
+        self.train_root = os.path.join(root,
+                                       'aflw_cropped')  # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
 
         self.imwidth = imwidth
         self.train = train
         self.warper = pair_warper
         self.crop = crop
         self.use_keypoints = use_keypoints
+        self.visualize = visualize
 
         initial_crop = lambda im: im
 
@@ -758,14 +764,13 @@ class AFLW_MTFL(Dataset):
             assert len(self.filenames) == 10122
         else:
             self.root = self.test_root
-            self.keypoints = np.array(test_anno.iloc[:, 1:11], dtype=np.float32).reshape(-1, 2, 5).transpose(0,2,1)
+            self.keypoints = np.array(test_anno.iloc[:, 1:11], dtype=np.float32).reshape(-1, 2, 5).transpose(0, 2, 1)
             self.filenames = test_anno[0].to_list()
 
             self.keypoints -= 1  # matlab to python
             self.keypoints *= self.imwidth / 150.
 
             assert len(self.filenames) == 2995
-
 
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
         augmentations = [JPEGNoise(), transforms.transforms.ColorJitter(.4, .4, .4),
@@ -782,6 +787,7 @@ class AFLW_MTFL(Dataset):
         kp = None
         if self.use_keypoints:
             kp = self.keypoints[index].copy()
+            kp = torch.tensor(kp)
         meta = {}
 
         if self.warper is not None:
@@ -834,11 +840,221 @@ class AFLW_MTFL(Dataset):
             if self.use_keypoints:
                 meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
 
+        if self.visualize:
+            from utils.visualization import norm_range
+            num_show = 2 if self.warper and self.warper.returns_pairs else 1
+            fig = plt.figure()
+            for ii in range(num_show):
+                im_ = data[ii] if num_show > 1 else data
+                ax = fig.add_subplot(1, num_show, ii + 1)
+                ax.imshow(norm_range(im_).permute(1, 2, 0).cpu().numpy())
+                if self.use_keypoints:
+                    if num_show == 2:
+                        kp_x = meta["kp{}".format(ii + 1)][:, 0].numpy()
+                        kp_y = meta["kp{}".format(ii + 1)][:, 1].numpy()
+                    else:
+                        kp_x = kp[:, 0].numpy()
+                        kp_y = kp[:, 1].numpy()
+                    ax.scatter(kp_x, kp_y)
+
+        return data, meta
+
+
+class ThreeHundredW(Dataset):
+    """The 300W dataset, which is an amalgamation of several other datasets
+
+    We use the split from "Face alignment at 3000 fps via regressing local binary features"
+    Where they state:
+    "Our training set consists of AFW, the training sets of LFPW,
+    and the training sets of Helen,  with 3148 images in total.
+    Our testing set consists of IBUG, the testing sets of LFPW,
+    and the testing sets of Helen, with 689 images in total.
+    We do not use images from XM2VTS as it is taken under a
+    controlled environment and is too simple"
+    """
+    eye_kp_idxs = [36, 45]
+
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100,
+                 crop=10, do_augmentations=True, use_keypoints=False, visualize=False, **kwargs):
+        from scipy.io import loadmat
+
+        self.root = root
+        self.imwidth = imwidth
+        self.train = train
+        self.warper = pair_warper
+        self.crop = crop
+        self.use_keypoints = use_keypoints
+        self.visualize = visualize
+
+        afw = loadmat(os.path.join(root, 'Bounding Boxes/bounding_boxes_afw.mat'))
+        helentr = loadmat(os.path.join(root, 'Bounding Boxes/bounding_boxes_helen_trainset.mat'))
+        helente = loadmat(os.path.join(root, 'Bounding Boxes/bounding_boxes_helen_testset.mat'))
+        lfpwtr = loadmat(os.path.join(root, 'Bounding Boxes/bounding_boxes_lfpw_trainset.mat'))
+        lfpwte = loadmat(os.path.join(root, 'Bounding Boxes/bounding_boxes_lfpw_testset.mat'))
+        ibug = loadmat(os.path.join(root, 'Bounding Boxes/bounding_boxes_ibug.mat'))
+
+        self.filenames = []
+        self.bounding_boxes = []
+        self.keypoints = []
+
+        if train:
+            datasets = [(afw, 'afw'), (helentr, 'helen/trainset'), (lfpwtr, 'lfpw/trainset')]
+        else:
+            datasets = [(helente, 'helen/testset'), (lfpwte, 'lfpw/testset'), (ibug, 'ibug')]
+
+        for dset in datasets:
+            ds = dset[0]
+            ds_imroot = dset[1]
+            imnames = [ds['bounding_boxes'][0, i]['imgName'][0, 0][0] for i in range(ds['bounding_boxes'].shape[1])]
+            bbs = [ds['bounding_boxes'][0, i]['bb_ground_truth'][0, 0][0] for i in range(ds['bounding_boxes'].shape[1])]
+
+            for i, imn in enumerate(imnames):
+                # only some of the images given in ibug boxes exist (those that start with 'image')
+                if ds is not ibug or imn.startswith('image'):
+                    self.filenames.append(os.path.join(ds_imroot, imn))
+                    self.bounding_boxes.append(bbs[i])
+
+                    kpfile = os.path.join(root, ds_imroot, imn[:-3] + 'pts')
+                    with open(kpfile) as kpf:
+                        kp = kpf.read()
+                    kp = kp.split()[5:-1]
+                    kp = [float(k) for k in kp]
+                    assert len(kp) == 68 * 2
+                    kp = np.array(kp).reshape(-1, 2)
+                    self.keypoints.append(kp)
+
+        if train:
+            assert len(self.filenames) == 3148
+        else:
+            assert len(self.filenames) == 689
+
+        normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
+        augmentations = [JPEGNoise(), transforms.transforms.ColorJitter(.4, .4, .4),
+                         transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
+
+        self.initial_transforms = transforms.Compose([transforms.Resize(self.imwidth)])
+        self.transforms = transforms.Compose(augmentations + [normalize])
+
+    def __len__(self):
+        return len(self.filenames)
+
+    def __getitem__(self, index):
+        im = Image.open(os.path.join(self.root, self.filenames[index]))
+        # Crop bounding box
+        xmin, ymin, xmax, ymax = self.bounding_boxes[index]
+        keypts = self.keypoints[index]
+
+        # This is basically copied from matlab code and assumes matlab indexing
+        bw = xmax - xmin + 1
+        bh = ymax - ymin + 1
+        bcy = ymin + (bh + 1) / 2
+        bcx = xmin + (bw + 1) / 2
+
+        bw_ = 52  # make the (tightly cropped) face 52px
+        fac = bw_ / bw
+        imr = im.resize((int(im.width * fac), int(im.height * fac)))
+
+        bcx_ = int(np.floor(fac * bcx))
+        bcy_ = int(np.floor(fac * bcy))
+        bx = bcx_ - bw_ / 2 + 1
+        bX = bcx_ + bw_ / 2
+        by = bcy_ - bw_ / 2 + 1
+        bY = bcy_ + bw_ / 2
+        pp = (100 - bw_) / 2  # add 24px padding to make the image 100px
+        bx = int(bx - pp)
+        bX = int(bX + pp)
+        by = int(by - pp - 2)
+        bY = int(bY + pp - 2)
+
+        imr = pad_and_crop(np.array(imr), [(by - 1), bY, (bx - 1), bX])
+        im = Image.fromarray(imr)
+
+        cutl = bx - 1
+        keypts = keypts.copy() * fac
+        keypts[:, 0] = keypts[:, 0] - cutl
+        cutt = by - 1
+        keypts[:, 1] = keypts[:, 1] - cutt
+
+        kp = None
+        if self.use_keypoints:
+            kp = keypts - 1  # from matlab to python style
+            kp = kp * imwidth / im.width
+            kp = torch.tensor(kp)
+        meta = {}
+
+        if self.warper is not None:
+            if self.warper.returns_pairs:
+                im1 = self.initial_transforms(im)
+                im1 = TF.to_tensor(im1) * 255
+
+                im1, im2, flow, grid, kp1, kp2 = self.warper(im1, keypts=kp, crop=self.crop)
+
+                im1 = im1.to(torch.uint8)
+                im2 = im2.to(torch.uint8)
+
+                C, H, W = im1.shape
+
+                im1 = TF.to_pil_image(im1)
+                im2 = TF.to_pil_image(im2)
+
+                im1 = self.transforms(im1)
+                im2 = self.transforms(im2)
+
+                C, H, W = im1.shape
+                data = torch.stack((im1, im2), 0)
+                meta = {'flow': flow[0], 'grid': grid[0], 'im1': im1, 'im2': im2, 'index': index}
+                if self.use_keypoints:
+                    meta = {**meta, **{'kp1': kp1, 'kp2': kp2}}
+            else:
+                im1 = self.initial_transforms(im)
+                im1 = TF.to_tensor(im1) * 255
+
+                im1, kp = self.warper(im1, keypts=kp, crop=self.crop)
+
+                im1 = im1.to(torch.uint8)
+                im1 = TF.to_pil_image(im1)
+                im1 = self.transforms(im1)
+
+                C, H, W = im1.shape
+                data = im1
+                if self.use_keypoints:
+                    meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
+
+        else:
+            data = self.transforms(self.initial_transforms(im))
+
+            if self.crop != 0:
+                data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+                kp = kp - self.crop
+                kp = torch.tensor(kp)
+
+            C, H, W = data.shape
+            if self.use_keypoints:
+                meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
+
+        if self.visualize:
+            from utils.visualization import norm_range
+            num_show = 2 if self.warper and self.warper.returns_pairs else 1
+            fig = plt.figure()
+            for ii in range(num_show):
+                im_ = data[ii] if num_show > 1 else data
+                ax = fig.add_subplot(1, num_show, ii + 1)
+                ax.imshow(norm_range(im_).permute(1, 2, 0).cpu().numpy())
+                if self.use_keypoints:
+                    if num_show == 2:
+                        kp_x = meta["kp{}".format(ii + 1)][:, 0].numpy()
+                        kp_y = meta["kp{}".format(ii + 1)][:, 1].numpy()
+                    else:
+                        kp_x = kp[:, 0].numpy()
+                        kp_y = kp[:, 1].numpy()
+                    ax.scatter(kp_x, kp_y)
+
         return data, meta
 
 
 if __name__ == '__main__':
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", default="Helen")
     parser.add_argument("--train", action="store_true")
@@ -885,35 +1101,7 @@ if __name__ == '__main__':
         dataset = IJBB('data/ijbb', prototypes=True, imwidth=128, train=False)
         for ii in range(show):
             dataset[ii]
-    elif args.dataset == "Helen":
-        dataset = Helen(**kwargs)
+    else:
+        dataset = globals()[args.dataset](**kwargs)
         for ii in range(show):
             dataset[ii]
-    elif args.dataset == "AFLW":
-        dataset = AFLW(**kwargs)
-        for ii in range(show):
-            dataset[ii]
-    elif args.dataset == "AFLW_MTFL":
-        dataset = AFLW_MTFL(**kwargs)
-        for ii in range(show):
-            dataset[ii]
-    elif args.dataset == "Chimps":
-        dataset = Chimps(**kwargs)
-        for ii in range(show):
-            dataset[ii]
-    elif args.dataset == "CelebAPrunedAligned_MAFLVal":
-        dataset = CelebAPrunedAligned_MAFLVal(**kwargs)
-        for ii in range(show):
-            dataset[ii]
-    elif args.dataset == "MAFLAligned":
-        dataset = MAFLAligned(**kwargs)
-        for ii in range(show):
-            dataset[ii]
-        # out = dataset[6]
-        # x, meta = out["data"], out["meta"]
-        # print(x[0].shape)
-        # pylab.imshow(x[0].permute(1, 2, 0) + 0.5)
-        # pylab.figure()
-        # pylab.imshow(x[1].permute(1, 2, 0) + 0.5)
-        # pylab.show()
-        # import ipdb; ipdb.set_trace()

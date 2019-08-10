@@ -9,12 +9,13 @@ from collections import OrderedDict
 import sys
 from pathlib import Path
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # NOQA
 
 sys.path.insert(0, str(Path.home() / "coding/src/zsvision/python"))
 try:
-    from zsvision.zs_iterm import zs_dispFig # NOQA
+    from zsvision.zs_iterm import zs_dispFig  # NOQA
 except:
     print('No zs_dispFig, figures will not be displayed in iterm')
 
@@ -62,7 +63,8 @@ def label_colormap(x):
         rgb[:, 1, None] = g / 255.0
         rgb[:, 2, None] = b / 255.0
     else:
-        import ipdb; ipdb.set_trace()
+        import ipdb;
+        ipdb.set_trace()
     return rgb
 
 
@@ -89,7 +91,7 @@ def coll(batch):
     b = torch.utils.data.dataloader.default_collate(batch)
     # Flatten to be 4D
     return [
-        bi.reshape((-1, ) + bi.shape[-3:]) if isinstance(bi, torch.Tensor) else bi
+        bi.reshape((-1,) + bi.shape[-3:]) if isinstance(bi, torch.Tensor) else bi
         for bi in b
     ]
 
@@ -138,3 +140,42 @@ def read_json(fname):
 def write_json(content, fname):
     with fname.open('wt') as handle:
         json.dump(content, handle, indent=4, sort_keys=False)
+
+
+def pad_and_crop(im, rr):
+    """Return im[rr[0]:rr[1],rr[2]:rr[3]] padding if
+    necessary to allow out of bounds indexing
+
+    Quick and dirty conversion from matlab
+    """
+    meanval = np.array(np.dstack((0, 0, 0)), dtype=im.dtype)
+
+    # to matlab style
+    rr1, rr2, rr3, rr4 = [rr[0] + 1, rr[1], rr[2] + 1, rr[3]]
+
+    if rr1 < 1:
+        top = -rr1 + 1
+        P = np.tile(meanval, [top, im.shape[1], 1])
+        im = np.vstack([P, im])
+        rr1 = rr1 + top
+        rr2 = rr2 + top
+
+    if rr3 < 1:
+        left = -rr3 + 1
+        P = np.tile(meanval, [im.shape[0], left, 1])
+        im = np.hstack([P, im])
+        rr3 = rr3 + left
+        rr4 = rr4 + left
+
+    if rr2 > im.shape[0]:
+        bottom = rr2 - im.shape[0]
+        P = np.tile(meanval, [bottom, im.shape[1], 1])
+        im = np.vstack([im, P])
+
+    if rr4 > im.shape[1]:
+        right = rr4 - im.shape[1]
+        P = np.tile(meanval, [im.shape[0], right, 1])
+        im = np.hstack([im, P])
+
+    im = im[(rr1-1):rr2, (rr3-1):rr4]
+    return im
