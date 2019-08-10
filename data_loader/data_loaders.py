@@ -877,7 +877,7 @@ class AFLW_MTFL(Dataset):
 
         if self.warper is not None:
             if self.warper.returns_pairs:
-                im1 = self.initial_transforms(im)
+                im1 = self.initial_transforms(im.convert("RGB"))
                 im1 = TF.to_tensor(im1) * 255
 
                 im1, im2, flow, grid, kp1, kp2 = self.warper(im1, keypts=kp, crop=self.crop)
@@ -899,7 +899,7 @@ class AFLW_MTFL(Dataset):
                 if self.use_keypoints:
                     meta = {**meta, **{'kp1': kp1, 'kp2': kp2}}
             else:
-                im1 = self.initial_transforms(im)
+                im1 = self.initial_transforms(im.convert("RGB"))
                 im1 = TF.to_tensor(im1) * 255
 
                 im1, kp = self.warper(im1, keypts=kp, crop=self.crop)

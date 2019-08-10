@@ -20,7 +20,7 @@ import torch.utils.data.dataloader
 
 def main(config, resume):
     logger = config.get_logger('train')
-    seeds = [int(x) for x in config._args.seed.split(",")]
+    seeds = [int(x) for x in config._args.seeds.split(",")]
     torch.backends.cudnn.benchmark = True
     logger.info("Launching experiment with config:")
     logger.info(config)
@@ -184,7 +184,7 @@ if __name__ == '__main__':
                         help='the size of each minibatch')
     parser.add_argument('-g', '--n_gpu', default=None, type=int,
                         help='if given, override the numb')
-    parser.add_argument('--seed', default=0, type=int, help='random seed')
+    parser.add_argument('--seeds', default="0", help='random seeds')
     parser.add_argument('--mini_train', action="store_true")
     parser.add_argument('--train_single_epoch', action="store_true")
     parser.add_argument('--disable_workers', action="store_true")
