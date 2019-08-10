@@ -1,158 +1,92 @@
 {
-    "celeba-smallnet-3d": {
-        "timestamp": "2019-08-04_17-55-48",
-        "epoch": 100
-    },
-    "celeba-smallnet-16d": {
-        "timestamp": "2019-08-04_17-55-52",
-        "epoch": 100
-    },
-    "celeba-smallnet-32d": {
-        "timestamp": "2019-08-04_17-55-57",
-        "epoch": 100
-    },
-    "celeba-smallnet-64d": {
-        "timestamp": "2019-08-04_17-56-04",
-        "epoch": 100
-    },
-    "celeba-smallnet-3d-dve": {
-        "timestamp": "TODO",
-        "epoch": 100
-    },
-    "celeba-smallnet-16d-dve": {
-        "timestamp": "2019-08-02_06-20-13",
-        "epoch": 100
-    },
-    "celeba-smallnet-32d-dve": {
-        "timestamp": "2019-08-02_06-19-59",
-        "epoch": 100
-    },
-    "celeba-smallnet-64d-dve": {
-        "timestamp": "2019-08-02_06-20-28",
-        "epoch": 100
-    },
-    "celeba-hourglass-64d-dve": {
-        "timestamp": "0618_103501",
-        "epoch": 100
-    },
+    "celeba-smallnet-3d": {"timestamp": "2019-08-04_17-55-48", "epoch": 100},
+    "celeba-smallnet-16d": {"timestamp": "2019-08-04_17-55-52", "epoch": 100},
+    "celeba-smallnet-32d": {"timestamp": "2019-08-04_17-55-57", "epoch": 100},
+    "celeba-smallnet-64d": { "timestamp": "2019-08-04_17-56-04", "epoch": 100},
+    "celeba-smallnet-3d-dve": {"timestamp": "TODO:aws-1:2019-08-08_17-54-21", "epoch": 100},
+    "celeba-smallnet-16d-dve": {"timestamp": "2019-08-02_06-20-13", "epoch": 100},
+    "celeba-smallnet-32d-dve": {"timestamp": "2019-08-02_06-19-59", "epoch": 100},
+    "celeba-smallnet-64d-dve": {"timestamp": "2019-08-02_06-20-28", "epoch": 100},
+    "celeba-hourglass-64d-dve": {"timestamp": "0618_103501", "epoch": 100},
 
-    "mafl-keypoints-celeba-smallnet-3d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "mafl-keypoints-celeba-smallnet-16d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "mafl-keypoints-celeba-smallnet-32d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "mafl-keypoints-celeba-smallnet-64d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "mafl-keypoints-celeba-smallnet-3d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "mafl-keypoints-celeba-smallnet-16d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "mafl-keypoints-celeba-smallnet-32d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "mafl-keypoints-celeba-smallnet-64d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "mafl-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
+    "mafl-keypoints-celeba-smallnet-3d": {"timestamp": "TODO---aws-0:2019-08-04_17-55-48", "epoch": 300},
+    "mafl-keypoints-celeba-smallnet-16d": {"timestamp": "TODO:aws-3-2019-08-10_08-38-14", "epoch": 300},
+    "mafl-keypoints-celeba-smallnet-32d": {"timestamp": "TODO", "epoch": 300},
+    "mafl-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
+    "mafl-keypoints-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 300},
+    "mafl-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
+    "mafl-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
+    "mafl-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
+    "mafl-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300},
 
+    "aflw-keypoints-celeba-smallnet-3d": {"timestamp": "2019-08-10_07-54-09", "epoch": 300},
+    "aflw-keypoints-celeba-smallnet-16d": {"timestamp": "2019-08-10_07-52-46", "epoch": 300},
+    "aflw-keypoints-celeba-smallnet-32d": {"timestamp": "TODO---aws-4:2019-08-10_09-19-46", "epoch": 300},
+    "aflw-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-keypoints-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO---aws-5:2019-08-10_09-20-02", "epoch": 300},
+    "aflw-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300},
 
-    "aflw-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "epoch": 50
-    },
+    "aflw-mtfl-keypoints-celeba-smallnet-3d": {"timestamp": "2019-08-10_09-58-09", "epoch": 300},
+    "aflw-mtfl-keypoints-celeba-smallnet-16d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-keypoints-celeba-smallnet-32d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-keypoints-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300},
 
+    "300w-keypoints-celeba-smallnet-3d": {"timestamp": "TODO", "epoch": 300},
+    "300w-keypoints-celeba-smallnet-16d": {"timestamp": "TODO", "epoch": 300},
+    "300w-keypoints-celeba-smallnet-32d": {"timestamp": "TODO", "epoch": 300},
+    "300w-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
+    "300w-keypoints-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 300},
+    "300w-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
+    "300w-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
+    "300w-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
+    "300w-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300},
 
-    "aflw-keypoints-celeba-smallnet-3d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "aflw-keypoints-celeba-smallnet-16d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "aflw-keypoints-celeba-smallnet-32d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "aflw-keypoints-celeba-smallnet-64d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "aflw-keypoints-celeba-smallnet-3d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "aflw-keypoints-celeba-smallnet-16d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "aflw-keypoints-celeba-smallnet-32d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "aflw-keypoints-celeba-smallnet-64d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "aflw-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
+    "aflw-ft-smallnet-3d": {"timestamp": "TODO", "epoch": 50},
+    "aflw-ft-smallnet-16d": {"timestamp": "TODO", "epoch": 50},
+    "aflw-ft-smallnet-32d": {"timestamp": "TODO", "epoch": 50},
+    "aflw-ft-smallnet-64d": {"timestamp": "TODO", "epoch": 50},
+    "aflw-ft-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 50},
+    "aflw-ft-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 50},
+    "aflw-ft-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 50},
+    "aflw-ft-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 50},
+    "aflw-ft-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 50},
 
+    "aflw-mtfl-ft-smallnet-3d": {"timestamp": "TODO", "epoch": 50},
+    "aflw-mtfl-ft-smallnet-16d": {"timestamp": "TODO", "epoch": 50},
+    "aflw-mtfl-ft-smallnet-32d": {"timestamp": "TODO", "epoch": 50},
+    "aflw-mtfl-ft-smallnet-64d": {"timestamp": "TODO", "epoch": 50},
+    "aflw-mtfl-ft-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 50},
+    "aflw-mtfl-ft-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 50},
+    "aflw-mtfl-ft-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 50},
+    "aflw-mtfl-ft-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 50},
+    "aflw-mtfl-ft-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 50},
 
+    "aflw-ft-keypoints-celeba-smallnet-3d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-16d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-32d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300},
 
-    "300w-keypoints-celeba-smallnet-3d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "300w-keypoints-celeba-smallnet-16d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "300w-keypoints-celeba-smallnet-32d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "300w-keypoints-celeba-smallnet-64d": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "300w-keypoints-celeba-smallnet-3d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "300w-keypoints-celeba-smallnet-16d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "300w-keypoints-celeba-smallnet-32d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "300w-keypoints-celeba-smallnet-64d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    },
-    "300w-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "epoch": 300
-    }
+    "aflw-mtfl-ft-keypoints-celeba-smallnet-3d": {"timestamp": "", "epoch": 300},
+    "aflw-mtfl-ft-keypoints-celeba-smallnet-16d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-ft-keypoints-celeba-smallnet-32d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-ft-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-ft-keypoints-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-ft-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-ft-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300},
+
 }
