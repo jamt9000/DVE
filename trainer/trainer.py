@@ -123,6 +123,9 @@ class Trainer(BaseTrainer):
             duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - cache_tic))
             self.logger.info(f"Descriptor caching took {duration}")
             self.model.train()
+            self.data_loader.dataset.use_ims = False
+            self.valid_data_loader.dataset.use_ims = False
+
 
         # Handle segmentation metrics separately, since the accumulation cannot be
         # done directly via an AverageMeter
@@ -174,7 +177,12 @@ class Trainer(BaseTrainer):
         for batch_idx, batch in enumerate(self.data_loader):
             data, meta = batch["data"], batch["meta"]
             data = data.to(self.device)
-            seen += data.shape[0] // 2
+            seen_batch = data.shape[0]
+
+            # discount the fact that warps produce pairs of images
+            if self.data_loader.dataset.warper is not None:
+                seen_batch = seen_batch // 2
+            seen += seen_batch
 
             if profile:
                 timings = {}
@@ -233,7 +241,7 @@ class Trainer(BaseTrainer):
 
             if self.verbosity >= 2 and batch_idx % self.log_step == 0:
                 toc = time.time() - seen_tic
-                rate = seen / max(toc, 1E-5)
+                rate = max(seen / toc, 1E-5)
                 tic = time.time()
                 msg = "Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f} "
                 msg += "Hz: {:.2f}, ETA: {}"

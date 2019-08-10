@@ -93,7 +93,8 @@ class CelebABase(Dataset):
                 subdir = "img_align_celeba"
             self.subdir = os.path.join(self.root, 'Img', subdir)
         # tic = time.time()
-        im = Image.open(os.path.join(self.subdir, self.filenames[index]))
+        if self.use_ims:
+            im = Image.open(os.path.join(self.subdir, self.filenames[index]))
         # print("imread: {:.3f}s".format(time.time() - tic)) ; tic = time.time()
         kp = None
         if self.use_keypoints:
@@ -157,16 +158,20 @@ class CelebABase(Dataset):
                     }
 
         else:
-            data = self.transforms(self.initial_transforms(im))
-
-            if self.crop != 0:
-                data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+            if self.use_ims:
+                data = self.transforms(self.initial_transforms(im))
+                if self.crop != 0:
+                    data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+                C, H, W = data.shape
+            else:
+                # after caching descriptors, there is no point doing I/O
+                H = W = self.imwidth - 2 * self.crop
+                data = torch.zeros(1, 1, 1)
 
             if kp is not None:
                 kp = kp - self.crop
                 kp = torch.tensor(kp)
 
-            C, H, W = data.shape
             if self.use_keypoints:
                 meta = {
                     'keypts': kp,
@@ -270,12 +275,13 @@ class IJBB(Dataset):
 class AFLW(CelebABase):
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, root, imwidth, train, pair_warper, visualize=False,
+    def __init__(self, root, imwidth, train, pair_warper, visualize=False, use_ims=True,
                  use_keypoints=False, do_augmentations=False, crop=0, use_minival=False,
                  **kwargs):
         self.root = root
         self.crop = crop
         self.imwidth = imwidth
+        self.use_ims = use_ims
         self.visualize = visualize
         self.use_keypoints = use_keypoints
         self.use_minival = use_minival
@@ -288,11 +294,11 @@ class AFLW(CelebABase):
         self.keypoints = keypoints.astype(np.float32)
         self.subdir = os.path.join(root, 'output')
 
-        # print("HARDCODING DEBGGER")
-        # self.filenames = self.filenames[:100]
-        # self.keypoints = self.keypoints[:100]
-        # sizes = sizes[:100]
-        # self.sizes = sizes
+        print("HARDCODING DEBGGER")
+        self.filenames = self.filenames[:1000]
+        self.keypoints = self.keypoints[:1000]
+        sizes = sizes[:1000]
+        self.sizes = sizes
 
         # check raw
         # im_path = pjoin(self.subdir, self.filenames[0])
@@ -640,10 +646,11 @@ class MAFLAligned(CelebABase):
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
                  do_augmentations=True, use_keypoints=False, use_hq_ims=True,
-                 visualize=False, **kwargs):
+                 use_ims=True, visualize=False, **kwargs):
         self.root = root
         self.imwidth = imwidth
         self.use_hq_ims = use_hq_ims
+        self.use_ims = use_ims
         self.visualize = visualize
         self.train = train
         self.warper = pair_warper
@@ -923,6 +930,7 @@ if __name__ == '__main__':
     parser.add_argument("--dataset", default="Helen")
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--use_keypoints", action="store_true")
+    parser.add_argument("--use_ims", type=int, default=1)
     parser.add_argument("--use_minival", action="store_true")
     parser.add_argument("--break_preproc", action="store_true")
     parser.add_argument("--rand_in", action="store_true")
@@ -947,6 +955,7 @@ if __name__ == '__main__':
         "root": root,
         "train": args.train,
         "use_keypoints": args.use_keypoints,
+        "use_ims": args.use_ims,
         "visualize": True,
         "imwidth": imwidth,
         "use_minival": args.use_minival,
