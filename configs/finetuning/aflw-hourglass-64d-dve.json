@@ -51,7 +51,7 @@
         "save_period": 25,
         "verbosity": 2,
         "monitor": "min val_loss",
-        "early_stop": 10,
+        "early_stop": 100,
         "tensorboardX": true,
         "log_dir": "saved/"
     }
