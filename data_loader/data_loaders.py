@@ -96,7 +96,8 @@ class CelebABase(Dataset):
                 subdir = "img_align_celeba"
             self.subdir = os.path.join(self.root, 'Img', subdir)
         # tic = time.time()
-        im = Image.open(os.path.join(self.subdir, self.filenames[index]))
+        if self.use_ims:
+            im = Image.open(os.path.join(self.subdir, self.filenames[index]))
         # print("imread: {:.3f}s".format(time.time() - tic)) ; tic = time.time()
         kp = None
         if self.use_keypoints:
@@ -160,16 +161,20 @@ class CelebABase(Dataset):
                     }
 
         else:
-            data = self.transforms(self.initial_transforms(im))
-
-            if self.crop != 0:
-                data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+            if self.use_ims:
+                data = self.transforms(self.initial_transforms(im))
+                if self.crop != 0:
+                    data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+                C, H, W = data.shape
+            else:
+                # after caching descriptors, there is no point doing I/O
+                H = W = self.imwidth - 2 * self.crop
+                data = torch.zeros(1, 1, 1)
 
             if kp is not None:
                 kp = kp - self.crop
                 kp = torch.tensor(kp)
 
-            C, H, W = data.shape
             if self.use_keypoints:
                 meta = {
                     'keypts': kp,
@@ -194,6 +199,8 @@ class CelebABase(Dataset):
                         kp_x = kp[:, 0].numpy()
                         kp_y = kp[:, 1].numpy()
                     ax.scatter(kp_x, kp_y)
+                zs_dispFig()
+                import ipdb; ipdb.set_trace()
             #     zs.
             # if self.train:
             # else:
@@ -272,12 +279,13 @@ class IJBB(Dataset):
 class AFLW(CelebABase):
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, root, imwidth, train, pair_warper, visualize=False,
+    def __init__(self, root, imwidth, train, pair_warper, visualize=False, use_ims=True,
                  use_keypoints=False, do_augmentations=False, crop=0, use_minival=False,
                  **kwargs):
         self.root = root
         self.crop = crop
         self.imwidth = imwidth
+        self.use_ims = use_ims
         self.visualize = visualize
         self.use_keypoints = use_keypoints
         self.use_minival = use_minival
@@ -291,9 +299,9 @@ class AFLW(CelebABase):
         self.subdir = os.path.join(root, 'output')
 
         # print("HARDCODING DEBGGER")
-        # self.filenames = self.filenames[:100]
-        # self.keypoints = self.keypoints[:100]
-        # sizes = sizes[:100]
+        # self.filenames = self.filenames[:1000]
+        # self.keypoints = self.keypoints[:1000]
+        # sizes = sizes[:1000]
         # self.sizes = sizes
 
         # check raw
@@ -643,10 +651,11 @@ class MAFLAligned(CelebABase):
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
                  do_augmentations=True, use_keypoints=False, use_hq_ims=True,
-                 visualize=False, **kwargs):
+                 use_ims=True, visualize=False, **kwargs):
         self.root = root
         self.imwidth = imwidth
         self.use_hq_ims = use_hq_ims
+        self.use_ims = use_ims
         self.visualize = visualize
         self.train = train
         self.warper = pair_warper
@@ -714,6 +723,82 @@ class MAFLAligned(CelebABase):
         return len(self.data.index)
 
 
+class Faces300W(CelebABase):
+    eye_kp_idxs = [0, 1]
+
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
+                 do_augmentations=True, use_keypoints=False, use_hq_ims=False,
+                 visualize=False, **kwargs):
+        self.root = root
+        self.imwidth = imwidth
+        self.use_hq_ims = use_hq_ims
+        self.visualize = visualize
+        self.train = train
+        self.warper = pair_warper
+        self.crop = crop
+        self.use_keypoints = use_keypoints
+
+        self.subdir = pjoin(root, "300w")
+        mat = loadmat(os.path.join(root, 'imdb_300w.mat'))
+
+        anno = pd.read_csv(
+            os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt'), header=1,
+            delim_whitespace=True)
+
+        assert len(anno.index) == 202599
+        split = pd.read_csv(os.path.join(root, 'Eval', 'list_eval_partition.txt'),
+                            header=None, delim_whitespace=True, index_col=0)
+        assert len(split.index) == 202599
+
+        mafltest = pd.read_csv(os.path.join(root, 'MAFL', 'testing.txt'), header=None,
+                               delim_whitespace=True, index_col=0)
+        split.loc[mafltest.index] = 4
+
+
+        mafltrain = pd.read_csv(os.path.join(root, 'MAFL', 'training.txt'), header=None,
+                                delim_whitespace=True, index_col=0)
+        split.loc[mafltrain.index] = 5
+
+        assert (split[1] == 4).sum() == 1000
+        assert (split[1] == 5).sum() == 19000
+
+        if train:
+            self.data = anno.loc[split[split[1] == 5].index]
+        else:
+            self.data = anno.loc[split[split[1] == 4].index]
+
+
+        # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ;
+        # leftmouth_x leftmouth_y ; rightmouth_x rightmouth_y
+        self.keypoints = np.array(self.data, dtype=np.float32).reshape(-1, 5, 2)
+
+        self.filenames = list(self.data.index)
+
+        # Move head up a bit
+        vertical_shift = 30
+        crop_params = dict(i=vertical_shift, j=0, h=178, w=178)
+        initial_crop = lambda im: transforms.functional.crop(im, **crop_params)
+        self.keypoints[:, :, 1] -= vertical_shift
+        self.keypoints *= self.imwidth / 178.
+
+        normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769],
+                                         std=[0.2599, 0.2371, 0.2323])
+        augmentations = [
+            JPEGNoise(),
+            transforms.transforms.ColorJitter(.4, .4, .4),
+            transforms.ToTensor(),
+            PcaAug()
+        ] if (train and do_augmentations) else [transforms.ToTensor()]
+
+        self.initial_transforms = transforms.Compose(
+            [initial_crop, transforms.Resize(self.imwidth)])
+        self.transforms = transforms.Compose(augmentations + [normalize])
+
+    def __len__(self):
+        return len(self.data.index)
+
+
+
 class AFLW_MTFL(Dataset):
     """Used for testing on the 5-point version of AFLW included in the MTFL download from the
        Facial Landmark Detection by Deep Multi-task Learning (TCDCN) paper
@@ -732,6 +817,7 @@ class AFLW_MTFL(Dataset):
                                        'aflw_cropped')  # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
 
         self.imwidth = imwidth
+        self.use_ims = use_ims
         self.train = train
         self.warper = pair_warper
         self.crop = crop
@@ -772,6 +858,10 @@ class AFLW_MTFL(Dataset):
 
             assert len(self.filenames) == 2995
 
+        # print("HARDCODING DEBGGER")
+        # self.filenames = self.filenames[:100]
+        # self.keypoints = self.keypoints[:100]
+
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
         augmentations = [JPEGNoise(), transforms.transforms.ColorJitter(.4, .4, .4),
                          transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
@@ -783,7 +873,8 @@ class AFLW_MTFL(Dataset):
         return len(self.filenames)
 
     def __getitem__(self, index):
-        im = Image.open(os.path.join(self.root, self.filenames[index]))
+        if self.use_ims:
+            im = Image.open(os.path.join(self.root, self.filenames[index]))
         kp = None
         if self.use_keypoints:
             kp = self.keypoints[index].copy()
@@ -857,7 +948,7 @@ class AFLW_MTFL(Dataset):
                         kp_y = kp[:, 1].numpy()
                     ax.scatter(kp_x, kp_y)
 
-        return data, meta
+        return {"data": data, "meta": meta}
 
 
 class ThreeHundredW(Dataset):
@@ -984,7 +1075,7 @@ class ThreeHundredW(Dataset):
 
         if self.warper is not None:
             if self.warper.returns_pairs:
-                im1 = self.initial_transforms(im)
+                im1 = self.initial_transforms(im.convert("RGB"))
                 im1 = TF.to_tensor(im1) * 255
 
                 im1, im2, flow, grid, kp1, kp2 = self.warper(im1, keypts=kp, crop=self.crop)
@@ -1006,7 +1097,7 @@ class ThreeHundredW(Dataset):
                 if self.use_keypoints:
                     meta = {**meta, **{'kp1': kp1, 'kp2': kp2}}
             else:
-                im1 = self.initial_transforms(im)
+                im1 = self.initial_transforms(im.convert("RGB"))
                 im1 = TF.to_tensor(im1) * 255
 
                 im1, kp = self.warper(im1, keypts=kp, crop=self.crop)
@@ -1021,14 +1112,20 @@ class ThreeHundredW(Dataset):
                     meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
 
         else:
-            data = self.transforms(self.initial_transforms(im))
+            if self.use_ims:
+                data = self.transforms(self.initial_transforms(im.convert("RGB")))
+                if self.crop != 0:
+                    data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+                C, H, W = data.shape
+            else:
+                # after caching descriptors, there is no point doing I/O
+                H = W = self.imwidth - 2 * self.crop
+                data = torch.zeros(3, 1, 1)
 
             if self.crop != 0:
-                data = data[:, self.crop:-self.crop, self.crop:-self.crop]
                 kp = kp - self.crop
                 kp = torch.tensor(kp)
 
-            C, H, W = data.shape
             if self.use_keypoints:
                 meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
 
@@ -1049,22 +1146,24 @@ class ThreeHundredW(Dataset):
                         kp_y = kp[:, 1].numpy()
                     ax.scatter(kp_x, kp_y)
 
-        return data, meta
+        return {"data": data, "meta": meta}
 
 
 if __name__ == '__main__':
+    from zsvision.zs_iterm import zs_dispFig
     import argparse
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", default="Helen")
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--use_keypoints", action="store_true")
+    parser.add_argument("--use_ims", type=int, default=1)
     parser.add_argument("--use_minival", action="store_true")
     parser.add_argument("--break_preproc", action="store_true")
     parser.add_argument("--rand_in", action="store_true")
     parser.add_argument("--restrict_to", type=int, help="restrict to n images")
     parser.add_argument("--downsample_labels", type=int, default=2)
-    parser.add_argument("--show", type=int, default=20)
+    parser.add_argument("--show", type=int, default=2)
     parser.add_argument("--restrict_seed", type=int, default=0)
     parser.add_argument("--root")
     args = parser.parse_args()
@@ -1083,6 +1182,7 @@ if __name__ == '__main__':
         "root": root,
         "train": args.train,
         "use_keypoints": args.use_keypoints,
+        "use_ims": args.use_ims,
         "visualize": True,
         "imwidth": imwidth,
         "use_minival": args.use_minival,
