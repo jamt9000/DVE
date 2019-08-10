@@ -806,12 +806,13 @@ class AFLW_MTFL(Dataset):
        """
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, root, train=True, pair_warper=None, imwidth=70,
+    def __init__(self, root, train=True, pair_warper=None, imwidth=70, use_ims=True,
                  crop=0, do_augmentations=True, use_keypoints=False, **kwargs):
         self.test_root = os.path.join(root, 'MTFL')  # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
         self.train_root = os.path.join(root, 'aflw_cropped')  # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
 
         self.imwidth = imwidth
+        self.use_ims = use_ims
         self.train = train
         self.warper = pair_warper
         self.crop = crop
@@ -851,6 +852,10 @@ class AFLW_MTFL(Dataset):
 
             assert len(self.filenames) == 2995
 
+        # print("HARDCODING DEBGGER")
+        # self.filenames = self.filenames[:100]
+        # self.keypoints = self.keypoints[:100]
+
 
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
         augmentations = [JPEGNoise(), transforms.transforms.ColorJitter(.4, .4, .4),
@@ -858,13 +863,13 @@ class AFLW_MTFL(Dataset):
 
         self.initial_transforms = transforms.Compose([initial_crop, transforms.Resize(self.imwidth)])
         self.transforms = transforms.Compose(augmentations + [normalize])
-        import ipdb; ipdb.set_trace()
 
     def __len__(self):
         return len(self.filenames)
 
     def __getitem__(self, index):
-        im = Image.open(os.path.join(self.root, self.filenames[index]))
+        if self.use_ims:
+            im = Image.open(os.path.join(self.root, self.filenames[index]))
         kp = None
         if self.use_keypoints:
             kp = self.keypoints[index].copy()
@@ -909,18 +914,24 @@ class AFLW_MTFL(Dataset):
                     meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
 
         else:
-            data = self.transforms(self.initial_transforms(im))
+            if self.use_ims:
+                data = self.transforms(self.initial_transforms(im.convert("RGB")))
+                if self.crop != 0:
+                    data = data[:, self.crop:-self.crop, self.crop:-self.crop]
+                C, H, W = data.shape
+            else:
+                # after caching descriptors, there is no point doing I/O
+                H = W = self.imwidth - 2 * self.crop
+                data = torch.zeros(3, 1, 1)
 
             if self.crop != 0:
-                data = data[:, self.crop:-self.crop, self.crop:-self.crop]
                 kp = kp - self.crop
                 kp = torch.tensor(kp)
 
-            C, H, W = data.shape
             if self.use_keypoints:
                 meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
 
-        return data, meta
+        return {"data": data, "meta": meta}
 
 
 if __name__ == '__main__':

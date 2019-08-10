@@ -37,46 +37,51 @@
     },
 
     "mafl-keypoints-celeba-smallnet-3d": {
-        "timestamp": "2019-08-08_17-49-48",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "mafl-keypoints-celeba-smallnet-16d": {
-        "timestamp": "2019-08-08_17-55-03",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "mafl-keypoints-celeba-smallnet-32d": {
-        "timestamp": "2019-08-08_17-56-06",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "mafl-keypoints-celeba-smallnet-64d": {
-        "timestamp": "2019-08-08_17-56-47",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "mafl-keypoints-celeba-smallnet-3d-dve": {
-        "timestamp": "TODO------------------",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "mafl-keypoints-celeba-smallnet-16d-dve": {
-        "timestamp": "2019-08-08_17-55-34",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "mafl-keypoints-celeba-smallnet-32d-dve": {
-        "timestamp": "2019-08-08_17-56-24",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "mafl-keypoints-celeba-smallnet-64d-dve": {
-        "timestamp": "TODO-------------------",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "mafl-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "2019-08-09_07-34-46",
+        "timestamp": "TODO",
         "epoch": 300
     },
 
 
+    "aflw-hourglass-64d-dve": {
+        "timestamp": "TODO",
+        "epoch": 50
+    },
+
 
     "aflw-keypoints-celeba-smallnet-3d": {
-        "timestamp": "2019-08-09_15-30-25",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-16d": {
@@ -84,11 +89,11 @@
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-32d": {
-        "timestamp": "2019-08-09_14-20-13",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-64d": {
-        "timestamp": "2019-08-09_14-20-30",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-3d-dve": {
@@ -96,19 +101,19 @@
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-16d-dve": {
-        "timestamp": "2019-08-09_14-19-34",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-32d-dve": {
-        "timestamp": "2019-08-09_14-20-18",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "aflw-keypoints-celeba-smallnet-64d-dve": {
-        "timestamp": "2019-08-09_14-21-32",
+        "timestamp": "TODO",
         "epoch": 300
     },
     "aflw-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "2019-08-09_14-29-19",
+        "timestamp": "TODO",
         "epoch": 300
     },
 

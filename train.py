@@ -84,7 +84,7 @@ def main(config, resume):
     if config["disable_workers"]:
         num_workers = 0
     else:
-        num_workers = max(4, int(config['n_gpu']) * 4)
+        num_workers = 4
 
     data_loader = DataLoader(
         dataset,
