@@ -36,7 +36,6 @@
 
     ],
     "visualizations": [
-        "sphere_colormap"
     ],
     "lr_scheduler": {
         "type": "MultiStepLR",
