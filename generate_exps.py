@@ -55,7 +55,7 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
             config["finetune_from"] = str(ckpt_path)
             if "-ft" in str(dest_dir):
                 loss = "dense_correlation_loss"
-                if "dve" in str(dest_dir):
+                if "dve" in model_name:
                     loss += "_dve"
                 config["loss"] = loss
                 # avoid OOM for hourglass
