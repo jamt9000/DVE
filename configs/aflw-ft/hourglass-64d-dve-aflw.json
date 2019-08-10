@@ -33,7 +33,6 @@
     },
     "loss": "dense_correlation_loss_dve",
     "metrics": [
-
     ],
     "visualizations": [
     ],
