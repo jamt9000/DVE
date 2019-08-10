@@ -68,15 +68,15 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_multiplication_x: | 9.67 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-3d/2019-08-09_15-30-25/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-3d/2019-08-09_15-30-25/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-smallnet-3d/2019-08-09_15-30-25/info.log) |
 |  16 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
-|  32 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_multiplication_x: | 11.47  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-32d/2019-08-09_14-20-13/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-32d/2019-08-09_14-20-13/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-smallnet-32d/2019-08-09_14-20-13/info.log) |
 |  64 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  3 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  16 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_check_mark: | 8.85 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-16d-dve/2019-08-09_14-19-34/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-16d-dve/2019-08-09_14-19-34/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-smallnet-16d-dve/2019-08-09_14-19-34/info.log) |
+|  32 | smallnet | :heavy_check_mark: | 8.80 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-32d-dve/2019-08-09_14-20-18/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-32d-dve/2019-08-09_14-20-18/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-smallnet-32d-dve/2019-08-09_14-20-18/info.log) |
+|  64 | smallnet | :heavy_check_mark: | 8.13 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-64d-dve/2019-08-09_14-21-32/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-64d-dve/2019-08-09_14-21-32/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-smallnet-64d-dve/2019-08-09_14-21-32/info.log) |
+|  64 | hourglass | :heavy_check_mark: | 6.88 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-hourglass-64d-dve/2019-08-09_14-29-19/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-hourglass-64d-dve/2019-08-09_14-29-19/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-hourglass-64d-dve/2019-08-09_14-29-19/info.log) |
 
 
 **300-W landmark regression**
