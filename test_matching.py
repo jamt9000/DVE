@@ -90,10 +90,9 @@ def dense_desc_match(src, target, upscale=2):
     # find maximal correlation among source
     maxidx = torch.argmax(corr.view(H * W, H * W), dim=0)
     return grid[maxidx].reshape(1, H, W, 2)
-    # return picks
 
 
-def evaluation(config, logger=None):
+def evaluation(config, logger=None, eval_data=None):
     device = torch.device('cuda:0' if config["n_gpu"] > 0 else 'cpu')
 
     if logger is None:
@@ -103,6 +102,7 @@ def evaluation(config, logger=None):
     logger.info(config)
 
     imwidth = config['dataset']['args']['imwidth']
+    root = config["dataset"]["args"]["root"]
     warp_crop_default = config['warper']['args'].get('crop', None)
     crop = config['dataset']['args'].get('crop', warp_crop_default)
 
@@ -134,33 +134,26 @@ def evaluation(config, logger=None):
             im1_multiplier_aff=1
         )
     warper = tps.Warper(imwidth, imwidth, **warp_kwargs)
-    warper1 = tps.WarperSingle(
-        imwidth,
-        imwidth,
-        warpsd_all=0.0,
-        warpsd_subset=0.0,
-        transsd=0.05,
-        scalesd=0.01,
-        rotsd=2
-    )
-    kwargs = {"imwidth": imwidth, "crop": crop, "root": "data/celeba"}
-    train_dataset = module_data.MAFLAligned(
-        train=True,
-        pair_warper=warper1,
-        do_augmentations=False,
-        **kwargs
-    )
-    val_dataset = module_data.MAFLAligned(
+    if eval_data is None:
+        eval_data = config["dataset"]["type"]
+    constructor = getattr(module_data, eval_data)
+
+    # handle the case of the MAFL split, which by default will evaluate on Celeba
+    kwargs = {"val_split": "mafl"} if eval_data == "CelebAPrunedAligned_MAFLVal" else {}
+    val_dataset = constructor(
         train=False,
         pair_warper=warper,
         use_keypoints=True,
-        **kwargs
+        imwidth=imwidth,
+        crop=crop,
+        root=root,
+        **kwargs,
     )
-
-    val_batch_size = 2
-    train_loader = DataLoader(train_dataset, batch_size=val_batch_size, shuffle=False)
+    # NOTE: Since the matching is performed with pairs, we fix the ordering and then
+    # use all pairs for datasets with even numbers of images, and all but one for
+    # datasets that have odd numbers of images (via drop_last=True)
     data_loader = DataLoader(val_dataset, batch_size=2, collate_fn=dict_coll,
-                             shuffle=False)
+                             shuffle=False, drop_last=True)
 
     # build model architecture
     model = get_instance(module_arch, 'arch', config)
@@ -181,26 +174,6 @@ def evaluation(config, logger=None):
     model = model.to(device)
     model.train()
 
-    # Stabilise batch norm
-    reinit_bn = False
-    if reinit_bn:
-        torch.manual_seed(0)
-        bns = [m for m in model.modules() if isinstance(m, torch.nn.BatchNorm2d)]
-        for m in bns:
-            m.reset_running_stats()
-
-        train_loader_it = iter(train_loader)
-        with torch.no_grad():
-            for i in range(100):
-                torch.manual_seed(0)
-                np.random.seed(0)
-
-                data, meta = next(train_loader_it)
-                data = data.to(device)
-                print(i, 'data checksum', float(data.sum()))
-                output = model(data)
-                print(i, 'bn checksum', float(bns[0].running_mean.sum()))
-
     if dense_match:
         warp_dir = Path(config["warp_dir"]) / config["name"]
         warp_dir = warp_dir / "disable_warps{}".format(disable_warps)
@@ -211,25 +184,22 @@ def evaluation(config, logger=None):
     model.eval()
     same_errs = []
     diff_errs = []
-    # Use 200 pairs to reproduce the experiment in the paper
-    # num_batches = 200 / val_batch_size
 
     torch.manual_seed(0)
     with torch.no_grad():
         for i, batch in enumerate(tqdm(data_loader)):
             data, meta = batch["data"], batch["meta"]
 
-            # if (config.get("mini_eval", False) and i > 3) or (i > num_batches):
-            #     break
-
-            if i == 0:
-                # Checksum to make sure warps are deterministic
-                if True:
-                    # redo later
-                    if data.shape[2] == 64:
-                        assert float(data.sum()) == -553.9221801757812
-                    elif data.shape[2] == 128:
-                        assert float(data.sum()) == 754.1907348632812
+            if (config.get("mini_eval", False) and i > 3):
+                break
+            # if i == 0:
+            #     # Checksum to make sure warps are deterministic
+            #     if True:
+            #         # redo later
+            #         if data.shape[2] == 64:
+            #             assert float(data.sum()) == -553.9221801757812
+            #         elif data.shape[2] == 128:
+            #             assert float(data.sum()) == 754.1907348632812
 
             data = data.to(device)
             output = model(data)
@@ -369,6 +339,7 @@ if __name__ == '__main__':
     parser.add_argument('--vis', action="store_true")
     parser.add_argument('--dense_match', action="store_true")
     parser.add_argument('--subplots', action="store_true")
+    parser.add_argument('--eval_data', default="MAFLAligned")
     eval_config = ConfigParser(parser)
 
     eval_config["dense_match"] = eval_config._args.dense_match
@@ -376,4 +347,4 @@ if __name__ == '__main__':
     eval_config["mini_eval"] = eval_config._args.mini_eval
     msg = "For evaluation, a model checkpoint must be specified via the --resume flag"
     assert eval_config._args.resume, msg
-    evaluation(eval_config)
+    evaluation(eval_config, eval_data=eval_config._args.eval_data)

@@ -62,7 +62,7 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
             config["arch"]["args"]["num_output_channels"] = embedding_dim
             config["dataset"]["args"].update(preproc_kwargs)
             config["finetune_from"] = str(ckpt_path)
-            if "-ft" in str(dest_dir):
+            if "-ft" in str(dest_dir) and "-keypoints" not in str(dest_dir):
                 loss = "dense_correlation_loss"
                 if "dve" in model_name:
                     loss += "_dve"

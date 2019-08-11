@@ -68,7 +68,7 @@ def main(config, resume):
         # setup data_loader instances
         imwidth = config['dataset']['args']['imwidth']
         warper = get_instance(tps, 'warper', config, imwidth,
-                            imwidth) if 'warper' in config.keys() else None
+                              imwidth) if 'warper' in config.keys() else None
 
         loader_kwargs = {}
         coll_func = config.get("collate_fn", "dict_flatten")
@@ -80,7 +80,7 @@ def main(config, resume):
             raise ValueError("collate function type {} unrecognised".format(coll_func))
 
         dataset = get_instance(module_data, 'dataset', config, pair_warper=warper,
-                            train=True)
+                               train=True)
         if config["disable_workers"]:
             num_workers = 0
         else:

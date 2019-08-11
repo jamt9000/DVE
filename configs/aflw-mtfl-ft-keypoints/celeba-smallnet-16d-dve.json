@@ -39,7 +39,7 @@
             "amsgrad": true
         }
     },
-    "loss": "dense_correlation_loss_dve",
+    "loss": "regression_loss",
     "loss_args": {
         "alpha": 10.0
     },

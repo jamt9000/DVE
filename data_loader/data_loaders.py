@@ -301,11 +301,11 @@ class AFLW(CelebABase):
         self.keypoints = keypoints.astype(np.float32)
         self.subdir = os.path.join(root, 'output')
 
-        # print("HARDCODING DEBGGER")
-        # self.filenames = self.filenames[:1000]
-        # self.keypoints = self.keypoints[:1000]
-        # sizes = sizes[:1000]
-        # self.sizes = sizes
+        print("LIMITING DATA FOR DEBGGING")
+        self.filenames = self.filenames[:1000]
+        self.keypoints = self.keypoints[:1000]
+        sizes = sizes[:1000]
+        self.sizes = sizes
 
         # check raw
         # im_path = pjoin(self.subdir, self.filenames[0])
@@ -661,7 +661,7 @@ class MAFLAligned(CelebABase):
         self.warper = pair_warper
         self.crop = crop
         self.use_keypoints = use_keypoints
-        subdir = "img_align_celeb_hq" if use_hq_ims else "img_align_celeba"
+        subdir = "img_align_celeba_hq" if use_hq_ims else "img_align_celeba"
         self.subdir = os.path.join(root, 'Img', subdir)
         annos_path = os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt')
         anno = pd.read_csv(annos_path , header=1, delim_whitespace=True)

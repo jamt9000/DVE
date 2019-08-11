@@ -1,6 +1,6 @@
 {
     "n_gpu": 1,
-    "finetune_from": "data/saved/models/celeba-smallnet-3d-dve/TODO/checkpoint-epoch100.pth",
+    "finetune_from": "data/saved/models/celeba-smallnet-3d-dve/2019-08-08_17-54-21/checkpoint-epoch100.pth",
     "batch_size": 32,
     "cache_descriptors": true,
     "keypoint_regressor_upsample": false,
@@ -62,7 +62,7 @@
     "trainer": {
         "epochs": 300,
         "save_dir": "saved/",
-        "save_period": 1,
+        "save_period": 100,
         "verbosity": 2,
         "monitor": "min val_loss",
         "early_stop": 300,
