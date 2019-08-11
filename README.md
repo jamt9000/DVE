@@ -62,14 +62,14 @@ We provide pretrained models for each dataset to reproduce the results reported 
 |  16 | smallnet | :heavy_check_mark: | 3.97 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-16d-dve/2019-08-11_08-29-31/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-16d-dve/2019-08-11_08-29-31/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-16d-dve/2019-08-11_08-29-31/info.log) |
 |  32 | smallnet | :heavy_check_mark: | 3.82 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-32d-dve/2019-08-11_08-29-53/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-32d-dve/2019-08-11_08-29-53/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-32d-dve/2019-08-11_08-29-53/info.log) |
 |  64 | smallnet | :heavy_check_mark: | 3.42 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-64d-dve/2019-08-11_08-40-48/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-64d-dve/2019-08-11_08-40-48/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-64d-dve/2019-08-11_08-40-48/info.log) |
-|  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | 2.86 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-hourglass-64d-dve/2019-08-11_14-30-53/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-hourglass-64d-dve/2019-08-11_14-30-53/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-hourglass-64d-dve/2019-08-11_14-30-53/info.log) |
 
 **AFLW landmark regression**
 
-To compare with prior work, we evaluate the learned embeddings on AFLW under two settings: with and without finetuning the embedding on the AFLW dataset (without annotations).
+To compare with prior work, we evaluate the learned embeddings on AFLW under two settings: with and without finetuning the embedding on the AFLW dataset (without annotations). There are two slightly different partitions of AFLW that have been used in prior work.  One is a set of recropped faces released by [7] (here we simply call this AFLW). The second is the MTFL split of AFLW used in the works of [2], [3] (we call this split AFLW-MTFL).  
 
 
-*Without finetuning*
+*Without finetuning on AFLW*
 
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
@@ -83,7 +83,24 @@ To compare with prior work, we evaluate the learned embeddings on AFLW under two
 |  64 | smallnet | :heavy_check_mark: | 8.14 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-64d-dve/2019-08-10_12-55-24/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-64d-dve/2019-08-10_12-55-24/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-smallnet-64d-dve/2019-08-10_12-55-24/info.log) |
 |  64 | hourglass | :heavy_check_mark: | 6.88 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-hourglass-64d-dve/2019-08-09_14-29-19/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-hourglass-64d-dve/2019-08-09_14-29-19/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-hourglass-64d-dve/2019-08-09_14-29-19/info.log) |
 
-*With finetuning*
+*With finetuning on AFLW*
+
+First we fine-tune the embeddings for a fixed number of epochs:
+
+| Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
+| ------------- | :--:  | :-: | :----: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | 3.80 | 4.43 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-3d/2019-08-10_12-50-40/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-3d/2019-08-10_12-50-40/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-3d/2019-08-10_12-50-40/info.log) |
+|  16 | smallnet | :heavy_multiplication_x: | 1.77 | 9.42 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-16d/2019-08-10_12-50-41/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-16d/2019-08-10_12-50-41/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-16d/2019-08-10_12-50-41/info.log) |
+|  32 | smallnet | :heavy_multiplication_x: | 1.57 | 9.80 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-32d/2019-08-10_12-50-43/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-32d/2019-08-10_12-50-43/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-32d/2019-08-10_12-50-43/info.log) |
+|  64 | smallnet | :heavy_multiplication_x: | 1.26 | 5.89 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-64d/2019-08-10_12-50-44/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-64d/2019-08-10_12-50-44/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-64d/2019-08-10_12-50-44/info.log) |
+|  3 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_check_mark: | 6.34 | 8.62 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-16d-dve/2019-08-10_12-50-30/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-16d-dve/2019-08-10_12-50-30/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-16d-dve/2019-08-10_12-50-30/info.log) |
+|  32 | smallnet | :heavy_check_mark: | 8.10 | 10.11 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-32d-dve/2019-08-10_12-50-31/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-32d-dve/2019-08-10_12-50-31/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-32d-dve/2019-08-10_12-50-31/info.log) |
+|  64 | smallnet | :heavy_check_mark: | 4.08 | 5.21 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-64d-dve/2019-08-10_12-50-32/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-64d-dve/2019-08-10_12-50-32/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-64d-dve/2019-08-10_12-50-32/info.log) |
+|  64 | hourglass | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+
+
+Then re-evaluate the performance of a learned landmark regressor:
 
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
@@ -97,8 +114,9 @@ To compare with prior work, we evaluate the learned embeddings on AFLW under two
 |  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 
+**AFLW-MTFL landmark regression**
 
-**300-W landmark regression**
+*Without finetuning on AFLW-MTFL*
 
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
@@ -111,6 +129,85 @@ To compare with prior work, we evaluate the learned embeddings on AFLW under two
 |  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+
+*With finetuning on AFLW-MTFL*
+
+First we fine-tune the embeddings for a fixed number of epochs:
+
+| Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
+| ------------- | :--:  | :-: | :----: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+
+
+Then re-evaluate the performance of a learned landmark regressor:
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+
+
+**300-W landmark regression**
+
+*Without finetuning*
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+
+*With finetuning*
+
+First we fine-tune the embeddings for a fixed number of epochs:
+
+| Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
+| ------------- | :--:  | :-: | :----: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+
+Then re-evaluate the performance of a learned landmark regressor:
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  16 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+
 
 ### Notes
 

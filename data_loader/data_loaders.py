@@ -91,6 +91,12 @@ class CelebABase(Dataset):
     def __len__(self):
         return len(self.filenames)
 
+    def restrict_annos(self, num):
+        anno_count = len(self.filenames)
+        pick = np.random.choice(anno_count, num, replace=False)
+        self.filenames = np.tile(np.array(self.filenames)[pick], anno_count)
+        self.keypoints = np.tile(self.keypoints[pick], (anno_count, 1, 1))
+
     def __getitem__(self, index):
         if self.use_ims:
             im = Image.open(os.path.join(self.subdir, self.filenames[index]))
@@ -843,7 +849,7 @@ class ThreeHundredW(Dataset):
                     kp = kp.split()[5:-1]
                     kp = [float(k) for k in kp]
                     assert len(kp) == 68 * 2
-                    kp = np.array(kp).reshape(-1, 2)
+                    kp = np.array(kp).astype(np.float32).reshape(-1, 2)
                     self.keypoints.append(kp)
 
         if train:
@@ -857,6 +863,10 @@ class ThreeHundredW(Dataset):
 
         self.initial_transforms = transforms.Compose([transforms.Resize(self.imwidth)])
         self.transforms = transforms.Compose(augmentations + [normalize])
+
+        # print("HARDCODING DEBGGER")
+        # self.filenames = self.filenames[:100]
+        # self.keypoints = self.keypoints[:100]
 
     def __len__(self):
         return len(self.filenames)
@@ -874,6 +884,10 @@ class ThreeHundredW(Dataset):
         bcy = ymin + (bh + 1) / 2
         bcx = xmin + (bw + 1) / 2
 
+        # To simplify the preprocessing, we do two image resizes (can fix later if speed
+        # is an issue)
+        preresize_sz = 100
+
         bw_ = 52  # make the (tightly cropped) face 52px
         fac = bw_ / bw
         if self.use_ims:
@@ -885,7 +899,7 @@ class ThreeHundredW(Dataset):
         bX = bcx_ + bw_ / 2
         by = bcy_ - bw_ / 2 + 1
         bY = bcy_ + bw_ / 2
-        pp = (100 - bw_) / 2
+        pp = (preresize_sz - bw_) / 2
         bx = int(bx - pp)
         bX = int(bX + pp)
         by = int(by - pp - 2)
@@ -904,7 +918,7 @@ class ThreeHundredW(Dataset):
         kp = None
         if self.use_keypoints:
             kp = keypts - 1  # from matlab to python style
-            kp = kp * imwidth / im.width
+            kp = kp * self.imwidth / preresize_sz
             kp = torch.tensor(kp)
         meta = {}
 

@@ -128,8 +128,11 @@
         }
     },
     "mafl-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_14-30-53",
+        "results": {
+            "iod": 2.857387647628784,
+            "params": 12609472
+        }
     },
     "aflw-keypoints-celeba-smallnet-3d": {
         "timestamp": "2019-08-10_07-54-09",

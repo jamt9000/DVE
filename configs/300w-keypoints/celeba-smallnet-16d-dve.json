@@ -23,7 +23,7 @@
     "keypoint_regressor": {
         "type": "IntermediateKeypointPredictor",
         "args": {
-            "num_annotated_points": 5,
+            "num_annotated_points": 68,
             "num_intermediate_points": 50,
             "softargmax_mul": 100.0
         },
