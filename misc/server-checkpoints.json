@@ -69,13 +69,23 @@
     "aflw-mtfl-ft-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 50},
     "aflw-mtfl-ft-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 50},
 
+    "300w-ft-celeba-smallnet-3d": {"timestamp": "TODO", "epoch": 50},
+    "300w-ft-celeba-smallnet-16d": {"timestamp": "TODO", "epoch": 50},
+    "300w-ft-celeba-smallnet-32d": {"timestamp": "TODO", "epoch": 50},
+    "300w-ft-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 50},
+    "300w-ft-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 50},
+    "300w-ft-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 50},
+    "300w-ft-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 50},
+    "300w-ft-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 50},
+    "300w-ft-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 50},
+
     "aflw-ft-keypoints-celeba-smallnet-3d": {"timestamp": "TODO", "epoch": 300},
-    "aflw-ft-keypoints-celeba-smallnet-16d": {"timestamp": "TODO", "epoch": 300},
-    "aflw-ft-keypoints-celeba-smallnet-32d": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-16d": {"timestamp": "2019-08-11_07-56-41", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-32d": {"timestamp": "2019-08-11_07-56-46", "epoch": 300},
     "aflw-ft-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
     "aflw-ft-keypoints-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 300},
     "aflw-ft-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
-    "aflw-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
+    "aflw-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "2019-08-11_07-56-57", "epoch": 300},
     "aflw-ft-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
     "aflw-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300},
 
@@ -87,5 +97,15 @@
     "aflw-mtfl-ft-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
     "aflw-mtfl-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
     "aflw-mtfl-ft-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
-    "aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300}
+    "aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300},
+
+    "300w-ft-keypoints-celeba-smallnet-3d": {"timestamp": "TODO", "epoch": 300},
+    "300w-ft-keypoints-celeba-smallnet-16d": {"timestamp": "TODO", "epoch": 300},
+    "300w-ft-keypoints-celeba-smallnet-32d": {"timestamp": "TODO", "epoch": 300},
+    "300w-ft-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
+    "300w-ft-keypoints-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 300},
+    "300w-ft-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
+    "300w-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
+    "300w-ft-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
+    "300w-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300}
 }

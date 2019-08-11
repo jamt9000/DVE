@@ -863,7 +863,7 @@ class ThreeHundredW(Dataset):
 
     def __getitem__(self, index):
         if self.use_ims:
-            im = Image.open(os.path.join(self.root, self.filenames[index]))
+            im = Image.open(os.path.join(self.root, self.filenames[index])).convert("RGB")
         # Crop bounding box
         xmin, ymin, xmax, ymax = self.bounding_boxes[index]
         keypts = self.keypoints[index]
