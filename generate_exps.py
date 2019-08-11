@@ -73,7 +73,6 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
 
             dest_path = Path(dest_dir) / f"{model_name}.json"
             dest_path.parent.mkdir(exist_ok=True, parents=True)
-            import ipdb; ipdb.set_trace()
             if not dest_path.exists() or refresh:
                 with open(str(dest_path), "w") as f:
                     json.dump(config, f, indent=4, sort_keys=False)
@@ -90,11 +89,21 @@ if __name__ == "__main__":
     parser.add_argument('--lr', default="1E-3")
     parser.add_argument('--upsample', default="0")
     parser.add_argument('--refresh', action="store_true")
-    parser.add_argument('--target', default="mafl-keypoints",
-                        choices=["mafl-keypoints", "aflw-keypoints", "300w-keypoints",
-                                 "aflw-ft", "aflw-mtfl-ft", "300w-ft",
-                                 "aflw-ft-keypoints", "aflw-mtfl-ft-keypoints",
-                                 "300w-ft-keypoints"])
+    parser.add_argument(
+        '--target',
+        default="mafl-keypoints",
+        choices=[
+            "mafl-keypoints",
+            "300w-keypoints",
+            "aflw-keypoints",
+            "aflw-mtfl-keypoints",
+            "300w-ft",
+            "aflw-ft",
+            "aflw-mtfl-ft",
+            "300w-ft-keypoints",
+            "aflw-ft-keypoints",
+            "aflw-mtfl-ft-keypoints",
+        ])
     args = parser.parse_args()
 
     grid_args = OrderedDict()
