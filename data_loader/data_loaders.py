@@ -92,12 +92,12 @@ class CelebABase(Dataset):
         return len(self.filenames)
 
     def __getitem__(self, index):
-        if self.subdir is None:
-            if self.use_hq_ims:
-                subdir = "img_align_celeba_hq"
-            else:
-                subdir = "img_align_celeba"
-            self.subdir = os.path.join(self.root, 'Img', subdir)
+        # if self.subdir is None:
+        #     if self.use_hq_ims:
+        #         subdir = "img_align_celeba_hq"
+        #     else:
+        #         subdir = "img_align_celeba"
+        #     self.subdir = os.path.join(self.root, 'Img', subdir)
         # tic = time.time()
         if self.use_ims:
             im = Image.open(os.path.join(self.subdir, self.filenames[index]))
@@ -662,30 +662,21 @@ class MAFLAligned(CelebABase):
         self.warper = pair_warper
         self.crop = crop
         self.use_keypoints = use_keypoints
-
-        if use_hq_ims:
-            subdir = "img_align_celeba_hq"
-        else:
-            subdir = "img_align_celeba"
+        subdir = "img_align_celeb_hq" if use_hq_ims else "img_align_celeba"
         self.subdir = os.path.join(root, 'Img', subdir)
-
-        anno = pd.read_csv(
-            os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt'), header=1,
-            delim_whitespace=True)
+        annos_path = os.path.join(root, 'Anno', 'list_landmarks_align_celeba.txt')
+        anno = pd.read_csv(annos_path , header=1, delim_whitespace=True)
 
         assert len(anno.index) == 202599
         split = pd.read_csv(os.path.join(root, 'Eval', 'list_eval_partition.txt'),
                             header=None, delim_whitespace=True, index_col=0)
         assert len(split.index) == 202599
-
         mafltest = pd.read_csv(os.path.join(root, 'MAFL', 'testing.txt'), header=None,
                                delim_whitespace=True, index_col=0)
         split.loc[mafltest.index] = 4
-
         mafltrain = pd.read_csv(os.path.join(root, 'MAFL', 'training.txt'), header=None,
                                 delim_whitespace=True, index_col=0)
         split.loc[mafltrain.index] = 5
-
         assert (split[1] == 4).sum() == 1000
         assert (split[1] == 5).sum() == 19000
 
@@ -694,10 +685,10 @@ class MAFLAligned(CelebABase):
         else:
             self.data = anno.loc[split[split[1] == 4].index]
 
+        # keypoint ordering
         # lefteye_x lefteye_y ; righteye_x righteye_y ; nose_x nose_y ;
         # leftmouth_x leftmouth_y ; rightmouth_x rightmouth_y
         self.keypoints = np.array(self.data, dtype=np.float32).reshape(-1, 5, 2)
-
         self.filenames = list(self.data.index)
 
         # Move head up a bit
@@ -706,7 +697,6 @@ class MAFLAligned(CelebABase):
         initial_crop = lambda im: transforms.functional.crop(im, **crop_params)
         self.keypoints[:, :, 1] -= vertical_shift
         self.keypoints *= self.imwidth / 178.
-
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769],
                                          std=[0.2599, 0.2371, 0.2323])
         augmentations = [
@@ -733,10 +723,10 @@ class AFLW_MTFL(Dataset):
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=70, use_ims=True,
                  crop=0, do_augmentations=True, use_keypoints=False, visualize=False, **kwargs):
-        self.test_root = os.path.join(root,
-                                      'MTFL')  # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
-        self.train_root = os.path.join(root,
-                                       'aflw_cropped')  # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
+        # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
+        self.test_root = os.path.join(root, 'MTFL')  
+        # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
+        self.train_root = os.path.join(root, 'aflw_cropped')  
 
         self.imwidth = imwidth
         self.use_ims = use_ims
@@ -745,14 +735,15 @@ class AFLW_MTFL(Dataset):
         self.crop = crop
         self.use_keypoints = use_keypoints
         self.visualize = visualize
-
         initial_crop = lambda im: im
 
-        test_anno = pd.read_csv(os.path.join(self.test_root, 'testing.txt'), header=None, delim_whitespace=True)
+        test_anno = pd.read_csv(os.path.join(self.test_root, 'testing.txt'),
+                                header=None, delim_whitespace=True)
 
         if train:
             self.root = self.train_root
-            all_anno = pd.read_csv(os.path.join(self.train_root, 'facedata_cropped.csv'), sep=',', header=0)
+            all_anno = pd.read_csv(os.path.join(self.train_root, 'facedata_cropped.csv'),
+                                   sep=',', header=0)
             allims = all_anno.image_file.to_list()
             trainims = all_anno[all_anno.set == 1].image_file.to_list()
             testims = [t.split('-')[-1] for t in test_anno.loc[:, 0].to_list()]
@@ -764,7 +755,8 @@ class AFLW_MTFL(Dataset):
                 assert x in allims
 
             self.filenames = all_anno[all_anno.set == 1].crop_file.to_list()
-            self.keypoints = np.array(all_anno[all_anno.set == 1].iloc[:, 4:14], dtype=np.float32).reshape(-1, 5, 2)
+            self.keypoints = np.array(all_anno[all_anno.set == 1].iloc[:, 4:14],
+                                      dtype=np.float32).reshape(-1, 5, 2)
 
             self.keypoints -= 1  # matlab to python
             self.keypoints *= self.imwidth / 150.
@@ -772,7 +764,8 @@ class AFLW_MTFL(Dataset):
             assert len(self.filenames) == 10122
         else:
             self.root = self.test_root
-            self.keypoints = np.array(test_anno.iloc[:, 1:11], dtype=np.float32).reshape(-1, 2, 5).transpose(0, 2, 1)
+            keypoints = np.array(test_anno.iloc[:, 1:11], dtype=np.float32)
+            self.keypoints = keypoints.reshape(-1, 2, 5).transpose(0, 2, 1)
             self.filenames = test_anno[0].to_list()
 
             self.keypoints -= 1  # matlab to python
@@ -784,11 +777,16 @@ class AFLW_MTFL(Dataset):
         # self.filenames = self.filenames[:100]
         # self.keypoints = self.keypoints[:100]
 
-        normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769], std=[0.2599, 0.2371, 0.2323])
-        augmentations = [JPEGNoise(), transforms.transforms.ColorJitter(.4, .4, .4),
-                         transforms.ToTensor(), PcaAug()] if (train and do_augmentations) else [transforms.ToTensor()]
-
-        self.initial_transforms = transforms.Compose([initial_crop, transforms.Resize(self.imwidth)])
+        normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769],
+                                         std=[0.2599, 0.2371, 0.2323])
+        augmentations = [
+            JPEGNoise(),
+            transforms.transforms.ColorJitter(.4, .4, .4),
+            transforms.ToTensor(),
+            PcaAug()
+        ] if (train and do_augmentations) else [transforms.ToTensor()]
+        self.initial_transforms = transforms.Compose(
+            [initial_crop, transforms.Resize(self.imwidth)])
         self.transforms = transforms.Compose(augmentations + [normalize])
 
 
