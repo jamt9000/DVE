@@ -92,13 +92,6 @@ class CelebABase(Dataset):
         return len(self.filenames)
 
     def __getitem__(self, index):
-        # if self.subdir is None:
-        #     if self.use_hq_ims:
-        #         subdir = "img_align_celeba_hq"
-        #     else:
-        #         subdir = "img_align_celeba"
-        #     self.subdir = os.path.join(self.root, 'Img', subdir)
-        # tic = time.time()
         if self.use_ims:
             im = Image.open(os.path.join(self.subdir, self.filenames[index]))
         # print("imread: {:.3f}s".format(time.time() - tic)) ; tic = time.time()
@@ -110,7 +103,7 @@ class CelebABase(Dataset):
         if self.warper is not None:
             if self.warper.returns_pairs:
                 # tic = time.time()
-                im1 = self.initial_transforms(im)
+                im1 = self.initial_transforms(im.convert("RGB"))
                 # print("tx1: {:.3f}s".format(time.time() - tic)) ; tic = time.time()
                 im1 = TF.to_tensor(im1) * 255
                 if False:
@@ -145,7 +138,7 @@ class CelebABase(Dataset):
                 if self.use_keypoints:
                     meta = {**meta, **{'kp1': kp1, 'kp2': kp2}}
             else:
-                im1 = self.initial_transforms(im)
+                im1 = self.initial_transforms(im.convert("RGB"))
                 im1 = TF.to_tensor(im1) * 255
 
                 im1, kp = self.warper(im1, keypts=kp, crop=self.crop)
@@ -165,7 +158,7 @@ class CelebABase(Dataset):
 
         else:
             if self.use_ims:
-                data = self.transforms(self.initial_transforms(im))
+                data = self.transforms(self.initial_transforms(im.convert("RGB")))
                 if self.crop != 0:
                     data = data[:, self.crop:-self.crop, self.crop:-self.crop]
                 C, H, W = data.shape
@@ -203,8 +196,7 @@ class CelebABase(Dataset):
                         kp_y = kp[:, 1].numpy()
                     ax.scatter(kp_x, kp_y)
                 zs_dispFig()
-                import ipdb;
-                ipdb.set_trace()
+                import ipdb; ipdb.set_trace()
             #     zs.
             # if self.train:
             # else:
@@ -710,7 +702,7 @@ class MAFLAligned(CelebABase):
         self.transforms = transforms.Compose(augmentations + [normalize])
 
 
-class AFLW_MTFL(Dataset):
+class AFLW_MTFL(CelebABase):
     """Used for testing on the 5-point version of AFLW included in the MTFL download from the
        Facial Landmark Detection by Deep Multi-task Learning (TCDCN) paper
        http://mmlab.ie.cuhk.edu.hk/projects/TCDCN.html
@@ -771,6 +763,7 @@ class AFLW_MTFL(Dataset):
             self.keypoints *= self.imwidth / 150.
 
             assert len(self.filenames) == 2995
+        self.subdir = self.root
 
         # print("HARDCODING DEBGGER")
         # self.filenames = self.filenames[:100]
@@ -1009,6 +1002,7 @@ if __name__ == '__main__':
     default_roots = {
         "CelebAPrunedAligned_MAFLVal": "data/celeba",
         "MAFLAligned": "data/celeba",
+        "AFLW_MTFL": "data/aflw-mtfl",
         "Helen": "data/SmithCVPR2013_dataset_resized",
         "AFLW": "data/aflw/aflw_release-2",
         "Chimps": "data/chimpanzee_faces/datasets_cropped_chimpanzee_faces/data_CZoo",
