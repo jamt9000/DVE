@@ -10,7 +10,7 @@
     "celeba-hourglass-64d-dve": {"timestamp": "0618_103501", "epoch": 100},
 
     "mafl-keypoints-celeba-smallnet-3d": {"timestamp": "2019-08-10_10-00-15", "epoch": 300},
-    "mafl-keypoints-celeba-smallnet-16d": {"timestamp": "TODO:aws-3-2019-08-10_08-38-14", "epoch": 300},
+    "mafl-keypoints-celeba-smallnet-16d": {"timestamp": "TODO", "epoch": 300},
     "mafl-keypoints-celeba-smallnet-32d": {"timestamp": "TODO", "epoch": 300},
     "mafl-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
     "mafl-keypoints-celeba-smallnet-3d-dve": {"timestamp": "TODO", "epoch": 300},
