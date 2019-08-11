@@ -143,39 +143,37 @@ def write_json(content, fname):
 
 
 def pad_and_crop(im, rr):
-    """Return im[rr[0]:rr[1],rr[2]:rr[3]] padding if
-    necessary to allow out of bounds indexing
+    """Return im[rr[0]:rr[1],rr[2]:rr[3]]
 
-    Quick and dirty conversion from matlab
+    Pads if necessary to allow out of bounds indexing
     """
+
     meanval = np.array(np.dstack((0, 0, 0)), dtype=im.dtype)
 
-    # to matlab style
-    rr1, rr2, rr3, rr4 = [rr[0] + 1, rr[1], rr[2] + 1, rr[3]]
-
-    if rr1 < 1:
-        top = -rr1 + 1
+    if rr[0] < 0:
+        top = -rr[0]
         P = np.tile(meanval, [top, im.shape[1], 1])
         im = np.vstack([P, im])
-        rr1 = rr1 + top
-        rr2 = rr2 + top
+        rr[0] = rr[0] + top
+        rr[1] = rr[1] + top
 
-    if rr3 < 1:
-        left = -rr3 + 1
+    if rr[2] < 0:
+        left = -rr[2]
         P = np.tile(meanval, [im.shape[0], left, 1])
         im = np.hstack([P, im])
-        rr3 = rr3 + left
-        rr4 = rr4 + left
+        rr[2] = rr[2] + left
+        rr[3] = rr[3] + left
 
-    if rr2 > im.shape[0]:
-        bottom = rr2 - im.shape[0]
+    if rr[1] > im.shape[0]:
+        bottom = rr[1] - im.shape[0]
         P = np.tile(meanval, [bottom, im.shape[1], 1])
         im = np.vstack([im, P])
 
-    if rr4 > im.shape[1]:
-        right = rr4 - im.shape[1]
+    if rr[3] > im.shape[1]:
+        right = rr[3] - im.shape[1]
         P = np.tile(meanval, [im.shape[0], right, 1])
         im = np.hstack([im, P])
 
-    im = im[(rr1-1):rr2, (rr3-1):rr4]
+    im = im[rr[0]:rr[1], rr[2]:rr[3]]
+
     return im
