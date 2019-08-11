@@ -20,6 +20,7 @@ def sync_between_servers(save_dir, src_server, dest_server, refresh, ckpt_list):
             "log": ["info.log"],
             "models": [f"checkpoint-epoch{epoch}.pth", "config.json"]
         }
+        # TODO(Samuel): cleanup code mess
 
         # copy experiment artifacts
         for filetype, fnames in filetypes.items():
