@@ -17,7 +17,7 @@
     "mafl-keypoints-celeba-smallnet-16d-dve": {"timestamp": "2019-08-11_08-29-31", "epoch": 300},
     "mafl-keypoints-celeba-smallnet-32d-dve": {"timestamp": "2019-08-11_08-29-53", "epoch": 300},
     "mafl-keypoints-celeba-smallnet-64d-dve": {"timestamp": "2019-08-11_08-40-48", "epoch": 300},
-    "mafl-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO:e8-d2", "epoch": 300},
+    "mafl-keypoints-celeba-hourglass-64d-dve": {"timestamp": "2019-08-11_14-30-53", "epoch": 300},
 
     "aflw-keypoints-celeba-smallnet-3d": {"timestamp": "2019-08-10_07-54-09", "epoch": 300},
     "aflw-keypoints-celeba-smallnet-16d": {"timestamp": "2019-08-10_07-52-46", "epoch": 300},
