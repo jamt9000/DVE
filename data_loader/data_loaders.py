@@ -904,7 +904,7 @@ class ThreeHundredW(Dataset):
         kp = None
         if self.use_keypoints:
             kp = keypts - 1  # from matlab to python style
-            kp = kp * imwidth / im.width
+            kp = kp * self.imwidth / im.width
             kp = torch.tensor(kp)
         meta = {}
 
