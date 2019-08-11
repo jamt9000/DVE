@@ -157,7 +157,7 @@ def pad_and_crop(im, rr):
         rr[0] = rr[0] + top
         rr[1] = rr[1] + top
 
-    if rr[2] + 1 < 1:
+    if rr[2] < 0:
         left = -rr[2]
         P = np.tile(meanval, [im.shape[0], left, 1])
         im = np.hstack([P, im])
