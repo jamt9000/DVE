@@ -77,7 +77,7 @@
     "300w-ft-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 50},
     "300w-ft-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 50},
     "300w-ft-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 50},
-    "300w-ft-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 50},
+    "300w-ft-celeba-hourglass-64d-dve": {"timestamp": "2019-08-11_12-57-08", "epoch": 50},
 
     "aflw-ft-keypoints-celeba-smallnet-3d": {"timestamp": "2019-08-11_07-56-34", "epoch": 300},
     "aflw-ft-keypoints-celeba-smallnet-16d": {"timestamp": "2019-08-11_07-56-41", "epoch": 300},
@@ -107,5 +107,5 @@
     "300w-ft-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODO", "epoch": 300},
     "300w-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODO", "epoch": 300},
     "300w-ft-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODO", "epoch": 300},
-    "300w-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO", "epoch": 300}
+    "300w-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO:e8-d1", "epoch": 300}
 }

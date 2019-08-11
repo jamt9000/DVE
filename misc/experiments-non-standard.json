@@ -5,5 +5,6 @@
     "aflw-ft-celeba-smallnet-16d",
     "aflw-ft-celeba-smallnet-32d",
     "aflw-ft-celeba-smallnet-16d-dve",
-    "aflw-ft-celeba-smallnet-32d-dve"
+    "aflw-ft-celeba-smallnet-32d-dve",
+    "300w-ft-celeba-hourglass-64d-dve"
 ]
