@@ -67,7 +67,7 @@
     "aflw-mtfl-ft-celeba-smallnet-16d-dve": {"timestamp": "2019-08-11_08-19-58", "epoch": 50},
     "aflw-mtfl-ft-celeba-smallnet-32d-dve": {"timestamp": "2019-08-11_08-19-55", "epoch": 50},
     "aflw-mtfl-ft-celeba-smallnet-64d-dve": {"timestamp": "2019-08-11_08-19-54", "epoch": 50},
-    "aflw-mtfl-ft-celeba-hourglass-64d-dve": {"timestamp": "b2:d3", "epoch": 50},
+    "aflw-mtfl-ft-celeba-hourglass-64d-dve": {"timestamp": "TODO:b2:d3", "epoch": 50},
 
     "300w-ft-celeba-smallnet-3d": {"timestamp": "TODO:aws1", "epoch": 50},
     "300w-ft-celeba-smallnet-16d": {"timestamp": "TODO:aws1", "epoch": 50},

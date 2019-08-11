@@ -120,14 +120,14 @@ Then re-evaluate the performance of a learned landmark regressor:
 
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  16 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
-|  32 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_multiplication_x: | 11.71 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-3d/2019-08-11_13-59-41/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-3d/2019-08-11_13-59-41/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-3d/2019-08-11_13-59-41/info.log) |
+|  16 | smallnet | :heavy_multiplication_x: | 13.86  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-16d/2019-08-11_13-59-36/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-16d/2019-08-11_13-59-36/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-16d/2019-08-11_13-59-36/info.log) |
+|  32 | smallnet | :heavy_multiplication_x: | 14.04  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-32d/2019-08-11_14-00-21/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-32d/2019-08-11_14-00-21/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-32d/2019-08-11_14-00-21/info.log) |
 |  64 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  3 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  16 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_check_mark: | 11.82 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-3d-dve/2019-08-11_14-02-25/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-3d-dve/2019-08-11_14-02-25/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-3d-dve/2019-08-11_14-02-25/info.log) |
+|  16 | smallnet | :heavy_check_mark: | 10.22 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-16d-dve/2019-08-11_14-02-40/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-16d-dve/2019-08-11_14-02-40/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-16d-dve/2019-08-11_14-02-40/info.log) |
+|  32 | smallnet | :heavy_check_mark: | 9.80 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-32d-dve/2019-08-11_14-02-56/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-32d-dve/2019-08-11_14-02-56/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-32d-dve/2019-08-11_14-02-56/info.log) |
+|  64 | smallnet | :heavy_check_mark: | 9.28 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-64d-dve/2019-08-11_14-03-14/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-64d-dve/2019-08-11_14-03-14/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-64d-dve/2019-08-11_14-03-14/info.log) |
 |  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 
 *With finetuning on AFLW-MTFL*
@@ -136,14 +136,14 @@ First we fine-tune the embeddings for a fixed number of epochs:
 
 | Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :--:  | :-: | :----: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  16 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  32 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | smallnet | :heavy_multiplication_x: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  3 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  16 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  32 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_multiplication_x: | 5.91 | 6.97 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-3d/2019-08-11_08-19-48/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-3d/2019-08-11_08-19-48/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-3d/2019-08-11_08-19-48/info.log) |
+|  16 | smallnet | :heavy_multiplication_x: | 1.63 | 9.68 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-16d/2019-08-11_08-19-50/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-16d/2019-08-11_08-19-50/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-16d/2019-08-11_08-19-50/info.log) |
+|  32 | smallnet | :heavy_multiplication_x: | 1.40 | 9.94 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-32d/2019-08-11_08-19-52/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-32d/2019-08-11_08-19-52/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-32d/2019-08-11_08-19-52/info.log) |
+|  64 | smallnet | :heavy_multiplication_x: | 1.32 | 9.42 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-64d/2019-08-11_08-19-53/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-64d/2019-08-11_08-19-53/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-64d/2019-08-11_08-19-53/info.log) |
+|  3 | smallnet | :heavy_check_mark: | 5.99 | 7.16 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-3d-dve/2019-08-11_08-20-03/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-3d-dve/2019-08-11_08-20-03/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-3d-dve/2019-08-11_08-20-03/info.log) |
+|  16 | smallnet | :heavy_check_mark: | 4.72 | 7.11 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-16d-dve/2019-08-11_08-19-58/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-16d-dve/2019-08-11_08-19-58/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-16d-dve/2019-08-11_08-19-58/info.log) |
+|  32 | smallnet | :heavy_check_mark: | 6.42 | 8.71 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-32d-dve/2019-08-11_08-19-55/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-32d-dve/2019-08-11_08-19-55/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-32d-dve/2019-08-11_08-19-55/info.log) |
+|  64 | smallnet | :heavy_check_mark: | 8.07 | 10.09 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-64d-dve/2019-08-11_08-19-54/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-64d-dve/2019-08-11_08-19-54/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-64d-dve/2019-08-11_08-19-54/info.log) |
 |  64 | hourglass | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
 
 
@@ -168,14 +168,14 @@ Then re-evaluate the performance of a learned landmark regressor:
 
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  16 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
-|  32 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  3 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  16 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  3 | smallnet | :heavy_multiplication_x: | 8.23 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-3d/2019-08-11_14-50-45/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-3d/2019-08-11_14-50-45/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-3d/2019-08-11_14-50-45/info.log) |
+|  16 | smallnet | :heavy_multiplication_x: | 10.66  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-16d/2019-08-11_14-50-46/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-16d/2019-08-11_14-50-46/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-16d/2019-08-11_14-50-46/info.log) |
+|  32 | smallnet | :heavy_multiplication_x: | 10.33  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-32d/2019-08-11_14-50-47/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-32d/2019-08-11_14-50-47/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-32d/2019-08-11_14-50-47/info.log) |
+|  64 | smallnet | :heavy_multiplication_x: | 9.33 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-64d/2019-08-11_14-50-48/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-64d/2019-08-11_14-50-48/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-64d/2019-08-11_14-50-48/info.log) |
+|  3 | smallnet | :heavy_check_mark: | 7.66 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-3d-dve/2019-08-11_14-50-50/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-3d-dve/2019-08-11_14-50-50/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-3d-dve/2019-08-11_14-50-50/info.log) |
+|  16 | smallnet | :heavy_check_mark: | 6.29 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-16d-dve/2019-08-11_14-50-52/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-16d-dve/2019-08-11_14-50-52/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-16d-dve/2019-08-11_14-50-52/info.log) |
+|  32 | smallnet | :heavy_check_mark: | 6.13 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-32d-dve/2019-08-11_14-50-53/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-32d-dve/2019-08-11_14-50-53/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-32d-dve/2019-08-11_14-50-53/info.log) |
+|  64 | smallnet | :heavy_check_mark: | 5.75 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-64d-dve/2019-08-11_14-50-54/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-64d-dve/2019-08-11_14-50-54/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-64d-dve/2019-08-11_14-50-54/info.log) |
 |  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 
 *With finetuning*
@@ -192,7 +192,7 @@ First we fine-tune the embeddings for a fixed number of epochs:
 |  16 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  32 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  64 | smallnet | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | hourglass | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | 1.63 | 3.82 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/info.log) |
 
 Then re-evaluate the performance of a learned landmark regressor:
 
