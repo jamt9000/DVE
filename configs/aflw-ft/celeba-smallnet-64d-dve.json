@@ -48,7 +48,7 @@
         "save_dir": "saved/",
         "save_period": 25,
         "verbosity": 2,
-        "monitor": "min val_loss",
+        "monitor": "off",
         "early_stop": 50,
         "tensorboardX": true,
         "log_dir": "saved/"
