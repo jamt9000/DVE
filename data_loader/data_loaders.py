@@ -874,6 +874,10 @@ class ThreeHundredW(Dataset):
         bcy = ymin + (bh + 1) / 2
         bcx = xmin + (bw + 1) / 2
 
+        # To simplify the preprocessing, we do two image resizes (can fix later if speed
+        # is an issue)
+        preresize_sz = 100
+
         bw_ = 52  # make the (tightly cropped) face 52px
         fac = bw_ / bw
         if self.use_ims:
@@ -885,7 +889,7 @@ class ThreeHundredW(Dataset):
         bX = bcx_ + bw_ / 2
         by = bcy_ - bw_ / 2 + 1
         bY = bcy_ + bw_ / 2
-        pp = (100 - bw_) / 2
+        pp = (preresize_sz - bw_) / 2
         bx = int(bx - pp)
         bX = int(bX + pp)
         by = int(by - pp - 2)
@@ -904,7 +908,7 @@ class ThreeHundredW(Dataset):
         kp = None
         if self.use_keypoints:
             kp = keypts - 1  # from matlab to python style
-            kp = kp * self.imwidth / 100  # the first resize to 100 is fixed
+            kp = kp * self.imwidth / preresize_sz
             kp = torch.tensor(kp)
         meta = {}
 
