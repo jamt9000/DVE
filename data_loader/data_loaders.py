@@ -981,7 +981,6 @@ class ThreeHundredW(Dataset):
 
 
 if __name__ == '__main__':
-    from zsvision.zs_iterm import zs_dispFig
     import argparse
 
     parser = argparse.ArgumentParser()
