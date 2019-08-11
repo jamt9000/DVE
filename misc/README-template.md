@@ -180,7 +180,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 
 *With finetuning*
 
-As with AFLW, first we fine-tune the embeddings for a fixed number of epochs:
+First we fine-tune the embeddings for a fixed number of epochs:
 
 | Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :--:  | :-: | :----: | :----: | :----: |
