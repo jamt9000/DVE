@@ -64,9 +64,9 @@ We provide pretrained models for each dataset to reproduce the results reported 
 |  64 | smallnet | :heavy_check_mark: | 3.42 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-64d-dve/2019-08-11_08-40-48/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-64d-dve/2019-08-11_08-40-48/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-64d-dve/2019-08-11_08-40-48/info.log) |
 |  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 
-**AFLW and AFLW-MTFL landmark regression**
+**AFLW landmark regression**
 
-To compare with prior work, we evaluate the learned embeddings on AFLW under two settings: with and without finetuning the embedding on the AFLW dataset (without annotations). There are two slightly different partitions of AFLW that have been used in prior work, the first is the MTFL split used in [2], [3] (we call this split AFLW-MTFL).  The second is a set of recropped faces released by [7] (here we simply call this AFLW).
+To compare with prior work, we evaluate the learned embeddings on AFLW under two settings: with and without finetuning the embedding on the AFLW dataset (without annotations). There are two slightly different partitions of AFLW that have been used in prior work.  One is a set of recropped faces released by [7] (here we simply call this AFLW). The second is the MTFL split of AFLW used in the works of [2], [3] (we call this split AFLW-MTFL).  
 
 
 *Without finetuning on AFLW*
@@ -114,8 +114,9 @@ Then re-evaluate the performance of a learned landmark regressor:
 |  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 
+**AFLW-MTFL landmark regression**
 
-*Without finetuning on AFLW*
+*Without finetuning on AFLW-MTFL*
 
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
@@ -129,7 +130,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 |  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 
-*With finetuning on AFLW*
+*With finetuning on AFLW-MTFL*
 
 First we fine-tune the embeddings for a fixed number of epochs:
 
