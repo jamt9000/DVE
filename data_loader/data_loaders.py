@@ -88,6 +88,9 @@ def kp_normalize(H, W, kp):
 
 class CelebABase(Dataset):
 
+    def __len__(self):
+        return len(self.filenames)
+
     def __getitem__(self, index):
         if self.subdir is None:
             if self.use_hq_ims:
@@ -169,7 +172,7 @@ class CelebABase(Dataset):
             else:
                 #  after caching descriptors, there is no point doing I/O
                 H = W = self.imwidth - 2 * self.crop
-                data = torch.zeros(1, 1, 1)
+                data = torch.zeros(3, 1, 1)
 
             if kp is not None:
                 kp = kp - self.crop
@@ -354,9 +357,6 @@ class AFLW(CelebABase):
                     keypoints = keypoints[-n_validation:]
                     sizes = sizes[-n_validation:]
         return images, keypoints, sizes
-
-    def __len__(self):
-        return len(self.filenames)
 
 
 class Chimps(CelebABase):
@@ -720,9 +720,6 @@ class MAFLAligned(CelebABase):
             [initial_crop, transforms.Resize(self.imwidth)])
         self.transforms = transforms.Compose(augmentations + [normalize])
 
-    def __len__(self):
-        return len(self.data.index)
-
 
 class AFLW_MTFL(Dataset):
     """Used for testing on the 5-point version of AFLW included in the MTFL download from the
@@ -734,7 +731,7 @@ class AFLW_MTFL(Dataset):
        """
     eye_kp_idxs = [0, 1]
 
-    def __init__(self, root, train=True, pair_warper=None, imwidth=70,
+    def __init__(self, root, train=True, pair_warper=None, imwidth=70, use_ims=True,
                  crop=0, do_augmentations=True, use_keypoints=False, visualize=False, **kwargs):
         self.test_root = os.path.join(root,
                                       'MTFL')  # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
@@ -793,87 +790,6 @@ class AFLW_MTFL(Dataset):
 
         self.initial_transforms = transforms.Compose([initial_crop, transforms.Resize(self.imwidth)])
         self.transforms = transforms.Compose(augmentations + [normalize])
-
-    def __len__(self):
-        return len(self.filenames)
-
-    def __getitem__(self, index):
-        if self.use_ims:
-            im = Image.open(os.path.join(self.root, self.filenames[index]))
-        kp = None
-        if self.use_keypoints:
-            kp = self.keypoints[index].copy()
-            kp = torch.tensor(kp)
-        meta = {}
-
-        if self.warper is not None:
-            if self.warper.returns_pairs:
-                im1 = self.initial_transforms(im)
-                im1 = TF.to_tensor(im1) * 255
-
-                im1, im2, flow, grid, kp1, kp2 = self.warper(im1, keypts=kp, crop=self.crop)
-
-                im1 = im1.to(torch.uint8)
-                im2 = im2.to(torch.uint8)
-
-                C, H, W = im1.shape
-
-                im1 = TF.to_pil_image(im1)
-                im2 = TF.to_pil_image(im2)
-
-                im1 = self.transforms(im1)
-                im2 = self.transforms(im2)
-
-                C, H, W = im1.shape
-                data = torch.stack((im1, im2), 0)
-                meta = {'flow': flow[0], 'grid': grid[0], 'im1': im1, 'im2': im2, 'index': index}
-                if self.use_keypoints:
-                    meta = {**meta, **{'kp1': kp1, 'kp2': kp2}}
-            else:
-                im1 = self.initial_transforms(im)
-                im1 = TF.to_tensor(im1) * 255
-
-                im1, kp = self.warper(im1, keypts=kp, crop=self.crop)
-
-                im1 = im1.to(torch.uint8)
-                im1 = TF.to_pil_image(im1)
-                im1 = self.transforms(im1)
-
-                C, H, W = im1.shape
-                data = im1
-                if self.use_keypoints:
-                    meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
-
-        else:
-            data = self.transforms(self.initial_transforms(im))
-
-            if self.crop != 0:
-                data = data[:, self.crop:-self.crop, self.crop:-self.crop]
-                kp = kp - self.crop
-                kp = torch.tensor(kp)
-
-            C, H, W = data.shape
-            if self.use_keypoints:
-                meta = {'keypts': kp, 'keypts_normalized': kp_normalize(H, W, kp), 'index': index}
-
-        if self.visualize:
-            from utils.visualization import norm_range
-            num_show = 2 if self.warper and self.warper.returns_pairs else 1
-            fig = plt.figure()
-            for ii in range(num_show):
-                im_ = data[ii] if num_show > 1 else data
-                ax = fig.add_subplot(1, num_show, ii + 1)
-                ax.imshow(norm_range(im_).permute(1, 2, 0).cpu().numpy())
-                if self.use_keypoints:
-                    if num_show == 2:
-                        kp_x = meta["kp{}".format(ii + 1)][:, 0].numpy()
-                        kp_y = meta["kp{}".format(ii + 1)][:, 1].numpy()
-                    else:
-                        kp_x = kp[:, 0].numpy()
-                        kp_y = kp[:, 1].numpy()
-                    ax.scatter(kp_x, kp_y)
-
-        return {"data": data, "meta": meta}
 
 
 class ThreeHundredW(Dataset):
