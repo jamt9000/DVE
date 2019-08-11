@@ -91,6 +91,12 @@ class CelebABase(Dataset):
     def __len__(self):
         return len(self.filenames)
 
+    def restrict_annos(self, num):
+        anno_count = len(self.filenames)
+        pick = np.random.choice(anno_count, num, replace=False)
+        self.filenames = np.tile(np.array(self.filenames)[pick], anno_count)
+        self.keypoints = np.tile(self.keypoints[pick], (anno_count, 1, 1))
+
     def __getitem__(self, index):
         if self.use_ims:
             im = Image.open(os.path.join(self.subdir, self.filenames[index]))
@@ -796,8 +802,8 @@ class ThreeHundredW(Dataset):
     """
     eye_kp_idxs = [36, 45]
 
-    def __init__(self, root, train=True, pair_warper=None, imwidth=100,
-                 crop=10, do_augmentations=True, use_keypoints=False, visualize=False, **kwargs):
+    def __init__(self, root, train=True, pair_warper=None, imwidth=100, use_ims=True,
+                 crop=15, do_augmentations=True, use_keypoints=False, visualize=False, **kwargs):
         from scipy.io import loadmat
 
         self.root = root
@@ -805,6 +811,7 @@ class ThreeHundredW(Dataset):
         self.train = train
         self.warper = pair_warper
         self.crop = crop
+        self.use_ims = use_ims
         self.use_keypoints = use_keypoints
         self.visualize = visualize
 
@@ -842,7 +849,7 @@ class ThreeHundredW(Dataset):
                     kp = kp.split()[5:-1]
                     kp = [float(k) for k in kp]
                     assert len(kp) == 68 * 2
-                    kp = np.array(kp).reshape(-1, 2)
+                    kp = np.array(kp).astype(np.float32).reshape(-1, 2)
                     self.keypoints.append(kp)
 
         if train:
@@ -857,11 +864,16 @@ class ThreeHundredW(Dataset):
         self.initial_transforms = transforms.Compose([transforms.Resize(self.imwidth)])
         self.transforms = transforms.Compose(augmentations + [normalize])
 
+        # print("HARDCODING DEBGGER")
+        # self.filenames = self.filenames[:100]
+        # self.keypoints = self.keypoints[:100]
+
     def __len__(self):
         return len(self.filenames)
 
     def __getitem__(self, index):
-        im = Image.open(os.path.join(self.root, self.filenames[index]))
+        if self.use_ims:
+            im = Image.open(os.path.join(self.root, self.filenames[index])).convert("RGB")
         # Crop bounding box
         xmin, ymin, xmax, ymax = self.bounding_boxes[index]
         keypts = self.keypoints[index]
@@ -872,9 +884,14 @@ class ThreeHundredW(Dataset):
         bcy = ymin + (bh + 1) / 2
         bcx = xmin + (bw + 1) / 2
 
+        # To simplify the preprocessing, we do two image resizes (can fix later if speed
+        # is an issue)
+        preresize_sz = 100
+
         bw_ = 52  # make the (tightly cropped) face 52px
         fac = bw_ / bw
-        imr = im.resize((int(im.width * fac), int(im.height * fac)))
+        if self.use_ims:
+            imr = im.resize((int(im.width * fac), int(im.height * fac)))
 
         bcx_ = int(np.floor(fac * bcx))
         bcy_ = int(np.floor(fac * bcy))
@@ -882,14 +899,15 @@ class ThreeHundredW(Dataset):
         bX = bcx_ + bw_ / 2
         by = bcy_ - bw_ / 2 + 1
         bY = bcy_ + bw_ / 2
-        pp = (100 - bw_) / 2  # add 24px padding to make the image 100px
+        pp = (preresize_sz - bw_) / 2
         bx = int(bx - pp)
         bX = int(bX + pp)
         by = int(by - pp - 2)
         bY = int(bY + pp - 2)
 
-        imr = pad_and_crop(np.array(imr), [(by - 1), bY, (bx - 1), bX])
-        im = Image.fromarray(imr)
+        if self.use_ims:
+            imr = pad_and_crop(np.array(imr), [(by - 1), bY, (bx - 1), bX])
+            im = Image.fromarray(imr)
 
         cutl = bx - 1
         keypts = keypts.copy() * fac
@@ -900,7 +918,7 @@ class ThreeHundredW(Dataset):
         kp = None
         if self.use_keypoints:
             kp = keypts - 1  # from matlab to python style
-            kp = kp * imwidth / im.width
+            kp = kp * self.imwidth / preresize_sz
             kp = torch.tensor(kp)
         meta = {}
 
@@ -953,7 +971,7 @@ class ThreeHundredW(Dataset):
                 H = W = self.imwidth - 2 * self.crop
                 data = torch.zeros(3, 1, 1)
 
-            if self.crop != 0:
+            if kp is not None:
                 kp = kp - self.crop
                 kp = torch.tensor(kp)
 
@@ -976,6 +994,7 @@ class ThreeHundredW(Dataset):
                         kp_x = kp[:, 0].numpy()
                         kp_y = kp[:, 1].numpy()
                     ax.scatter(kp_x, kp_y)
+            import ipdb; ipdb.set_trace()
 
         return {"data": data, "meta": meta}
 
@@ -1004,24 +1023,26 @@ if __name__ == '__main__':
         "AFLW_MTFL": "data/aflw-mtfl",
         "Helen": "data/SmithCVPR2013_dataset_resized",
         "AFLW": "data/aflw/aflw_release-2",
+        "ThreeHundredW": "data/300w/300w",
         "Chimps": "data/chimpanzee_faces/datasets_cropped_chimpanzee_faces/data_CZoo",
     }
     root = default_roots[args.dataset] if args.root is None else args.root
 
-    imwidth = 128
+    imwidth = 136
     kwargs = {
         "root": root,
         "train": args.train,
         "use_keypoints": args.use_keypoints,
         "use_ims": args.use_ims,
         "visualize": True,
-        "imwidth": imwidth,
         "use_minival": args.use_minival,
         "downsample_labels": args.downsample_labels,
         "break_preproc": args.break_preproc,
         "rand_in": args.rand_in,
         "restrict_to": args.restrict_to,
         "restrict_seed": args.restrict_seed,
+        "imwidth": imwidth,
+        "crop": 20,
     }
     kwargs["pair_warper"] = tps.Warper(H=imwidth, W=imwidth) if args.train else None
 

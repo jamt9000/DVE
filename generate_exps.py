@@ -89,10 +89,21 @@ if __name__ == "__main__":
     parser.add_argument('--lr', default="1E-3")
     parser.add_argument('--upsample', default="0")
     parser.add_argument('--refresh', action="store_true")
-    parser.add_argument('--target', default="mafl-keypoints",
-                        choices=["mafl-keypoints", "aflw-keypoints", "aflw-ft",
-                                 "aflw-mtfl-ft", "aflw-ft-keypoints",
-                                 "aflw-mtfl-ft-keypoints"])
+    parser.add_argument(
+        '--target',
+        default="mafl-keypoints",
+        choices=[
+            "mafl-keypoints",
+            "300w-keypoints",
+            "aflw-keypoints",
+            "aflw-mtfl-keypoints",
+            "300w-ft",
+            "aflw-ft",
+            "aflw-mtfl-ft",
+            "300w-ft-keypoints",
+            "aflw-ft-keypoints",
+            "aflw-mtfl-ft-keypoints",
+        ])
     args = parser.parse_args()
 
     grid_args = OrderedDict()

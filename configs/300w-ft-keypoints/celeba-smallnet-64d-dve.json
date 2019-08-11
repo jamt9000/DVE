@@ -1,22 +1,21 @@
 {
     "n_gpu": 1,
-    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-smallnet-16d/2019-08-11_08-19-50/checkpoint-epoch50.pth",
+    "finetune_from": "data/saved/models/300w-ft-celeba-smallnet-64d-dve/TODO/checkpoint-epoch50.pth",
     "batch_size": 32,
     "cache_descriptors": true,
     "keypoint_regressor_upsample": false,
     "arch": {
         "type": "SmallNet",
         "args": {
-            "num_output_channels": 16
+            "num_output_channels": 64
         }
     },
     "dataset": {
-        "type": "AFLW_MTFL",
+        "type": "ThreeHundredW",
         "args": {
-            "root": "data/aflw-mtfl",
+            "root": "data/300w/300w",
             "imwidth": 100,
             "crop": 15,
-            "use_hq_ims": true,
             "use_keypoints": true,
             "do_augmentations": false
         }
@@ -24,7 +23,7 @@
     "keypoint_regressor": {
         "type": "IntermediateKeypointPredictor",
         "args": {
-            "num_annotated_points": 5,
+            "num_annotated_points": 68,
             "num_intermediate_points": 50,
             "softargmax_mul": 100.0
         },
@@ -46,7 +45,9 @@
     "metrics": [
         "inter_ocular_error"
     ],
-    "visualizations": [],
+    "visualizations": [
+        "keypoints_intermediate"
+    ],
     "lr_scheduler": {
         "type": "MultiStepLR",
         "args": {
@@ -60,7 +61,7 @@
     "trainer": {
         "epochs": 300,
         "save_dir": "saved/",
-        "save_period": 1,
+        "save_period": 100,
         "verbosity": 2,
         "monitor": "off",
         "early_stop": 300,

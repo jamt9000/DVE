@@ -11,6 +11,7 @@ is re-evaluated.
 
 NOTE: This module requires tensorflow to parse the tensorboard files.
 """
+import os
 import time
 import json
 import argparse
@@ -116,13 +117,14 @@ def parse_old_log(log_path, config_path, fixed_epochs):
     with open(log_path, "r") as f:
         log = f.read().splitlines()
     tag = f"checkpoint-epoch{fixed_epochs}.pth"
-    presence = [tag in row for row in log]
+    presence = [(tag in row and "trainer" in row) for row in log]
     assert sum(presence) == 1, "expected single occurence of log tag"
     pos = np.where(presence)[0].item()
     timestamp = Path(log_path).parent.stem
     gen_log = [f"This log was generated from an existing log for experiemnt {timestamp}"]
     gen_log += ["Launching experiment with config:"]
-    return gen_log + config + log[:pos + 1]
+    offset = "Training took" in log[pos + 1]
+    return gen_log + config + log[:pos + 1 + offset]
 
 
 def standardize_exp_dir(experiments, save_dir, checkpoints, refresh):
@@ -170,10 +172,14 @@ if __name__ == "__main__":
     parser.add_argument("--task", default="modernize")
     parser.add_argument("--refresh", action="store_true")
     parser.add_argument("--save_dir", default="data/saved")
+    parser.add_argument("--device", default="")
     parser.add_argument("--dep_exps", default="misc/experiments-deprecated.json")
     parser.add_argument("--non_std_exps", default="misc/experiments-non-standard.json")
     parser.add_argument("--ckpts_path", default="misc/server-checkpoints.json")
     args = parser.parse_args()
+
+    if args.device:
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.device
 
     with open(args.ckpts_path, "r") as f:
         ckpts = json.load(f)

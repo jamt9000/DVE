@@ -86,6 +86,10 @@ def main(config, resume):
         else:
             num_workers = 4
 
+        if config.get("restrict_annos", False):
+            dataset.restrict_annos(num=config["restrict_annos"])
+            logger.info(f"restricting annotation to {config['restrict_annos']} samples...")
+
         data_loader = DataLoader(
             dataset,
             batch_size=int(config["batch_size"]),
