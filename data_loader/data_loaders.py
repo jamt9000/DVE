@@ -91,6 +91,12 @@ class CelebABase(Dataset):
     def __len__(self):
         return len(self.filenames)
 
+    def restrict_annos(self, num):
+        anno_count = len(self.filenames)
+        pick = np.random.choice(anno_count, num, replace=False)
+        self.filenames = np.tile(np.array(self.filenames)[pick], anno_count)
+        self.keypoints = np.tile(self.keypoints[pick], (anno_count, 1, 1))
+
     def __getitem__(self, index):
         if self.use_ims:
             im = Image.open(os.path.join(self.subdir, self.filenames[index]))
