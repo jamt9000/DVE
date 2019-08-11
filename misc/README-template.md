@@ -112,6 +112,9 @@ To compare with prior work, we evaluate the learned embeddings on AFLW under two
 |  64 | smallnet | :heavy_check_mark: | {{300w-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{300w-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{300w-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{300w-keypoints-celeba-smallnet-64d-dve.log}}) |
 |  64 | hourglass | :heavy_check_mark: | {{300w-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{300w-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{300w-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{300w-keypoints-celeba-hourglass-64d-dve.log}}) |
 
+### Notes
+
+TODO(Samuuel): Explain why some logs are v. slow compared to others, why some are generated.
 
 
 ### Evaluating a pretrained embedding
