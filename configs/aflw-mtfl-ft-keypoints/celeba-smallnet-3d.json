@@ -1,13 +1,13 @@
 {
     "n_gpu": 1,
-    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-smallnet-16d-dve/2019-08-10_12-50-57/checkpoint-epoch50.pth",
+    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-smallnet-3d/TODO/checkpoint-epoch50.pth",
     "batch_size": 32,
     "cache_descriptors": true,
     "keypoint_regressor_upsample": false,
     "arch": {
         "type": "SmallNet",
         "args": {
-            "num_output_channels": 16
+            "num_output_channels": 3
         }
     },
     "dataset": {
@@ -39,7 +39,7 @@
             "amsgrad": true
         }
     },
-    "loss": "dense_correlation_loss_dve",
+    "loss": "dense_correlation_loss",
     "loss_args": {
         "alpha": 10.0
     },

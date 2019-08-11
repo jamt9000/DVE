@@ -254,7 +254,6 @@ class IJBB(Dataset):
             ]
             self.im_list = [x for x in self.im_list if Path(x).name in prototype_list]
 
-        # Move head up a bit
         normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769],
                                          std=[0.2599, 0.2371, 0.2323])
         self.initial_transforms = transforms.Compose([

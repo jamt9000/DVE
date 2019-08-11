@@ -1,13 +1,13 @@
 {
     "n_gpu": 1,
-    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-smallnet-3d/2019-08-10_12-50-52/checkpoint-epoch50.pth",
+    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-smallnet-16d/TODO/checkpoint-epoch50.pth",
     "batch_size": 32,
     "cache_descriptors": true,
     "keypoint_regressor_upsample": false,
     "arch": {
         "type": "SmallNet",
         "args": {
-            "num_output_channels": 3
+            "num_output_channels": 16
         }
     },
     "dataset": {

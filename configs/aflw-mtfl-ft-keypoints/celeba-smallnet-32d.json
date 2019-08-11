@@ -1,6 +1,6 @@
 {
     "n_gpu": 1,
-    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-smallnet-32d-dve/2019-08-10_12-51-01/checkpoint-epoch50.pth",
+    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-smallnet-32d/TODO/checkpoint-epoch50.pth",
     "batch_size": 32,
     "cache_descriptors": true,
     "keypoint_regressor_upsample": false,
@@ -39,7 +39,7 @@
             "amsgrad": true
         }
     },
-    "loss": "dense_correlation_loss_dve",
+    "loss": "dense_correlation_loss",
     "loss_args": {
         "alpha": 10.0
     },

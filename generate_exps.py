@@ -6,7 +6,8 @@ from pathlib import Path
 from collections import OrderedDict
 
 
-def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_path):
+def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_path,
+                     target):
     with open(base_config, "r") as f:
         base = json.load(f)
 
@@ -30,7 +31,13 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
         hparam_vals = [x for x in grid.values()]
         grid_vals = list(itertools.product(*hparam_vals))
         hparams = list(grid.keys())
-        epoch = ckpts[model_name]["epoch"]
+
+        if "-ft-keypoints" in target:
+            prefix = target.replace("-keypoints", "")
+            ckpt_name = f"{prefix}-{model_name}"
+        else:
+            ckpt_name = model_name
+        epoch = ckpts[ckpt_name]["epoch"]
 
         for cfg_vals in grid_vals:
             # dest_name = Path(base_config).stem
@@ -49,8 +56,8 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
                 else:
                     raise ValueError(f"unknown hparam: {hparam}")
             ckpt = f"checkpoint-epoch{epoch}.pth"
-            timestamp = ckpts[model_name]["timestamp"]
-            ckpt_path = Path("data/saved/models") / model_name / timestamp / ckpt
+            timestamp = ckpts[ckpt_name]["timestamp"]
+            ckpt_path = Path("data/saved/models") / ckpt_name / timestamp / ckpt
             config["arch"]["type"] = model_family[model_type]["name"]
             config["arch"]["args"]["num_output_channels"] = embedding_dim
             config["dataset"]["args"].update(preproc_kwargs)
@@ -110,10 +117,6 @@ if __name__ == "__main__":
         "celeba-hourglass-64d-dve",
     ]
 
-    if "-ft-keypoints" in args.target:
-        prefix = args.target.replace("-keypoints", "")
-        pretrained_embeddings = [f"{prefix}-{x}" for x in pretrained_embeddings]
-
     generate_configs(
         base_config=base_config_path,
         embeddings=pretrained_embeddings,
@@ -121,4 +124,5 @@ if __name__ == "__main__":
         refresh=args.refresh,
         dest_dir=dest_config_dir,
         grid=grid_args,
+        target=args.target,
     )
