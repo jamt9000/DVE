@@ -1,5 +1,6 @@
 [
     "celeba-smallnet-16d-dve",
     "celeba-smallnet-32d-dve",
-    "celeba-smallnet-64d-dve"
+    "celeba-smallnet-64d-dve",
+    "aflw-ft-celeba-smallnet-16d"
 ]

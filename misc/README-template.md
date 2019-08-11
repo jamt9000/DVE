@@ -66,6 +66,11 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 **AFLW landmark regression**
 
+To compare with prior work, we evaluate the learned embeddings on AFLW under two settings: with and without finetuning the embedding on the AFLW dataset (without annotations).
+
+
+*Without finetuning*
+
 | Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-keypoints-celeba-smallnet-3d.log}}) |
@@ -77,6 +82,20 @@ We provide pretrained models for each dataset to reproduce the results reported 
 |  32 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-32d-dve.log}}) |
 |  64 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-64d-dve.log}}) |
 |  64 | hourglass | :heavy_check_mark: | {{aflw-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{aflw-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{aflw-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{aflw-keypoints-celeba-hourglass-64d-dve.log}}) |
+
+*With finetuning*
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-3d.log}}) |
+|  16 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-ft-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-16d.log}}) |
+|  32 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-32d.iod}}  | [config]({{aflw-ft-keypoints-celeba-smallnet-32d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-32d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-32d.log}}) |
+|  64 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-64d.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-64d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-64d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-64d.log}}) |
+|  3 | smallnet | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-3d-dve.log}}) |
+|  16 | smallnet | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-16d-dve.log}}) |
+|  32 | smallnet | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-32d-dve.log}}) |
+|  64 | smallnet | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.log}}) |
+|  64 | hourglass | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-hourglass-64d-dve.log}}) |
 
 
 **300-W landmark regression**
