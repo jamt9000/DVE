@@ -32,7 +32,7 @@
     "aflw-mtfl-keypoints-celeba-smallnet-3d": {"timestamp": "2019-08-11_13-59-41", "epoch": 300},
     "aflw-mtfl-keypoints-celeba-smallnet-16d": {"timestamp": "2019-08-11_13-59-36", "epoch": 300},
     "aflw-mtfl-keypoints-celeba-smallnet-32d": {"timestamp": "2019-08-11_14-00-21", "epoch": 300},
-    "aflw-mtfl-keypoints-celeba-smallnet-64d": {"timestamp": "2019-08-11_14-00-35", "epoch": 300},
+    "aflw-mtfl-keypoints-celeba-smallnet-64d": {"timestamp": "TODO", "epoch": 300},
     "aflw-mtfl-keypoints-celeba-smallnet-3d-dve": {"timestamp": "2019-08-11_14-02-25", "epoch": 300},
     "aflw-mtfl-keypoints-celeba-smallnet-16d-dve": {"timestamp": "2019-08-11_14-02-40", "epoch": 300},
     "aflw-mtfl-keypoints-celeba-smallnet-32d-dve": {"timestamp": "2019-08-11_14-02-56", "epoch": 300},
