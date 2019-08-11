@@ -20,9 +20,11 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
 
     for model_name in embeddings:
 
-        # model naming convention: <dataset>-<model_type>-<embedding-dim>
+        # model naming convention: <dataset-tokens>-<model_type>-<embedding-dim>-<dve>
         tokens = model_name.split("-")
-        model_type, embedding_dim = tokens[1], int(tokens[2][:-1])
+        if tokens[-1] == "dve":
+            tokens.pop()  # remove dve flag if present to use relative negative offsets
+        model_type, embedding_dim = tokens[-2], int(tokens[-1][:-1])
         preproc_kwargs = model_family[model_type]["preproc"]
         
         hparam_vals = [x for x in grid.values()]
@@ -74,15 +76,16 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--target', default="mafl-keypoints",
-                        choices=["mafl-keypoints", "aflw-keypoints",
-                                 "aflw-ft", "aflw-mtfl-ft"])
     parser.add_argument("--ckpts_path", default="misc/server-checkpoints.json")
     parser.add_argument('--bs', default="32")
     parser.add_argument('--smax', default="100")
     parser.add_argument('--lr', default="1E-3")
     parser.add_argument('--upsample', default="0")
     parser.add_argument('--refresh', action="store_true")
+    parser.add_argument('--target', default="mafl-keypoints",
+                        choices=["mafl-keypoints", "aflw-keypoints", "aflw-ft",
+                                 "aflw-mtfl-ft", "aflw-ft-keypoints",
+                                 "aflw-mtfl-ft-keypoints"])
     args = parser.parse_args()
 
     grid_args = OrderedDict()
@@ -106,6 +109,10 @@ if __name__ == "__main__":
         "celeba-smallnet-64d-dve",
         "celeba-hourglass-64d-dve",
     ]
+
+    if "-ft-keypoints" in args.target:
+        prefix = args.target.replace("-keypoints", "")
+        pretrained_embeddings = [f"{prefix}-{x}" for x in pretrained_embeddings]
 
     generate_configs(
         base_config=base_config_path,
