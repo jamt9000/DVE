@@ -843,7 +843,7 @@ class ThreeHundredW(Dataset):
                     kp = kp.split()[5:-1]
                     kp = [float(k) for k in kp]
                     assert len(kp) == 68 * 2
-                    kp = np.array(kp).reshape(-1, 2)
+                    kp = np.array(kp).astype(np.float32).reshape(-1, 2)
                     self.keypoints.append(kp)
 
         if train:
@@ -857,6 +857,10 @@ class ThreeHundredW(Dataset):
 
         self.initial_transforms = transforms.Compose([transforms.Resize(self.imwidth)])
         self.transforms = transforms.Compose(augmentations + [normalize])
+
+        # print("HARDCODING DEBGGER")
+        # self.filenames = self.filenames[:100]
+        # self.keypoints = self.keypoints[:100]
 
     def __len__(self):
         return len(self.filenames)
