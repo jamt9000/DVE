@@ -1,21 +1,21 @@
 {
     "n_gpu": 1,
-    "finetune_from": "data/saved/models/celeba-smallnet-3d/2019-08-04_17-55-48/checkpoint-epoch100.pth",
+    "finetune_from": "data/saved/models/300w-ft-celeba-hourglass-64d-dve/TODO/checkpoint-epoch50.pth",
     "batch_size": 32,
     "cache_descriptors": true,
     "keypoint_regressor_upsample": false,
     "arch": {
-        "type": "SmallNet",
+        "type": "HourglassNet",
         "args": {
-            "num_output_channels": 3
+            "num_output_channels": 64
         }
     },
     "dataset": {
         "type": "ThreeHundredW",
         "args": {
             "root": "data/300w/300w",
-            "imwidth": 100,
-            "crop": 15,
+            "imwidth": 136,
+            "crop": 20,
             "use_keypoints": true,
             "do_augmentations": false
         }
