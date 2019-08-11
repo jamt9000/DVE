@@ -301,11 +301,11 @@ class AFLW(CelebABase):
         self.keypoints = keypoints.astype(np.float32)
         self.subdir = os.path.join(root, 'output')
 
-        print("LIMITING DATA FOR DEBGGING")
-        self.filenames = self.filenames[:1000]
-        self.keypoints = self.keypoints[:1000]
-        sizes = sizes[:1000]
-        self.sizes = sizes
+        # print("LIMITING DATA FOR DEBGGING")
+        # self.filenames = self.filenames[:1000]
+        # self.keypoints = self.keypoints[:1000]
+        # sizes = sizes[:1000]
+        # self.sizes = sizes
 
         # check raw
         # im_path = pjoin(self.subdir, self.filenames[0])
