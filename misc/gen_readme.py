@@ -49,6 +49,9 @@ def sync_files(experiments, save_dir, webserver, web_dir):
                 print(f"running command {' '.join(rsync_args)}")
                 subprocess.call(rsync_args)
 
+    # peace and love
+    subprocess.call(["ssh", webserver, "chmod 777 -R", str(Path(web_dir).expanduser())])
+
 
 def parse_log(log_path):
     with open(log_path, "r") as f:
