@@ -40,7 +40,7 @@ The goal of these initial experiments is to demonstrate that DVE allows models t
 
 **MAFL landmark regression**
 
-MAFL is a dataset of over 20k faces which includes landmark annotations.  The dataset is partitioned into 19k training images and 1k testing images.
+[MAFL](https://github.com/zhzhanp/TCDCN-face-alignment/tree/master/MAFL) is a dataset of 20k faces which includes landmark annotations.  The dataset is partitioned into 19k training images and 1k testing images.
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
 | :-----------: | :-: | :----: | :----: |
@@ -53,7 +53,6 @@ MAFL is a dataset of over 20k faces which includes landmark annotations.  The da
 **300-W landmark regression**
 
 The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face (with the split introduced [this CVPR 2014 paper](http://www.jiansun.org/papers/CVPR14_FaceAlignment.pdf)).  The dataset is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
-
 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
@@ -388,3 +387,4 @@ We would like to thank Almut Sophia Koepke for her help.  The project structure 
 [8] Jakab, T., Gupta, A., Bilen, H., & Vedaldi, A. Unsupervised learning of object landmarks through conditional image generation, NeurIPS 2018
 
 [9] Olivia Wiles, A. Sophia Koepke and Andrew Zisserman. "Self-supervised learning of a facial attribute embedding from video" , BMVC 2018
+
