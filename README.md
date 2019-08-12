@@ -208,6 +208,14 @@ Then re-evaluate the performance of a learned landmark regressor:
 |  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  64 | hourglass | :heavy_check_mark: | 4.65 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-keypoints-celeba-hourglass-64d-dve/2019-08-11_18-42-44/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-keypoints-celeba-hourglass-64d-dve/2019-08-11_18-42-44/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-keypoints-celeba-hourglass-64d-dve/2019-08-11_18-42-44/info.log) |
 
+### Ablation Studies
+
+We can study the effect of the DVE method by removing it during training and assessing the resulting embeddings for landmark regression.  The ablations are performed on the SmallNet (because it's much faster to train).
+
+| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| ------------- | :--:  | :-: | :----: | :----: |
+|  3 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | 4.17/4.17 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-3d-dve/2019-08-11_08-33-22/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-3d-dve/2019-08-11_08-33-22/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-3d-dve/2019-08-11_08-33-22/info.log) /[config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-3d-dve/2019-08-11_08-33-22/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-3d-dve/2019-08-11_08-33-22/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-3d-dve/2019-08-11_08-33-22/info.log) |
+|
 
 ### Notes
 
