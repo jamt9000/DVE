@@ -225,7 +225,8 @@ For each dataset used in the paper, we provide a preprocessed copy to allow the 
 
 | Dataset   | Details and links | Archive size | sha1sum |
 |:-------------:|:-----:|:----:|:---:|
-| CelebA | [README](misc/datasets/celeba/README.md)| TODO | <sup><sub>TODO</sub></sup>p> |
+| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| TODO | <sup><sub>TODO</sub></sup>p> |
+| 300w | [README](misc/datasets/300w/README.md)| TODO | <sup><sub>TODO</sub></sup>p> |
 
 
 

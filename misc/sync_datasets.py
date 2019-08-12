@@ -18,7 +18,7 @@ def upload_to_server(web_dir, dataset, webserver, root_feat_dir, refresh):
     server_dir = Path(web_dir) / "data" / "datasets"
     subprocess.call(["ssh", webserver, "mkdir -p", str(server_dir)])
     compressed_file = f"{dataset}.tar.gz"
-    compressed_path = Path("data") / dataset / "webserver-files" / compressed_file
+    compressed_path = Path("data") / "webserver-files" / dataset / compressed_file
     if not compressed_path.parent.exists():
         compressed_path.parent.mkdir(exist_ok=True, parents=True)
     tar_include = Path("misc") / "datasets" / dataset.lower() / "tar_include.txt"
@@ -32,7 +32,7 @@ def upload_to_server(web_dir, dataset, webserver, root_feat_dir, refresh):
         # TODO(Samuel): Figure out why using subprocess introduces tarring problems
         os.system(compression_args)
         duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - tic))
-        print(f"Finished compressing features in {duration}")
+        print(f"Finished compressing dataset in {duration}")
     else:
         print(f"Found existing compressed file at {compressed_path}, skipping....")
 
@@ -41,6 +41,7 @@ def upload_to_server(web_dir, dataset, webserver, root_feat_dir, refresh):
     if not refresh["server"]:
         rsync_args.insert(1, "--ignore-existing")
     tic = time.time()
+    import ipdb; ipdb.set_trace()
     subprocess.call(rsync_args)
     duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - tic))
     print(f"Finished transferring features in {duration}")
@@ -73,7 +74,8 @@ def fetch_from_server(dataset, root_url, refresh, purge_tar_file):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", choices=["celeba", "aflw", "aflw-mtfl", "300w"])
+    parser.add_argument("--dataset", required=True,
+                        choices=["celeba", "aflw", "aflw-mtfl", "300w"])
     parser.add_argument("--action", default="fetch", choices=["upload", "fetch"])
     parser.add_argument("--webserver", default="login.robots.ox.ac.uk")
     parser.add_argument("--refresh_compression", action="store_true")
