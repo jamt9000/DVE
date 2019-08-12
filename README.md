@@ -32,12 +32,11 @@ The goal of these initial experiments is to demonstrate that DVE allows models t
 |  64 | hourglass | 0.93 | 2.37 | 12.6M | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-hourglass-64d-dve/0618_103501/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-hourglass-64d-dve/0618_103501/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-hourglass-64d-dve/0618_103501/info.log) |
 
 
-**Notes**: The error metrics for the `hourglass` model are included for completeness, but are not exactly comparable to the performance of the smallnet due to very slight differences in the cropping ratios used by the two architectures (0.3 for smallnet, 0.294 for Hourglass).  The numbers are normalised to account for the difference in input size, so they are approximately comparable.  Some of the logs are generated from existing logfiles that were created with a slightly older version of the codebase (these differences only affect the log format, rather than the training code itself - the log generator can be found [here](misc/update_deprecated_exps.py).) TODO(Samuel): Explain why IOD isn't used as a metric here.
-
+**Notes**: The error metrics for the `hourglass` model, which are included for completeness, are approximately (but are not exactly) comparable to the metrics for the `smallnet` due to very slight differences in the cropping ratios used by the two architectures (0.3 for smallnet, 0.294 for Hourglass).
 
 ### Landmark Regression
 
-**Protocol Description**: To transform the learned dense embeddings into landmark predictions, we use the same approach as [3].  For each target dataset, we freeze the dense embeddings and learn to peg onto them a collection of 50 "virtual" keypoints via a spatial softmax .  These virtual keypoints are then used to regress the target keypoints of the dataset.
+**Protocol Description**: To transform the learned dense embeddings into landmark predictions, we use the same approach as [3].  For each target dataset, we freeze the dense embeddings and learn to peg onto them a collection of 50 "virtual" keypoints via a spatial softmax.  These virtual keypoints are then used to regress the target keypoints of the dataset.  
 
 **MAFL landmark regression**
 
@@ -53,7 +52,7 @@ MAFL is a dataset of over 20k faces which includes landmark annotations.  The da
 
 **300-W landmark regression**
 
-The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
+The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
@@ -67,10 +66,12 @@ The 300-W This dataset contains 3,148 training images and 689 testing images wit
 
 **AFLW landmark regression**
 
-Next we evaluate the embeddings for the task of learning to regress landmarks on AFLW. There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (here we simply call this AFLW). The second is the MTFL train/test partition of AFLW used in the works of [2], [3] (we call this dataset split AFLW-MTFL).  
+Next we evaluate the embeddings for the task of learning to regress landmarks on AFLW. There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (here we call this AFLW-recrop). The second is the MTFL train/test partition of AFLW used in the works of [2], [3] (we call this dataset split AFLW-MTFL).  
 
 
-Additionally, in the tables immediately below, each embedding is further fine-tuned on the AFLW/AFLW-MTFL training sets (without annotations), as was done in [2], [3], [7], [8].   The rationale for this is that (i) it does not require any additional superviserion; (ii) it allows the model to adjust for the differences in the face crops provided by the detector.  To give an idea of how sensitive the method is to this step, we also report performance without finetuning in the ablation studies below.
+Additionally, in the tables immediately below, each embedding is further fine-tuned on the AFLW/AFLW-MTFL training sets (without annotations), as was done in [2], [3], [7], [8].  The rationale for this is that (i) it does not require any additional superviserion; (ii) it allows the model to adjust for the differences in the face crops provided by the detector.  To give an idea of how sensitive the method is to this step, we also report performance without finetuning in the ablation studies below.
+
+*AFLW-recrop landmark regression*
 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
@@ -82,9 +83,9 @@ Additionally, in the tables immediately below, each embedding is further fine-tu
 |  64 | hourglass | 6.54 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-52/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-52/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-52/info.log) |
 
 
-**AFLW-MTFL landmark regression**
+*AFLW-MTFL landmark regression*
 
-AFLW-MTFLis a dataset of faces which also includes landmark annotations. We use the P = 5 landmark test split (10,122 training images and 2,991 test images). The dataset can be obtained [here](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) and is described in this [2011 ICCV workshop paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.2988&rep=rep1&type=pdf). This dataset is implemented in the `AFLW` class in [data_loaders.py](data_loader/data_loaders.py).
+AFLW-MTFLis a dataset of faces which also includes landmark annotations. We use the P = 5 landmark test split (10,122 training images and 2,991 test images). The dataset can be obtained [here](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) and is described in this [2011 ICCV workshop paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.2988&rep=rep1&type=pdf). 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
 | :-----------: | :--: | :----: | :----: |
@@ -95,9 +96,9 @@ AFLW-MTFLis a dataset of faces which also includes landmark annotations. We use 
 |  64 | hourglass | 7.53 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-59/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-59/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-59/info.log) |
 
 
-### Ablation Studies
+## Ablation Studies
 
-We can study the effect of the DVE method by removing it during training and assessing the resulting embeddings for landmark regression.  The ablations are performed on the SmallNet (because it's much faster to train).
+We can study the effect of the DVE method by removing it during training and assessing the resulting embeddings for landmark regression.  The ablations are performed on the SmallNet (it's much faster to train).
 
 | Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :--:  | :-: | :----: | :----: | :----: |
@@ -248,8 +249,17 @@ Then re-evaluate the performance of a learned landmark regressor:
 
 ### Notes
 
-TODO(Samuuel): Explain why some logs are v. slow compared to others, why some are generated.
-TODO(Samuuel): Explain the definition of Inter-ocular distance on each dataset.
+TODO(Samuuel): Explain why some logs are v. slow compared to others, why some are generated. 
+TODO(Samuuel): Explain the definition of Inter-ocular distance on each dataset.  
+300w can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and   
+For 300w, we compute the inter-ocular distance according to the definition given by the dataset organizers [here](https://ibug.doc.ic.ac.uk/resources/300-W/).
+TODO(Samuuel): `AFLW-recrop` is simply referred to as `AFLW` in the codebase.  
+The regressor is learned for a fixed number of epochs for all models with the Adam solver.
+The AFLW-recrop dataset is implemented in the `AFLW` class in [data_loaders.py](data_loader/data_loaders.py).
+
+**Explain logs:** Some of the logs are generated from existing logfiles that were created with a slightly older version of the codebase (these differences only affect the log format, rather than the training code itself - the log generator can be found [here](misc/update_deprecated_exps.py).) TODO(Samuel): Explain why IOD isn't used as a metric here.
+
+
 
 
 ### Evaluating a pretrained embedding
