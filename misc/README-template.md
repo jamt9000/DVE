@@ -150,7 +150,7 @@ We see that without DVE, the learned embedding performs reasonably when the dime
 |  64 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-64d.iod}}/{{aflw-ft-keypoints-celeba-smallnet-64d-dve.iod}} | ([config]({{aflw-ft-keypoints-celeba-smallnet-64d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-64d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-64d.log}})) / ([config]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.log}})) |
 
 
-Next we investigate how sensitive our approach is to finetuning on the target dataset (this is done for the AFLW-recrop and AFLW-mtfl landmark regressions).   We do two sets of experiments.  First we, remove the finetuning for these experiments and re-evaluate on the landmark regression tasks.  Second, we add in a finetuning step for a different dataset, 300w, to see how the method is affected on a different benchmark. Note that all models for these experiments use DVE.
+Next we investigate how sensitive our approach is to finetuning on the target dataset (this is done for the AFLW-recrop and AFLW-mtfl landmark regressions).   We do two sets of experiments.  First we, remove the finetuning for these experiments and re-evaluate on the landmark regression tasks.  Second, we add in a finetuning step for a different dataset, 300w, to see how the method is affected on a different benchmark. Note that all models for these experiments use DVE.  We see that for the AFLW datasets, it makes a reasonable difference to performance.  However, for 300w, particularly for stronger models, it adds little benefit (for this reason we do not use finetuning on 300w for the results reported in the paper).
 
 **Finetuning Ablation: AFLW-mtfl landmark regression**
 
@@ -184,6 +184,19 @@ Next we investigate how sensitive our approach is to finetuning on the target da
 |  64 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | {{300w-keypoints-celeba-smallnet-64d-dve.iod}}/{{300w-ft-keypoints-celeba-smallnet-64d-dve.iod}} | ([config]({{300w-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{300w-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{300w-keypoints-celeba-smallnet-64d-dve.log}})) / ([config]({{300w-ft-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-64d-dve.log}})) |
 |  64 | hourglass | :heavy_multiplication_x: / :heavy_check_mark: | {{300w-keypoints-celeba-hourglass-64d-dve.iod}}/{{300w-ft-keypoints-celeba-hourglass-64d-dve.iod}} | ([config]({{300w-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{300w-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{300w-keypoints-celeba-hourglass-64d-dve.log}})) / ([config]({{300w-ft-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{300w-ft-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{300w-ft-keypoints-celeba-hourglass-64d-dve.log}})) |
 
+
+To enable the finetuning experiments to be reproduced, the training logs for each of the three datasets are provided below, together with their performance on the matching task.
+
+**Finetuning on AFLW-recrop**
+
+| Embed. Dim | Model | Same Identity | Different Identity | Links | 
+| :-----------: | :-: | :----: | :----: | :----: |
+|  3 | smallnet | {{aflw-ft-celeba-smallnet-3d-dve.same-identity}} | {{aflw-ft-celeba-smallnet-3d-dve.different-identity}} | [config]({{aflw-ft-celeba-smallnet-3d-dve.config}}), [model]({{aflw-ft-celeba-smallnet-3d-dve.model}}), [log]({{aflw-ft-celeba-smallnet-3d-dve.log}}) |
+|  16 | smallnet | {{aflw-ft-celeba-smallnet-16d-dve.same-identity}} | {{aflw-ft-celeba-smallnet-16d-dve.different-identity}} | [config]({{aflw-ft-celeba-smallnet-16d-dve.config}}), [model]({{aflw-ft-celeba-smallnet-16d-dve.model}}), [log]({{aflw-ft-celeba-smallnet-16d-dve.log}}) |
+|  32 | smallnet | {{aflw-ft-celeba-smallnet-32d-dve.same-identity}} | {{aflw-ft-celeba-smallnet-32d-dve.different-identity}} | [config]({{aflw-ft-celeba-smallnet-32d-dve.config}}), [model]({{aflw-ft-celeba-smallnet-32d-dve.model}}), [log]({{aflw-ft-celeba-smallnet-32d-dve.log}}) |
+|  64 | smallnet | {{aflw-ft-celeba-smallnet-64d-dve.same-identity}} | {{aflw-ft-celeba-smallnet-64d-dve.different-identity}} | [config]({{aflw-ft-celeba-smallnet-64d-dve.config}}), [model]({{aflw-ft-celeba-smallnet-64d-dve.model}}), [log]({{aflw-ft-celeba-smallnet-64d-dve.log}}) |
+|  64 | hourglass | {{aflw-ft-celeba-hourglass-64d-dve.same-identity}} | {{aflw-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{aflw-ft-celeba-hourglass-64d-dve.config}}), [model]({{aflw-ft-celeba-hourglass-64d-dve.model}}), [log]({{aflw-ft-celeba-hourglass-64d-dve.log}}) |
+
 *Without finetuning on AFLW*
 
 | Embed. Dim | Model | DVE | Error (%IOD) | Links | 
@@ -202,17 +215,6 @@ Next we investigate how sensitive our approach is to finetuning on the target da
 
 First we fine-tune the embeddings for a fixed number of epochs:
 
-| Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{aflw-ft-celeba-smallnet-3d.same-identity}} | {{aflw-ft-celeba-smallnet-3d.different-identity}} | [config]({{aflw-ft-celeba-smallnet-3d.config}}), [model]({{aflw-ft-celeba-smallnet-3d.model}}), [log]({{aflw-ft-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{aflw-ft-celeba-smallnet-16d.same-identity}} | {{aflw-ft-celeba-smallnet-16d.different-identity}} | [config]({{aflw-ft-celeba-smallnet-16d.config}}), [model]({{aflw-ft-celeba-smallnet-16d.model}}), [log]({{aflw-ft-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{aflw-ft-celeba-smallnet-32d.same-identity}} | {{aflw-ft-celeba-smallnet-32d.different-identity}} | [config]({{aflw-ft-celeba-smallnet-32d.config}}), [model]({{aflw-ft-celeba-smallnet-32d.model}}), [log]({{aflw-ft-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{aflw-ft-celeba-smallnet-64d.same-identity}} | {{aflw-ft-celeba-smallnet-64d.different-identity}} | [config]({{aflw-ft-celeba-smallnet-64d.config}}), [model]({{aflw-ft-celeba-smallnet-64d.model}}), [log]({{aflw-ft-celeba-smallnet-64d.log}}) |
-|  3 | smallnet | :heavy_check_mark: | {{aflw-ft-celeba-smallnet-3d-dve.same-identity}} | {{aflw-ft-celeba-smallnet-3d-dve.different-identity}} | [config]({{aflw-ft-celeba-smallnet-3d-dve.config}}), [model]({{aflw-ft-celeba-smallnet-3d-dve.model}}), [log]({{aflw-ft-celeba-smallnet-3d-dve.log}}) |
-|  16 | smallnet | :heavy_check_mark: | {{aflw-ft-celeba-smallnet-16d-dve.same-identity}} | {{aflw-ft-celeba-smallnet-16d-dve.different-identity}} | [config]({{aflw-ft-celeba-smallnet-16d-dve.config}}), [model]({{aflw-ft-celeba-smallnet-16d-dve.model}}), [log]({{aflw-ft-celeba-smallnet-16d-dve.log}}) |
-|  32 | smallnet | :heavy_check_mark: | {{aflw-ft-celeba-smallnet-32d-dve.same-identity}} | {{aflw-ft-celeba-smallnet-32d-dve.different-identity}} | [config]({{aflw-ft-celeba-smallnet-32d-dve.config}}), [model]({{aflw-ft-celeba-smallnet-32d-dve.model}}), [log]({{aflw-ft-celeba-smallnet-32d-dve.log}}) |
-|  64 | smallnet | :heavy_check_mark: | {{aflw-ft-celeba-smallnet-64d-dve.same-identity}} | {{aflw-ft-celeba-smallnet-64d-dve.different-identity}} | [config]({{aflw-ft-celeba-smallnet-64d-dve.config}}), [model]({{aflw-ft-celeba-smallnet-64d-dve.model}}), [log]({{aflw-ft-celeba-smallnet-64d-dve.log}}) |
-|  64 | hourglass | :heavy_check_mark: | {{aflw-ft-celeba-hourglass-64d-dve.same-identity}} | {{aflw-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{aflw-ft-celeba-hourglass-64d-dve.config}}), [model]({{aflw-ft-celeba-hourglass-64d-dve.model}}), [log]({{aflw-ft-celeba-hourglass-64d-dve.log}}) |
 
 
 Then re-evaluate the performance of a learned landmark regressor:
