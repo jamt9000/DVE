@@ -52,7 +52,7 @@ MAFL is a dataset of over 20k faces which includes landmark annotations.  The da
 
 **300-W landmark regression**
 
-The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
+The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face (with the split introduced [this CVPR 2014 paper](http://www.jiansun.org/papers/CVPR14_FaceAlignment.pdf)).  The dataset is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
