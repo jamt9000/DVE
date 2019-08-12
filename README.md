@@ -31,7 +31,7 @@ In this work we use the following datasets:
 We provide pretrained models for each dataset to reproduce the results reported in the paper [1]. Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set.  The goal of these experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  Most of the embeddings are learned with the architecture described by [3].  We also learn one larger model using the hourglass architecture described in [7] (their code is available [here](https://github.com/YutingZhang/lmdis-rep)).
 
 | Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
-| ------------- | :--:  | :-: | :----: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: | :----: |
 |  3 | smallnet | :heavy_check_mark: | 1.36 | 3.03 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d-dve/2019-08-08_17-54-21/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d-dve/2019-08-08_17-54-21/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-3d-dve/2019-08-08_17-54-21/info.log) |
 |  16 | smallnet | :heavy_check_mark: | 1.28 | 2.79 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d-dve/2019-08-02_06-20-13/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d-dve/2019-08-02_06-20-13/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-16d-dve/2019-08-02_06-20-13/info.log) |
 |  32 | smallnet | :heavy_check_mark: | 1.29 | 2.79 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-32d-dve/2019-08-02_06-19-59/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-32d-dve/2019-08-02_06-19-59/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-32d-dve/2019-08-02_06-19-59/info.log) |
@@ -49,7 +49,7 @@ We provide pretrained models for each dataset to reproduce the results reported 
 **MAFL landmark regression**
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
-| ------------- | :-: | :----: | :----: |
+| :-----------: | :-: | :----: | :----: |
 |  3 | smallnet | 4.17 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-3d-dve/2019-08-11_08-33-22/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-3d-dve/2019-08-11_08-33-22/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-3d-dve/2019-08-11_08-33-22/info.log) |
 |  16 | smallnet | 3.97 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-16d-dve/2019-08-11_08-29-31/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-16d-dve/2019-08-11_08-29-31/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-16d-dve/2019-08-11_08-29-31/info.log) |
 |  32 | smallnet | 3.82 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-32d-dve/2019-08-11_08-29-53/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/mafl-keypoints-celeba-smallnet-32d-dve/2019-08-11_08-29-53/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/mafl-keypoints-celeba-smallnet-32d-dve/2019-08-11_08-29-53/info.log) |
@@ -64,7 +64,7 @@ To compare with prior work, we evaluate the learned embeddings on AFLW under two
 *Without finetuning on AFLW*
 
 | Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| ------------- | :--:  | :-: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | 9.69 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-3d/2019-08-10_07-54-09/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-3d/2019-08-10_07-54-09/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-smallnet-3d/2019-08-10_07-54-09/info.log) |
 |  16 | smallnet | :heavy_multiplication_x: | 11.05  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-16d/2019-08-10_07-52-46/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-16d/2019-08-10_07-52-46/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-smallnet-16d/2019-08-10_07-52-46/info.log) |
 |  32 | smallnet | :heavy_multiplication_x: | 11.50  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-32d/2019-08-10_09-19-46/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-keypoints-celeba-smallnet-32d/2019-08-10_09-19-46/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-keypoints-celeba-smallnet-32d/2019-08-10_09-19-46/info.log) |
@@ -80,7 +80,7 @@ To compare with prior work, we evaluate the learned embeddings on AFLW under two
 First we fine-tune the embeddings for a fixed number of epochs:
 
 | Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
-| ------------- | :--:  | :-: | :----: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | 3.80 | 4.43 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-3d/2019-08-10_12-50-40/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-3d/2019-08-10_12-50-40/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-3d/2019-08-10_12-50-40/info.log) |
 |  16 | smallnet | :heavy_multiplication_x: | 1.77 | 9.42 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-16d/2019-08-10_12-50-41/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-16d/2019-08-10_12-50-41/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-16d/2019-08-10_12-50-41/info.log) |
 |  32 | smallnet | :heavy_multiplication_x: | 1.57 | 9.80 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-32d/2019-08-10_12-50-43/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-32d/2019-08-10_12-50-43/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-32d/2019-08-10_12-50-43/info.log) |
@@ -95,7 +95,7 @@ First we fine-tune the embeddings for a fixed number of epochs:
 Then re-evaluate the performance of a learned landmark regressor:
 
 | Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| ------------- | :--:  | :-: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | 10.14 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-3d/2019-08-11_07-56-34/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-3d/2019-08-11_07-56-34/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-keypoints-celeba-smallnet-3d/2019-08-11_07-56-34/info.log) |
 |  16 | smallnet | :heavy_multiplication_x: | 10.73  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-16d/2019-08-11_07-56-41/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-16d/2019-08-11_07-56-41/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-keypoints-celeba-smallnet-16d/2019-08-11_07-56-41/info.log) |
 |  32 | smallnet | :heavy_multiplication_x: | 11.05  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-32d/2019-08-11_07-56-46/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-32d/2019-08-11_07-56-46/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-keypoints-celeba-smallnet-32d/2019-08-11_07-56-46/info.log) |
@@ -111,7 +111,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 *Without finetuning on AFLW-MTFL*
 
 | Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| ------------- | :--:  | :-: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | 11.71 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-3d/2019-08-11_13-59-41/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-3d/2019-08-11_13-59-41/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-3d/2019-08-11_13-59-41/info.log) |
 |  16 | smallnet | :heavy_multiplication_x: | 13.86  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-16d/2019-08-11_13-59-36/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-16d/2019-08-11_13-59-36/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-16d/2019-08-11_13-59-36/info.log) |
 |  32 | smallnet | :heavy_multiplication_x: | 14.04  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-32d/2019-08-11_14-00-21/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-smallnet-32d/2019-08-11_14-00-21/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-smallnet-32d/2019-08-11_14-00-21/info.log) |
@@ -127,7 +127,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 First we fine-tune the embeddings for a fixed number of epochs:
 
 | Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
-| ------------- | :--:  | :-: | :----: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | 5.91 | 6.97 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-3d/2019-08-11_08-19-48/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-3d/2019-08-11_08-19-48/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-3d/2019-08-11_08-19-48/info.log) |
 |  16 | smallnet | :heavy_multiplication_x: | 1.63 | 9.68 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-16d/2019-08-11_08-19-50/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-16d/2019-08-11_08-19-50/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-16d/2019-08-11_08-19-50/info.log) |
 |  32 | smallnet | :heavy_multiplication_x: | 1.40 | 9.94 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-32d/2019-08-11_08-19-52/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-32d/2019-08-11_08-19-52/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-32d/2019-08-11_08-19-52/info.log) |
@@ -142,7 +142,7 @@ First we fine-tune the embeddings for a fixed number of epochs:
 Then re-evaluate the performance of a learned landmark regressor:
 
 | Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| ------------- | :--:  | :-: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | 10.99 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-3d/2019-08-11_18-42-45/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-3d/2019-08-11_18-42-45/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-smallnet-3d/2019-08-11_18-42-45/info.log) |
 |  16 | smallnet | :heavy_multiplication_x: | 12.22  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-16d/2019-08-11_18-43-03/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-16d/2019-08-11_18-43-03/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-smallnet-16d/2019-08-11_18-43-03/info.log) |
 |  32 | smallnet | :heavy_multiplication_x: | 12.60  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-32d/2019-08-11_18-43-09/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-32d/2019-08-11_18-43-09/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-smallnet-32d/2019-08-11_18-43-09/info.log) |
@@ -159,7 +159,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 *Without finetuning*
 
 | Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| ------------- | :--:  | :-: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | 8.23 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-3d/2019-08-11_14-50-45/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-3d/2019-08-11_14-50-45/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-3d/2019-08-11_14-50-45/info.log) |
 |  16 | smallnet | :heavy_multiplication_x: | 10.66  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-16d/2019-08-11_14-50-46/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-16d/2019-08-11_14-50-46/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-16d/2019-08-11_14-50-46/info.log) |
 |  32 | smallnet | :heavy_multiplication_x: | 10.33  | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-32d/2019-08-11_14-50-47/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-32d/2019-08-11_14-50-47/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-32d/2019-08-11_14-50-47/info.log) |
@@ -175,7 +175,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 First we fine-tune the embeddings for a fixed number of epochs:
 
 | Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
-| ------------- | :--:  | :-: | :----: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | 6.28 | 7.10 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-3d/2019-08-11_18-11-26/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-3d/2019-08-11_18-11-26/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-smallnet-3d/2019-08-11_18-11-26/info.log) |
 |  16 | smallnet | :heavy_multiplication_x: | 1.52 | 9.09 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-16d/2019-08-11_18-11-34/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-16d/2019-08-11_18-11-34/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-smallnet-16d/2019-08-11_18-11-34/info.log) |
 |  32 | smallnet | :heavy_multiplication_x: | 1.37 | 9.04 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-32d/2019-08-11_18-11-42/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-32d/2019-08-11_18-11-42/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-smallnet-32d/2019-08-11_18-11-42/info.log) |
@@ -189,7 +189,7 @@ First we fine-tune the embeddings for a fixed number of epochs:
 Then re-evaluate the performance of a learned landmark regressor:
 
 | Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| ------------- | :--:  | :-: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  16 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
 |  32 | smallnet | :heavy_multiplication_x: | TODO  | [config](TODO), [model](TODO), [log](TODO) |
