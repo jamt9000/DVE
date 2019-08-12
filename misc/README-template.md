@@ -8,7 +8,7 @@ This repo provides code for learning dense landmarks without supervision.  Our a
 
 **High level Overview:** The goal of this work is to learn a dense embedding Φ<sub>u</sub>(x) ∈ R<sup>d</sup> of image pixels without annotation. Our starting point was the *Dense Equivariant Labelling* approach of [3] (references follow at the end of the README), which similarly tackles the same problem, but is restricted to learning low-dimensional embeddings to achieve the key objective of generalisation *across different identities*.  The key focus of *Descriptor Vector Exchange* (DVE) is to address this dimensionality issue to enable the learning of more powerful, higher dimensional embeddings while still preserving their generalisation ability. To do so, we take inspiration from methods which enforce transitive/cyclic consistency constraints [4, 5, 6].
 
-The embedding is learned from pairs of images (x,x′) related by a known warp v = g(u). In the image above, on the left we show the approach used by [3], which directly matches embedding Φ<sub>u</sub>(x) from the left image to embeddings Φ<sub>v</sub>(x′) in the right image. On the right, *DVE* replaces Φ<sub>u</sub>(x) with its reconstruction Φˆ<sub>u</sub>(x|xα) obtained from the embeddings in a third auxiliary image xα (the correspondence with xα does not need to be known). This mechanism encourages the embeddings to act consistently across different instances, even when the dimensionality is increased (see the paper for more details).
+The embedding is learned from pairs of images (x,x′) related by a known warp v = g(u). In the image above, on the left we show the approach used by [3], which directly matches embedding Φ<sub>u</sub>(x) from the left image to embeddings Φ<sub>v</sub>(x′) in the right image to generate a loss. On the right, *DVE* replaces Φ<sub>u</sub>(x) with its reconstruction Φˆ<sub>u</sub>(x|xα) obtained from the embeddings in a third auxiliary image xα (the correspondence with xα does not need to be known). This mechanism encourages the embeddings to act consistently across different instances, even when the dimensionality is increased (see the paper for more details).
 
 
 **Requirements:** The code assumes PyTorch 1.1 and Python 3.7 (other versions may work, but have not been tested).  See the section on dependencies towards the end of this file for specific package requirements.
@@ -20,7 +20,7 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set (described in more detail below). We use two architectures: the *smallnet* model of [3] and the more powerful *hourglass* model used in [7].
 
-The goal of these experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  By contrast, this does not occur when DVE is removed (see the ablations below).
+The goal of these initial experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  By contrast, this does not occur when DVE is removed (see the ablation section below).
 
 
 | Embed. Dim | Model | Same Identity | Different Identity | Params | Links |  
