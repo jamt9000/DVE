@@ -77,6 +77,9 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
                 model_name_ = f"{config['restrict_annos']}-annos-{model_name}"
             else:
                 model_name_ = model_name
+            if len(grid["lr"]) > 1:
+                model_name_ = f"{model_name_}-lr{config['optimizer']['args']['lr']}"
+            
             
             dest_path = Path(dest_dir) / f"{model_name_}.json"
             dest_path.parent.mkdir(exist_ok=True, parents=True)

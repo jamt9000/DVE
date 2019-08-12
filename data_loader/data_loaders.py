@@ -100,6 +100,10 @@ class CelebABase(Dataset):
 
 
     def __getitem__(self, index):
+        if (not self.use_ims and not self.use_keypoints):
+            # early exit when caching is used
+            return {"data": torch.zeros(3, 1, 1), "meta": {"index": index}}
+
         if self.use_ims:
             im = Image.open(os.path.join(self.subdir, self.filenames[index]))
         # print("imread: {:.3f}s".format(time.time() - tic)) ; tic = time.time()
@@ -154,6 +158,7 @@ class CelebABase(Dataset):
                 im1 = im1.to(torch.uint8)
                 im1 = TF.to_pil_image(im1)
                 im1 = self.transforms(im1)
+
 
                 C, H, W = im1.shape
                 data = im1
