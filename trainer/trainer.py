@@ -102,6 +102,7 @@ class Trainer(BaseTrainer):
                 "val": self.valid_data_loader.dataset,
             }
             self.cache = {}
+            self.meta_cache = {}
             # First determine the spatial/depth dimensions of the tensor cache to enable
             # preallocation of the tensor caches
             init_batcher = torch.utils.data.DataLoader(datasets["train"], batch_size=1)
@@ -109,22 +110,34 @@ class Trainer(BaseTrainer):
                 batch = next(iter(init_batcher))
                 dd, mm = batch["data"], batch["meta"]
                 feat_shape = self.model[0].forward(dd.to(self.device))[0].shape
+                keypts_shape = mm["keypts"].shape
+
 
             for key, dataset in datasets.items():
                 batcher = torch.utils.data.DataLoader(dataset, batch_size=100)
                 self.cache[key] = torch.zeros(len(dataset), *feat_shape[1:])
+                self.meta_cache[key] = {
+                    "keypts": torch.zeros(len(dataset), *keypts_shape[1:]),
+                    "keypts_normalized": torch.zeros(len(dataset), *keypts_shape[1:]),
+                }
                 for ii, batch in enumerate(batcher):
                     with torch.no_grad():
                         dd, mm = batch["data"], batch["meta"]
                         fw = self.model[0].forward(dd.to(self.device))[0].to('cpu')
                         self.cache[key][mm["index"]] = fw
+                        kp, kpn = mm["keypts"], mm["keypts_normalized"]
+                        self.meta_cache[key]["keypts"][mm["index"]] = kp
+                        self.meta_cache[key]["keypts_normalized"][mm["index"]] = kpn
                     self.logger.info(f"caching {key} descriptors {ii}/{len(batcher)}")
 
             duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - cache_tic))
             self.logger.info(f"Descriptor caching took {duration}")
             self.model.train()
+            # Fetching of images and keypoints is no longer needed
             self.data_loader.dataset.use_ims = False
             self.valid_data_loader.dataset.use_ims = False
+            self.data_loader.dataset.use_keypoints = False
+            self.valid_data_loader.dataset.use_keypoints = False
 
 
         # Handle segmentation metrics separately, since the accumulation cannot be
@@ -192,6 +205,10 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             if self.config.get('cache_descriptors', False):
                 assert isinstance(self.model, torch.nn.Sequential)
+                # inflate meta from cache
+                meta_cache = self.meta_cache["train"]
+                meta["keypts"] = meta_cache["keypts"][meta["index"]]
+                meta["keypts_normalized"] = meta_cache["keypts_normalized"][meta["index"]]
                 descs = self.cache["train"][meta['index']].to(self.device).float()
                 output = self.model[1:]([descs])
             else:
@@ -202,18 +219,10 @@ class Trainer(BaseTrainer):
                 tic = time.time()
 
             if isinstance(self.model, torch.nn.DataParallel):
-                loss = self.loss_wrapper(
-                    output,
-                    meta,
-                    **self.loss_args
-                )
+                loss = self.loss_wrapper(output, meta, **self.loss_args)
                 loss = loss.mean()
             else:
-                loss = self.loss(
-                    output,
-                    meta,
-                    **self.loss_args
-                )
+                loss = self.loss(output, meta, **self.loss_args)
             if profile:
                 timings["loss-fwd"] = time.time() - tic
                 tic = time.time()
@@ -278,7 +287,6 @@ class Trainer(BaseTrainer):
             # Do some aggressive reference clearning to ensure that we don't
             # hang onto memory while fetching the next minibatch (for safety, disabling
             # this for now)
-
             # del data
             # del loss
             # del output
@@ -346,6 +354,10 @@ class Trainer(BaseTrainer):
 
                 if self.config.get('cache_descriptors', False):
                     assert isinstance(self.model, torch.nn.Sequential)
+                    # inflate meta from cache
+                    meta_cache = self.meta_cache["val"]
+                    meta["keypts"] = meta_cache["keypts"][meta["index"]]
+                    meta["keypts_normalized"] = meta_cache["keypts_normalized"][meta["index"]]
                     descs = self.cache["val"][meta['index']].to(self.device).float()
                     output = self.model[1:]([descs])
                 else:
