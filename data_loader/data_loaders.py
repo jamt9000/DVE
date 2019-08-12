@@ -729,7 +729,7 @@ class AFLW_MTFL(CelebABase):
                  crop=0, do_augmentations=True, use_keypoints=False, visualize=False, **kwargs):
         # MTFL from http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip
         self.test_root = os.path.join(root, 'MTFL')  
-        # AFLW cropped from http://www.robots.ox.ac.uk/~jdt/aflw_cropped.zip
+        # AFLW cropped from www.robots.ox.ac.uk/~jdt/aflw_10122train_cropped.zip
         self.train_root = os.path.join(root, 'aflw_cropped')  
 
         self.imwidth = imwidth
