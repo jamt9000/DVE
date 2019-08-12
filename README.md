@@ -219,8 +219,22 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 |  64 | hourglass | 1.63 | 3.82 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/info.log) |
 
 
+### Dataset mirrors
+
+For each dataset used in the paper, we provide a preprocessed copy to allow the results described above to be reproduced directly.  These can be downloaded and unpacked with a [utility script]() (recommended -- see example usage below), which will store them in the locations expected by the training code. Each dataset has a brief README, which also provides the citations for use with each dataset, together with a link from which it can be downloaded directly.
+
+| Dataset   | Details and links | Archive size | sha1sum |
+|:-------------:|:-----:|:----:|:---:|
+| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| TODO | <sup><sub>TODO</sub></sup> |
+| 300w | [README](misc/datasets/300w/README.md)| 3.0 GiB | <sup><sub>885b09159c61fa29998437747d589c65cfc4ccd3</sub></sup> |
+| AFLW-mtfl | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | <sup><sub>1ff31c07cef4f2777b416d896a65f6c17d8ae2ee</sub></sup> |
+
+
+
 ### Notes
 
+
+**Metrics**
 TODO(Samuuel): Explain why some logs are v. slow compared to others, why some are generated. 
 TODO(Samuuel): Explain the definition of Inter-ocular distance on each dataset.  
 300w can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and   
