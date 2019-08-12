@@ -52,8 +52,7 @@
         "type": "MultiStepLR",
         "args": {
             "milestones": [
-                60,
-                80
+                40
             ],
             "gamma": 0.1
         }
