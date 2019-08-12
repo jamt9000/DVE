@@ -34,7 +34,7 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
 
         if "-ft-keypoints" in target:
             prefix = target.replace("-keypoints", "")
-            prefix = target.replace("-limit-annos", "")
+            prefix = prefix.replace("-limit-annos", "")
             ckpt_name = f"{prefix}-{model_name}"
         else:
             ckpt_name = model_name
