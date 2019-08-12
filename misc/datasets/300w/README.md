@@ -6,13 +6,15 @@ This folder contains a copy of the 300w dataset [1] to help reproduce the result
 
 **Tar contents**
 
-The folder contains a set of face images together with landmark annotations.
+The folder contains two forms of the CelebA images (one set of higher quality images, and
+one copy at slightly lower quality).  In practice, the higher image qualities made no
+discernible difference to performance for embedding learning, but they were used in one set of experiments so they are included here for completeness.
 
-The compressed tar file (TODO GiB) can be downloaded from:
+The compressed tar file (3.0 GiB) can be downloaded from:
 
 ```
 http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/datasets/celeba.tar.gz
-sha1sum: TODO
+sha1sum: 885b09159c61fa29998437747d589c65cfc4ccd3
 ```
 A list of the contents of the tar file are given in [tar_include.txt](tar_include.txt).
 

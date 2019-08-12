@@ -41,7 +41,6 @@ def upload_to_server(web_dir, dataset, webserver, root_feat_dir, refresh):
     if not refresh["server"]:
         rsync_args.insert(1, "--ignore-existing")
     tic = time.time()
-    import ipdb; ipdb.set_trace()
     subprocess.call(rsync_args)
     duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - tic))
     print(f"Finished transferring features in {duration}")
