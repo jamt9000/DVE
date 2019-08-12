@@ -66,7 +66,13 @@ The 300-W This dataset contains 3,148 training images and 689 testing images wit
 
 **AFLW landmark regression**
 
-Next we evaluate the embeddings for the task of learning to regress landmarks on AFLW. There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (here we call this AFLW-recrop). The second is the MTFL train/test partition of AFLW used in the works of [2], [3] (we call this dataset split AFLW-MTFL).  
+Next we evaluate the embeddings for the task of learning to regress landmarks on AFLW.
+
+The [original AFLW](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) contains around 25k images with up to 21 landmarks. 
+
+For the purposes of evaluating five-landmark detectors, the authors of [TCDCN](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN.html) introduced a test subset of almost 3K faces, these pre-cropped images are available in the [MTFL download](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip)
+
+There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (here we call this AFLW-recrop). The second is the MTFL train/test partition of AFLW used in the works of [2,3] which used the existing crops from MTFL for testing and a subset of the remaining AFLW images for training (those with 5 landmarks visible and bounding box annotations) (we call this dataset split AFLW-MTFL).
 
 
 Additionally, in the tables immediately below, each embedding is further fine-tuned on the AFLW/AFLW-MTFL training sets (without annotations), as was done in [2], [3], [7], [8].  The rationale for this is that (i) it does not require any additional superviserion; (ii) it allows the model to adjust for the differences in the face crops provided by the detector.  To give an idea of how sensitive the method is to this step, we also report performance without finetuning in the ablation studies below.
