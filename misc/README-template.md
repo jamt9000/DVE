@@ -13,22 +13,12 @@ The embedding is learned from pairs of images (x,x′) related by a known warp v
 
 **Requirements:** The code assumes PyTorch 1.1 and Python 3.7 (other versions may work, but have not been tested).  See the section on dependencies towards the end of this file for specific package requirements.
 
-### Datasets
-
-In this work we use the following datasets:
-
-**CelebA** is a dataset of over 200k faces of celebrities.  We use this dataset to train our embedding function without annotations. The dataset can be obtained [here](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) and was originally described in [this paper](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf). This dataset is implemented in the `CelebABase` class in [data_loaders.py](data_loader/data_loaders.py).
-
-**MAFL** is a dataset of over 20k faces which includes landmark annotations.  The dataset is partitioned into 19k training images and 1k testing images.  We follow the protocol used in previous work [2], [3] (and described in more detail below) to evaluate the quality of the embeddings learned on CelebA.
-
-**AFLW** is a dataset of faces which also includes landmark annotations. We use the P = 5 landmark test split (10,122 training images and 2,991 test images). The dataset can be obtained [here](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) and is described in this [2011 ICCV workshop paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.2988&rep=rep1&type=pdf). This dataset is implemented in the `AFLW` class in [data_loaders.py](data_loader/data_loaders.py).
-
-**300-W** This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
-
 
 ### Learned Embeddings
 
-We provide pretrained models for each dataset to reproduce the results reported in the paper [1]. Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set.  The goal of these experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  Most of the embeddings are learned with the architecture described by [3].  We also learn one larger model using the hourglass architecture described in [7] (their code is available [here](https://github.com/YutingZhang/lmdis-rep)).
+We provide pretrained models for each dataset to reproduce the results reported in the paper [1]. The training is performed with **CelebA**, a dataset of over 200k faces of celebrities that was originally described in [this paper](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf).  We use this dataset to train our embedding function without annotations. 
+
+Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set (described in more detail below).  The goal of these experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  Most of the embeddings are learned with the architecture described by [3].  We also learn one larger model using the hourglass architecture described in [7] (their code is available [here](https://github.com/YutingZhang/lmdis-rep)).
 
 | Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
 | :-----------: | :--:  | :-: | :----: | :----: | :----: |
@@ -48,6 +38,8 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 **MAFL landmark regression**
 
+MAFL is a dataset of over 20k faces which includes landmark annotations.  The dataset is partitioned into 19k training images and 1k testing images.
+
 | Embed. Dim | Model | Error (%IOD) | Links | 
 | :-----------: | :-: | :----: | :----: |
 |  3 | smallnet | {{mafl-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-3d-dve.log}}) |
@@ -57,6 +49,8 @@ We provide pretrained models for each dataset to reproduce the results reported 
 |  64 | hourglass | {{mafl-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{mafl-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{mafl-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{mafl-keypoints-celeba-hourglass-64d-dve.log}}) |
 
 **300-W landmark regression**
+
+The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
@@ -70,9 +64,10 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 **AFLW landmark regression**
 
-Next we evaluate the embeddings for the task of learning to regress landmarks on AFLW. There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (here we simply call this AFLW). The second is the MTFL split of AFLW used in the works of [2], [3] (we call this split AFLW-MTFL).  
+Next we evaluate the embeddings for the task of learning to regress landmarks on AFLW. There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (here we simply call this AFLW). The second is the MTFL train/test partition of AFLW used in the works of [2], [3] (we call this dataset split AFLW-MTFL).  
 
-Additionally, in the tables immediately below, each embedding is further fine-tuned on the AFLW/AFLW-MTFL training sets (without annotations), as was done in [2], [3], [7], [8].   The rationale for this is that it allows the model to adjust for the differences in the face crops provided by the detector.  To give an idea of how sensitive the method is to this step, we also report performance without finetuning in the ablation studies below.
+
+Additionally, in the tables immediately below, each embedding is further fine-tuned on the AFLW/AFLW-MTFL training sets (without annotations), as was done in [2], [3], [7], [8].   The rationale for this is that (i) it does not require any additional superviserion; (ii) it allows the model to adjust for the differences in the face crops provided by the detector.  To give an idea of how sensitive the method is to this step, we also report performance without finetuning in the ablation studies below.
 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
@@ -85,6 +80,8 @@ Additionally, in the tables immediately below, each embedding is further fine-tu
 
 
 **AFLW-MTFL landmark regression**
+
+AFLW-MTFLis a dataset of faces which also includes landmark annotations. We use the P = 5 landmark test split (10,122 training images and 2,991 test images). The dataset can be obtained [here](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) and is described in this [2011 ICCV workshop paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.2988&rep=rep1&type=pdf). This dataset is implemented in the `AFLW` class in [data_loaders.py](data_loader/data_loaders.py).
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
 | :-----------: | :--: | :----: | :----: |
@@ -317,6 +314,11 @@ python3 test.py --config configs/celeba/smallnet-32d-dve.json --resume ${MODEL} 
 ```
 
 ### Learning new embeddings
+
+TODO (add automatic setup scripts for users to reproduce numbers)
+
+Requires CelebA.
+The dataset can be obtained [here](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).  This dataset is implemented in the `CelebABase` class in [data_loaders.py](data_loader/data_loaders.py).
 
 Learning a new embedding requires:
 1. The dataset used for training, which should be located in `<root>/data/<dataset-name>` (this will be done automatically by the [data fetching script](misc/fetch_datasets.py), or can be done manually).
