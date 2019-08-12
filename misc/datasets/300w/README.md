@@ -13,7 +13,7 @@ discernible difference to performance for embedding learning, but they were used
 The compressed tar file (3.0 GiB) can be downloaded from:
 
 ```
-http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/datasets/celeba.tar.gz
+http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/datasets/300w.tar.gz
 sha1sum: 885b09159c61fa29998437747d589c65cfc4ccd3
 ```
 A list of the contents of the tar file are given in [tar_include.txt](tar_include.txt).

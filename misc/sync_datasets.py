@@ -74,7 +74,7 @@ def fetch_from_server(dataset, root_url, refresh, purge_tar_file):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", required=True,
-                        choices=["celeba", "aflw", "aflw-mtfl", "300w"])
+                        choices=["celeba", "aflw-recrop", "aflw-mtfl", "300w"])
     parser.add_argument("--action", default="fetch", choices=["upload", "fetch"])
     parser.add_argument("--webserver", default="login.robots.ox.ac.uk")
     parser.add_argument("--refresh_compression", action="store_true")
