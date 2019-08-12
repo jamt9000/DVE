@@ -2,8 +2,8 @@
     "n_gpu": 1,
     "finetune_from": "data/saved/models/celeba-hourglass-64d-dve/0618_103501/checkpoint-epoch100.pth",
     "batch_size": 32,
-    "cache_descriptors": true,
-    "restrict_annos": 1,
+    "cache_descriptors": false,
+    "restrict_annos": 5,
     "keypoint_regressor_upsample": false,
     "arch": {
         "type": "HourglassNet",
@@ -30,6 +30,10 @@
             "softargmax_mul": 100.0
         },
         "softmaxarg_mul": 100.0
+    },
+    "warper": {
+        "type": "WarperSingle",
+        "args": {}
     },
     "warp_val": false,
     "optimizer": {

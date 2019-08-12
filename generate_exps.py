@@ -34,6 +34,7 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
 
         if "-ft-keypoints" in target:
             prefix = target.replace("-keypoints", "")
+            prefix = target.replace("-limit-annos", "")
             ckpt_name = f"{prefix}-{model_name}"
         else:
             ckpt_name = model_name
@@ -53,6 +54,8 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
                 elif hparam == "upsample":
                     val = bool(val)
                     config["keypoint_regressor_upsample"] = val
+                elif hparam == "annos":
+                    config["restrict_annos"] = int(val)
                 else:
                     raise ValueError(f"unknown hparam: {hparam}")
             ckpt = f"checkpoint-epoch{epoch}.pth"
@@ -70,8 +73,12 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
                 # avoid OOM for hourglass
                 if "hourglass" in model_name:
                     config["batch_size"] = 16
-
-            dest_path = Path(dest_dir) / f"{model_name}.json"
+            if "annos" in grid:
+                model_name_ = f"{config['restrict_annos']}-annos-{model_name}"
+            else:
+                model_name_ = model_name
+            
+            dest_path = Path(dest_dir) / f"{model_name_}.json"
             dest_path.parent.mkdir(exist_ok=True, parents=True)
             if not dest_path.exists() or refresh:
                 with open(str(dest_path), "w") as f:
@@ -87,11 +94,12 @@ if __name__ == "__main__":
     parser.add_argument('--bs', default="32")
     parser.add_argument('--smax', default="100")
     parser.add_argument('--lr', default="1E-3")
+    parser.add_argument('--annos', default="")
     parser.add_argument('--upsample', default="0")
     parser.add_argument('--refresh', action="store_true")
     parser.add_argument(
         '--target',
-        default="mafl-keypoints",
+        required=True,
         choices=[
             "mafl-keypoints",
             "300w-keypoints",
@@ -103,6 +111,9 @@ if __name__ == "__main__":
             "300w-ft-keypoints",
             "aflw-ft-keypoints",
             "aflw-mtfl-ft-keypoints",
+            "aflw-mtfl-limit-annos-keypoints",
+            "aflw-mtfl-limit-annos-no-cache-keypoints",
+            "aflw-mtfl-limit-annos-ft-keypoints",
         ])
     args = parser.parse_args()
 
@@ -110,23 +121,29 @@ if __name__ == "__main__":
     keys = ["lr", "bs"]
     if "keypoints" in args.target:
         keys += ["smax", "upsample"]
+    if args.annos:
+        keys += ["annos"]
 
     for key in keys:
         grid_args[key] = [float(x) for x in getattr(args, key).split(",")]
     dest_config_dir = Path("configs") / args.target
     base_config_path = Path("configs/templates") / f"{args.target}.json"
 
-    pretrained_embeddings = [
-        "celeba-smallnet-3d",
-        "celeba-smallnet-16d",
-        "celeba-smallnet-32d",
-        "celeba-smallnet-64d",
-        "celeba-smallnet-3d-dve",
-        "celeba-smallnet-16d-dve",
-        "celeba-smallnet-32d-dve",
-        "celeba-smallnet-64d-dve",
-        "celeba-hourglass-64d-dve",
-    ]
+    # For the semi-supervised experiment, we just use the strongest model
+    if "limit-annos" in args.target:
+        pretrained_embeddings = ["celeba-hourglass-64d-dve"]
+    else:
+        pretrained_embeddings = [
+            "celeba-smallnet-3d",
+            "celeba-smallnet-16d",
+            "celeba-smallnet-32d",
+            "celeba-smallnet-64d",
+            "celeba-smallnet-3d-dve",
+            "celeba-smallnet-16d-dve",
+            "celeba-smallnet-32d-dve",
+            "celeba-smallnet-64d-dve",
+            "celeba-hourglass-64d-dve",
+        ]
 
     generate_configs(
         base_config=base_config_path,

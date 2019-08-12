@@ -94,8 +94,10 @@ class CelebABase(Dataset):
     def restrict_annos(self, num):
         anno_count = len(self.filenames)
         pick = np.random.choice(anno_count, num, replace=False)
-        self.filenames = np.tile(np.array(self.filenames)[pick], anno_count)
-        self.keypoints = np.tile(self.keypoints[pick], (anno_count, 1, 1))
+        repeat = int(anno_count // num)
+        self.filenames = np.tile(np.array(self.filenames)[pick], repeat)
+        self.keypoints = np.tile(self.keypoints[pick], (repeat, 1, 1))
+
 
     def __getitem__(self, index):
         if self.use_ims:
