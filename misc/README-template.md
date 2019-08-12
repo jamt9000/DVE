@@ -150,7 +150,7 @@ We see that without DVE, the learned embedding performs reasonably when the dime
 |  64 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-64d.iod}}/{{aflw-ft-keypoints-celeba-smallnet-64d-dve.iod}} | ([config]({{aflw-ft-keypoints-celeba-smallnet-64d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-64d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-64d.log}})) / ([config]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.log}})) |
 
 
-Next we investigate how sensitive our approach is to finetuning on the target dataset (this is done for the AFLW-recrop and AFLW-mtfl landmark regressions).   We do two sets of experiments.  First we, remove the finetuning for these experiments and re-evaluate on the landmark regression tasks.  Second, we add in a finetuning step for a different dataset, 300w, to see how the method is affected on a different benchmark. Note that all models for these experiments use DVE.  We see that for the AFLW datasets, it makes a reasonable difference to performance.  However, for 300w, particularly for stronger models, it adds little benefit (for this reason we do not use finetuning on 300w for the results reported in the paper).
+Next we investigate how sensitive our approach is to finetuning on the target dataset (this is done for the AFLW-recrop and AFLW-mtfl landmark regressions).   We do two sets of experiments.  First we, remove the finetuning for both the AFLW dataset variants and re-evaluate on the landmark regression tasks.  Second, we add in a finetuning step for a different dataset, 300w, to see how the method is affected on a different benchmark. Note that all models for these experiments use DVE, and the finetuning consists of training the embeddings for an additional 50 epochs without annotations.  We see that for the AFLW datasets, it makes a reasonable difference to performance.  However, for 300w, particularly for stronger models, it adds little benefit (for this reason we do not use finetuning on 300w for the results reported in the paper).
 
 **Finetuning Ablation: AFLW-mtfl landmark regression**
 
@@ -187,6 +187,16 @@ Next we investigate how sensitive our approach is to finetuning on the target da
 
 To enable the finetuning experiments to be reproduced, the training logs for each of the three datasets are provided below, together with their performance on the matching task.
 
+**Finetuning on AFLW-mtfl**
+
+| Embed. Dim | Model | Same Identity | Different Identity | Links | 
+| :-----------: | :-: | :----: | :----: | :----: |
+|  3 | smallnet | {{aflw-mtfl-ft-celeba-smallnet-3d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-3d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-3d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-3d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-3d-dve.log}}) |
+|  16 | smallnet | {{aflw-mtfl-ft-celeba-smallnet-16d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-16d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-16d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-16d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-16d-dve.log}}) |
+|  32 | smallnet | {{aflw-mtfl-ft-celeba-smallnet-32d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-32d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-32d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-32d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-32d-dve.log}}) |
+|  64 | smallnet | {{aflw-mtfl-ft-celeba-smallnet-64d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-64d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-64d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-64d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-64d-dve.log}}) |
+|  64 | hourglass | {{aflw-mtfl-ft-celeba-hourglass-64d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-hourglass-64d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-hourglass-64d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-hourglass-64d-dve.log}}) |
+
 **Finetuning on AFLW-recrop**
 
 | Embed. Dim | Model | Same Identity | Different Identity | Links | 
@@ -197,123 +207,15 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 |  64 | smallnet | {{aflw-ft-celeba-smallnet-64d-dve.same-identity}} | {{aflw-ft-celeba-smallnet-64d-dve.different-identity}} | [config]({{aflw-ft-celeba-smallnet-64d-dve.config}}), [model]({{aflw-ft-celeba-smallnet-64d-dve.model}}), [log]({{aflw-ft-celeba-smallnet-64d-dve.log}}) |
 |  64 | hourglass | {{aflw-ft-celeba-hourglass-64d-dve.same-identity}} | {{aflw-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{aflw-ft-celeba-hourglass-64d-dve.config}}), [model]({{aflw-ft-celeba-hourglass-64d-dve.model}}), [log]({{aflw-ft-celeba-hourglass-64d-dve.log}}) |
 
-*Without finetuning on AFLW*
+**Finetuning on 300w**
 
-| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-keypoints-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-keypoints-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-32d.iod}}  | [config]({{aflw-keypoints-celeba-smallnet-32d.config}}), [model]({{aflw-keypoints-celeba-smallnet-32d.model}}), [log]({{aflw-keypoints-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-64d.iod}} | [config]({{aflw-keypoints-celeba-smallnet-64d.config}}), [model]({{aflw-keypoints-celeba-smallnet-64d.model}}), [log]({{aflw-keypoints-celeba-smallnet-64d.log}}) |
-|  3 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-3d-dve.log}}) |
-|  16 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-16d-dve.log}}) |
-|  32 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-32d-dve.log}}) |
-|  64 | smallnet | :heavy_check_mark: | {{aflw-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{aflw-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{aflw-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{aflw-keypoints-celeba-smallnet-64d-dve.log}}) |
-|  64 | hourglass | :heavy_check_mark: | {{aflw-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{aflw-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{aflw-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{aflw-keypoints-celeba-hourglass-64d-dve.log}}) |
-
-*With finetuning on AFLW*
-
-First we fine-tune the embeddings for a fixed number of epochs:
-
-
-
-Then re-evaluate the performance of a learned landmark regressor:
-
-| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-ft-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-32d.iod}}  | [config]({{aflw-ft-keypoints-celeba-smallnet-32d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-32d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-64d.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-64d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-64d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-64d.log}}) |
-|  3 | smallnet | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-3d-dve.log}}) |
-|  16 | smallnet | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-16d-dve.log}}) |
-|  32 | smallnet | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-32d-dve.log}}) |
-|  64 | smallnet | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-64d-dve.log}}) |
-|  64 | hourglass | :heavy_check_mark: | {{aflw-ft-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{aflw-ft-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{aflw-ft-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{aflw-ft-keypoints-celeba-hourglass-64d-dve.log}}) |
-
-**AFLW-MTFL landmark regression**
-
-*Without finetuning on AFLW-MTFL*
-
-| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-mtfl-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-mtfl-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-keypoints-celeba-smallnet-32d.iod}}  | [config]({{aflw-mtfl-keypoints-celeba-smallnet-32d.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-32d.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-keypoints-celeba-smallnet-64d.iod}} | [config]({{aflw-mtfl-keypoints-celeba-smallnet-64d.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-64d.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-64d.log}}) |
-|  3 | smallnet | :heavy_check_mark: | {{aflw-mtfl-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{aflw-mtfl-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-3d-dve.log}}) |
-|  16 | smallnet | :heavy_check_mark: | {{aflw-mtfl-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{aflw-mtfl-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-16d-dve.log}}) |
-|  32 | smallnet | :heavy_check_mark: | {{aflw-mtfl-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{aflw-mtfl-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-32d-dve.log}}) |
-|  64 | smallnet | :heavy_check_mark: | {{aflw-mtfl-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{aflw-mtfl-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-64d-dve.log}}) |
-|  64 | hourglass | :heavy_check_mark: | {{aflw-mtfl-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{aflw-mtfl-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{aflw-mtfl-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{aflw-mtfl-keypoints-celeba-hourglass-64d-dve.log}}) |
-
-*With finetuning on AFLW-MTFL*
-
-First we fine-tune the embeddings for a fixed number of epochs:
-
-| Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-celeba-smallnet-3d.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-3d.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-celeba-smallnet-16d.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-16d.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-16d.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-16d.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-celeba-smallnet-32d.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-32d.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-32d.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-32d.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-celeba-smallnet-64d.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-64d.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-64d.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-64d.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-64d.log}}) |
-|  3 | smallnet | :heavy_check_mark: | {{aflw-mtfl-ft-celeba-smallnet-3d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-3d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-3d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-3d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-3d-dve.log}}) |
-|  16 | smallnet | :heavy_check_mark: | {{aflw-mtfl-ft-celeba-smallnet-16d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-16d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-16d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-16d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-16d-dve.log}}) |
-|  32 | smallnet | :heavy_check_mark: | {{aflw-mtfl-ft-celeba-smallnet-32d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-32d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-32d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-32d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-32d-dve.log}}) |
-|  64 | smallnet | :heavy_check_mark: | {{aflw-mtfl-ft-celeba-smallnet-64d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-64d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-64d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-64d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-64d-dve.log}}) |
-|  64 | hourglass | :heavy_check_mark: | {{aflw-mtfl-ft-celeba-hourglass-64d-dve.same-identity}} | {{aflw-mtfl-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{aflw-mtfl-ft-celeba-hourglass-64d-dve.config}}), [model]({{aflw-mtfl-ft-celeba-hourglass-64d-dve.model}}), [log]({{aflw-mtfl-ft-celeba-hourglass-64d-dve.log}}) |
-
-
-Then re-evaluate the performance of a learned landmark regressor:
-
-| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-mtfl-ft-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-ft-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-ft-keypoints-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-mtfl-ft-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-mtfl-ft-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-mtfl-ft-keypoints-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-keypoints-celeba-smallnet-32d.iod}}  | [config]({{aflw-mtfl-ft-keypoints-celeba-smallnet-32d.config}}), [model]({{aflw-mtfl-ft-keypoints-celeba-smallnet-32d.model}}), [log]({{aflw-mtfl-ft-keypoints-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-keypoints-celeba-smallnet-64d.iod}} | [config]({{aflw-mtfl-ft-keypoints-celeba-smallnet-64d.config}}), [model]({{aflw-mtfl-ft-keypoints-celeba-smallnet-64d.model}}), [log]({{aflw-mtfl-ft-keypoints-celeba-smallnet-64d.log}}) |
-
-
-**300-W landmark regression**
-
-*Without finetuning*
-
-| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-3d.iod}} | [config]({{300w-keypoints-celeba-smallnet-3d.config}}), [model]({{300w-keypoints-celeba-smallnet-3d.model}}), [log]({{300w-keypoints-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-16d.iod}}  | [config]({{300w-keypoints-celeba-smallnet-16d.config}}), [model]({{300w-keypoints-celeba-smallnet-16d.model}}), [log]({{300w-keypoints-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-32d.iod}}  | [config]({{300w-keypoints-celeba-smallnet-32d.config}}), [model]({{300w-keypoints-celeba-smallnet-32d.model}}), [log]({{300w-keypoints-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-64d.iod}} | [config]({{300w-keypoints-celeba-smallnet-64d.config}}), [model]({{300w-keypoints-celeba-smallnet-64d.model}}), [log]({{300w-keypoints-celeba-smallnet-64d.log}}) |
-
-*With finetuning*
-
-First we fine-tune the embeddings for a fixed number of epochs:
-
-| Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{300w-ft-celeba-smallnet-3d.same-identity}} | {{300w-ft-celeba-smallnet-3d.different-identity}} | [config]({{300w-ft-celeba-smallnet-3d.config}}), [model]({{300w-ft-celeba-smallnet-3d.model}}), [log]({{300w-ft-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{300w-ft-celeba-smallnet-16d.same-identity}} | {{300w-ft-celeba-smallnet-16d.different-identity}} | [config]({{300w-ft-celeba-smallnet-16d.config}}), [model]({{300w-ft-celeba-smallnet-16d.model}}), [log]({{300w-ft-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{300w-ft-celeba-smallnet-32d.same-identity}} | {{300w-ft-celeba-smallnet-32d.different-identity}} | [config]({{300w-ft-celeba-smallnet-32d.config}}), [model]({{300w-ft-celeba-smallnet-32d.model}}), [log]({{300w-ft-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{300w-ft-celeba-smallnet-64d.same-identity}} | {{300w-ft-celeba-smallnet-64d.different-identity}} | [config]({{300w-ft-celeba-smallnet-64d.config}}), [model]({{300w-ft-celeba-smallnet-64d.model}}), [log]({{300w-ft-celeba-smallnet-64d.log}}) |
-|  3 | smallnet | :heavy_check_mark: | {{300w-ft-celeba-smallnet-3d-dve.same-identity}} | {{300w-ft-celeba-smallnet-3d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-3d-dve.config}}), [model]({{300w-ft-celeba-smallnet-3d-dve.model}}), [log]({{300w-ft-celeba-smallnet-3d-dve.log}}) |
-|  16 | smallnet | :heavy_check_mark: | {{300w-ft-celeba-smallnet-16d-dve.same-identity}} | {{300w-ft-celeba-smallnet-16d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-16d-dve.config}}), [model]({{300w-ft-celeba-smallnet-16d-dve.model}}), [log]({{300w-ft-celeba-smallnet-16d-dve.log}}) |
-|  32 | smallnet | :heavy_check_mark: | {{300w-ft-celeba-smallnet-32d-dve.same-identity}} | {{300w-ft-celeba-smallnet-32d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-32d-dve.config}}), [model]({{300w-ft-celeba-smallnet-32d-dve.model}}), [log]({{300w-ft-celeba-smallnet-32d-dve.log}}) |
-|  64 | smallnet | :heavy_check_mark: | {{300w-ft-celeba-smallnet-64d-dve.same-identity}} | {{300w-ft-celeba-smallnet-64d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-64d-dve.config}}), [model]({{300w-ft-celeba-smallnet-64d-dve.model}}), [log]({{300w-ft-celeba-smallnet-64d-dve.log}}) |
-|  64 | hourglass | :heavy_check_mark: | {{300w-ft-celeba-hourglass-64d-dve.same-identity}} | {{300w-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{300w-ft-celeba-hourglass-64d-dve.config}}), [model]({{300w-ft-celeba-hourglass-64d-dve.model}}), [log]({{300w-ft-celeba-hourglass-64d-dve.log}}) |
-
-Then re-evaluate the performance of a learned landmark regressor:
-
-| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{300w-ft-keypoints-celeba-smallnet-3d.iod}} | [config]({{300w-ft-keypoints-celeba-smallnet-3d.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-3d.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{300w-ft-keypoints-celeba-smallnet-16d.iod}}  | [config]({{300w-ft-keypoints-celeba-smallnet-16d.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-16d.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{300w-ft-keypoints-celeba-smallnet-32d.iod}}  | [config]({{300w-ft-keypoints-celeba-smallnet-32d.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-32d.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{300w-ft-keypoints-celeba-smallnet-64d.iod}} | [config]({{300w-ft-keypoints-celeba-smallnet-64d.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-64d.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-64d.log}}) |
-|  3 | smallnet | :heavy_check_mark: | {{300w-ft-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{300w-ft-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-3d-dve.log}}) |
-|  16 | smallnet | :heavy_check_mark: | {{300w-ft-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{300w-ft-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-16d-dve.log}}) |
-|  32 | smallnet | :heavy_check_mark: | {{300w-ft-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{300w-ft-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-32d-dve.log}}) |
-|  64 | smallnet | :heavy_check_mark: | {{300w-ft-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{300w-ft-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-64d-dve.log}}) |
-|  64 | hourglass | :heavy_check_mark: | {{300w-ft-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{300w-ft-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{300w-ft-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{300w-ft-keypoints-celeba-hourglass-64d-dve.log}}) |
+| Embed. Dim | Model | Same Identity | Different Identity | Links | 
+| :-----------: | :-: | :----: | :----: | :----: |
+|  3 | smallnet | {{300w-ft-celeba-smallnet-3d-dve.same-identity}} | {{300w-ft-celeba-smallnet-3d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-3d-dve.config}}), [model]({{300w-ft-celeba-smallnet-3d-dve.model}}), [log]({{300w-ft-celeba-smallnet-3d-dve.log}}) |
+|  16 | smallnet | {{300w-ft-celeba-smallnet-16d-dve.same-identity}} | {{300w-ft-celeba-smallnet-16d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-16d-dve.config}}), [model]({{300w-ft-celeba-smallnet-16d-dve.model}}), [log]({{300w-ft-celeba-smallnet-16d-dve.log}}) |
+|  32 | smallnet | {{300w-ft-celeba-smallnet-32d-dve.same-identity}} | {{300w-ft-celeba-smallnet-32d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-32d-dve.config}}), [model]({{300w-ft-celeba-smallnet-32d-dve.model}}), [log]({{300w-ft-celeba-smallnet-32d-dve.log}}) |
+|  64 | smallnet | {{300w-ft-celeba-smallnet-64d-dve.same-identity}} | {{300w-ft-celeba-smallnet-64d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-64d-dve.config}}), [model]({{300w-ft-celeba-smallnet-64d-dve.model}}), [log]({{300w-ft-celeba-smallnet-64d-dve.log}}) |
+|  64 | hourglass | {{300w-ft-celeba-hourglass-64d-dve.same-identity}} | {{300w-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{300w-ft-celeba-hourglass-64d-dve.config}}), [model]({{300w-ft-celeba-hourglass-64d-dve.model}}), [log]({{300w-ft-celeba-hourglass-64d-dve.log}}) |
 
 
 ### Notes
