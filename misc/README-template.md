@@ -249,6 +249,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 ### Notes
 
 TODO(Samuuel): Explain why some logs are v. slow compared to others, why some are generated.
+TODO(Samuuel): Explain the definition of Inter-ocular distance on each dataset.
 
 
 ### Evaluating a pretrained embedding
