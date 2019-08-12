@@ -40,7 +40,7 @@ The goal of these initial experiments is to demonstrate that DVE allows models t
 
 **MAFL landmark regression**
 
-MAFL is a dataset of over 20k faces which includes landmark annotations.  The dataset is partitioned into 19k training images and 1k testing images.
+[MAFL](https://github.com/zhzhanp/TCDCN-face-alignment/tree/master/MAFL) is a dataset of 20k faces which includes landmark annotations.  The dataset is partitioned into 19k training images and 1k testing images.
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
 | :-----------: | :-: | :----: | :----: |
