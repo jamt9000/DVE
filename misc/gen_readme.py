@@ -126,7 +126,7 @@ def generate_readme(experiments, readme_template, root_url, readme_dest, results
             elif target in {"same-identity", "different-identity", "iod"}:
                 token = f"{results[exp_name]['results'][target]:.2f}"
             elif target in {"params"}:
-                token = millify(results[exp_name]["results"]["params"], precision=2)
+                token = millify(results[exp_name]["results"]["params"], precision=1)
             edits.append((match.span(), token))
         if edits:
             # invert the spans

@@ -18,7 +18,7 @@ The embedding is learned from pairs of images (x,x′) related by a known warp v
 
 We provide pretrained models for each dataset to reproduce the results reported in the paper [1]. The training is performed with **CelebA**, a dataset of over 200k faces of celebrities that was originally described in [this paper](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf).  We use this dataset to train our embedding function without annotations. 
 
-Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set (described in more detail below). We use two architectures: the *smallnet* model of [3] and the *hourglass* model used in [7] (their code is available ).
+Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set (described in more detail below). We use two architectures: the *smallnet* model of [3] and the more powerful *hourglass* model used in [7].
 
 The goal of these experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  By contrast, this does not occur when DVE is removed (see the ablations below).
 
