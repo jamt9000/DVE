@@ -2,72 +2,72 @@
     "celeba-smallnet-3d": {
         "timestamp": "2019-08-04_17-55-48",
         "results": {
-            "same-identity": 1.3343133259974413,
             "different-identity": 2.891541310561818,
+            "same-identity": 1.3343133259974413,
             "params": 334875
         }
     },
     "celeba-smallnet-16d": {
         "timestamp": "2019-08-04_17-55-52",
         "results": {
-            "same-identity": 1.249850663909267,
             "different-identity": 5.645454607671682,
+            "same-identity": 1.249850663909267,
             "params": 338216
         }
     },
     "celeba-smallnet-32d": {
         "timestamp": "2019-08-04_17-55-57",
         "results": {
-            "same-identity": 1.2570776241953114,
             "different-identity": 5.805663559298475,
+            "same-identity": 1.2570776241953114,
             "params": 342328
         }
     },
     "celeba-smallnet-64d": {
         "timestamp": "2019-08-04_17-56-04",
         "results": {
-            "same-identity": 1.2530637518406809,
             "different-identity": 5.684878522781191,
+            "same-identity": 1.2530637518406809,
             "params": 350552
         }
     },
     "celeba-smallnet-3d-dve": {
         "timestamp": "2019-08-08_17-54-21",
         "results": {
-            "same-identity": 1.3575806395670578,
             "different-identity": 3.030184251737964,
+            "same-identity": 1.3575806395670578,
             "params": 334875
         }
     },
     "celeba-smallnet-16d-dve": {
         "timestamp": "2019-08-02_06-20-13",
         "results": {
-            "same-identity": 1.2834090457744578,
             "different-identity": 2.7870315401680257,
+            "same-identity": 1.2834090457744578,
             "params": 338216
         }
     },
     "celeba-smallnet-32d-dve": {
         "timestamp": "2019-08-02_06-19-59",
         "results": {
-            "same-identity": 1.2915763660018833,
             "different-identity": 2.787983394560007,
+            "same-identity": 1.2915763660018833,
             "params": 342328
         }
     },
     "celeba-smallnet-64d-dve": {
         "timestamp": "2019-08-02_06-20-28",
         "results": {
-            "same-identity": 1.2782988528206038,
             "different-identity": 2.7683083117734326,
+            "same-identity": 1.2782988528206038,
             "params": 350552
         }
     },
     "celeba-hourglass-64d-dve": {
         "timestamp": "0618_103501",
         "results": {
-            "same-identity": 0.92915186948157,
             "different-identity": 2.365658230283113,
+            "same-identity": 0.92915186948157,
             "params": 12609472
         }
     },
@@ -219,8 +219,11 @@
         }
     },
     "aflw-mtfl-keypoints-celeba-smallnet-64d": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-49-10",
+        "results": {
+            "iod": 14.045869634943534,
+            "params": 350552
+        }
     },
     "aflw-mtfl-keypoints-celeba-smallnet-3d-dve": {
         "timestamp": "2019-08-11_14-02-25",
@@ -251,8 +254,11 @@
         }
     },
     "aflw-mtfl-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-49-34",
+        "results": {
+            "iod": 8.150828169184257,
+            "params": 12609472
+        }
     },
     "300w-keypoints-celeba-smallnet-3d": {
         "timestamp": "2019-08-11_14-50-45",
@@ -311,66 +317,73 @@
         }
     },
     "300w-keypoints-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-50-33",
+        "results": {
+            "iod": 4.649900685547053,
+            "params": 12609472
+        }
     },
     "aflw-ft-celeba-smallnet-3d": {
         "timestamp": "2019-08-10_12-50-40",
         "results": {
-            "same-identity": 3.803597144803704,
             "different-identity": 4.425015180660786,
+            "same-identity": 3.803597144803704,
             "params": 334875
         }
     },
     "aflw-ft-celeba-smallnet-16d": {
         "timestamp": "2019-08-10_12-50-41",
         "results": {
-            "same-identity": 1.772464633949272,
             "different-identity": 9.415901044054168,
+            "same-identity": 1.772464633949272,
             "params": 338216
         }
     },
     "aflw-ft-celeba-smallnet-32d": {
         "timestamp": "2019-08-10_12-50-43",
         "results": {
-            "same-identity": 1.5704157488070893,
             "different-identity": 9.795427844232668,
+            "same-identity": 1.5704157488070893,
             "params": 342328
         }
     },
     "aflw-ft-celeba-smallnet-64d": {
         "timestamp": "2019-08-10_12-50-44",
         "results": {
-            "same-identity": 1.2592428231949278,
             "different-identity": 5.88826827785475,
+            "same-identity": 1.2592428231949278,
             "params": 350552
         }
     },
     "aflw-ft-celeba-smallnet-3d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-51-40",
+        "results": {
+            "different-identity": 7.688705962410411,
+            "same-identity": 6.362194896212895,
+            "params": 334875
+        }
     },
     "aflw-ft-celeba-smallnet-16d-dve": {
         "timestamp": "2019-08-10_12-50-30",
         "results": {
-            "same-identity": 6.339180810120506,
             "different-identity": 8.622066951634435,
+            "same-identity": 6.339180810120506,
             "params": 338216
         }
     },
     "aflw-ft-celeba-smallnet-32d-dve": {
         "timestamp": "2019-08-10_12-50-31",
         "results": {
-            "same-identity": 8.098360620017328,
             "different-identity": 10.105548145889513,
+            "same-identity": 8.098360620017328,
             "params": 342328
         }
     },
     "aflw-ft-celeba-smallnet-64d-dve": {
         "timestamp": "2019-08-10_12-50-32",
         "results": {
-            "same-identity": 4.083513502563747,
             "different-identity": 5.212381580676806,
+            "same-identity": 4.083513502563747,
             "params": 350552
         }
     },
@@ -381,64 +394,64 @@
     "aflw-mtfl-ft-celeba-smallnet-3d": {
         "timestamp": "2019-08-11_08-19-48",
         "results": {
-            "same-identity": 5.906918857392483,
             "different-identity": 6.966564458309826,
+            "same-identity": 5.906918857392483,
             "params": 334875
         }
     },
     "aflw-mtfl-ft-celeba-smallnet-16d": {
         "timestamp": "2019-08-11_08-19-50",
         "results": {
-            "same-identity": 1.625095536777809,
             "different-identity": 9.675252855519462,
+            "same-identity": 1.625095536777809,
             "params": 338216
         }
     },
     "aflw-mtfl-ft-celeba-smallnet-32d": {
         "timestamp": "2019-08-11_08-19-52",
         "results": {
-            "same-identity": 1.4038320578872687,
             "different-identity": 9.936226063367663,
+            "same-identity": 1.4038320578872687,
             "params": 342328
         }
     },
     "aflw-mtfl-ft-celeba-smallnet-64d": {
         "timestamp": "2019-08-11_08-19-53",
         "results": {
-            "same-identity": 1.3182234402254935,
             "different-identity": 9.423423117345166,
+            "same-identity": 1.3182234402254935,
             "params": 350552
         }
     },
     "aflw-mtfl-ft-celeba-smallnet-3d-dve": {
         "timestamp": "2019-08-11_08-20-03",
         "results": {
-            "same-identity": 5.98582772249253,
             "different-identity": 7.161357289290111,
+            "same-identity": 5.98582772249253,
             "params": 334875
         }
     },
     "aflw-mtfl-ft-celeba-smallnet-16d-dve": {
         "timestamp": "2019-08-11_08-19-58",
         "results": {
-            "same-identity": 4.717817380138951,
             "different-identity": 7.112128505312395,
+            "same-identity": 4.717817380138951,
             "params": 338216
         }
     },
     "aflw-mtfl-ft-celeba-smallnet-32d-dve": {
         "timestamp": "2019-08-11_08-19-55",
         "results": {
-            "same-identity": 6.42161973709959,
             "different-identity": 8.709771126673132,
+            "same-identity": 6.42161973709959,
             "params": 342328
         }
     },
     "aflw-mtfl-ft-celeba-smallnet-64d-dve": {
         "timestamp": "2019-08-11_08-19-54",
         "results": {
-            "same-identity": 8.065535450829989,
             "different-identity": 10.08854135262097,
+            "same-identity": 8.065535450829989,
             "params": 350552
         }
     },
@@ -449,24 +462,24 @@
     "300w-ft-celeba-smallnet-3d": {
         "timestamp": "2019-08-11_18-11-26",
         "results": {
-            "same-identity": 6.282961005167175,
             "different-identity": 7.102191580565303,
+            "same-identity": 6.282961005167175,
             "params": 334875
         }
     },
     "300w-ft-celeba-smallnet-16d": {
         "timestamp": "2019-08-11_18-11-34",
         "results": {
-            "same-identity": 1.5235623496417514,
             "different-identity": 9.085759280210473,
+            "same-identity": 1.5235623496417514,
             "params": 338216
         }
     },
     "300w-ft-celeba-smallnet-32d": {
         "timestamp": "2019-08-11_18-11-42",
         "results": {
-            "same-identity": 1.3707043010953703,
             "different-identity": 9.043625837570042,
+            "same-identity": 1.3707043010953703,
             "params": 342328
         }
     },
@@ -477,40 +490,40 @@
     "300w-ft-celeba-smallnet-3d-dve": {
         "timestamp": "2019-08-11_18-11-57",
         "results": {
-            "same-identity": 5.211941496496377,
             "different-identity": 6.507626411788536,
+            "same-identity": 5.211941496496377,
             "params": 334875
         }
     },
     "300w-ft-celeba-smallnet-16d-dve": {
         "timestamp": "2019-08-11_18-12-04",
         "results": {
-            "same-identity": 5.548624447910057,
             "different-identity": 7.304073227091053,
+            "same-identity": 5.548624447910057,
             "params": 338216
         }
     },
     "300w-ft-celeba-smallnet-32d-dve": {
         "timestamp": "2019-08-11_18-12-15",
         "results": {
-            "same-identity": 5.854211794335285,
             "different-identity": 7.472813779138904,
+            "same-identity": 5.854211794335285,
             "params": 342328
         }
     },
     "300w-ft-celeba-smallnet-64d-dve": {
         "timestamp": "2019-08-11_18-12-24",
         "results": {
-            "same-identity": 6.579024095083817,
             "different-identity": 8.188809023354661,
+            "same-identity": 6.579024095083817,
             "params": 350552
         }
     },
     "300w-ft-celeba-hourglass-64d-dve": {
         "timestamp": "2019-08-11_12-57-08",
         "results": {
-            "same-identity": 1.6319246623802917,
             "different-identity": 3.8203289709656145,
+            "same-identity": 1.6319246623802917,
             "params": 12609472
         }
     },
@@ -561,8 +574,11 @@
         }
     },
     "aflw-ft-keypoints-celeba-smallnet-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-53-30",
+        "results": {
+            "iod": 7.791799876730564,
+            "params": 350552
+        }
     },
     "aflw-ft-keypoints-celeba-hourglass-64d-dve": {
         "timestamp": "TODO",
