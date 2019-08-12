@@ -20,7 +20,7 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set (described in more detail below). We use two architectures: the *smallnet* model of [3] and the more powerful *hourglass* model used in [7].
 
-The goal of these experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  By contrast, this does not occur when DVE is removed (see the ablations below).
+The goal of these initial experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  By contrast, this does not occur when DVE is removed (see the ablation section below).
 
 
 | Embed. Dim | Model | Same Identity | Different Identity | Params | Links |  
