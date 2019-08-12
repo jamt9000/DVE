@@ -218,8 +218,20 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 |  64 | hourglass | {{300w-ft-celeba-hourglass-64d-dve.same-identity}} | {{300w-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{300w-ft-celeba-hourglass-64d-dve.config}}), [model]({{300w-ft-celeba-hourglass-64d-dve.model}}), [log]({{300w-ft-celeba-hourglass-64d-dve.log}}) |
 
 
+### Dataset mirrors
+
+For each dataset used in the paper, we provide a preprocessed copy to allow the results described above to be reproduced directly.  These can be downloaded and unpacked with a [utility script]() (recommended -- see example usage below), which will store them in the locations expected by the training code. Each dataset has a brief README, which also provides the citations for use with each dataset, together with a link from which it can be downloaded directly.
+
+| Dataset   | Details and links | Archive size | sha1sum |
+|:-------------:|:-----:|:----:|:---:|
+| CelebA | [README](misc/datasets/celeba/README.md)| TODO | <sup><sub>TODO</sub></sup>p> |
+
+
+
 ### Notes
 
+
+**Metrics**
 TODO(Samuuel): Explain why some logs are v. slow compared to others, why some are generated. 
 TODO(Samuuel): Explain the definition of Inter-ocular distance on each dataset.  
 300w can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and   

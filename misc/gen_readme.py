@@ -49,7 +49,13 @@ def sync_files(experiments, save_dir, webserver, web_dir):
                 print(f"running command {' '.join(rsync_args)}")
                 subprocess.call(rsync_args)
                 # copy backup logs if available
-                import ipdb; ipdb.set_trace()
+                if local_path.name == "info.log":
+                    candidate_backup = Path(f"{str(local_path)}.backup")
+                    if candidate_backup.exists():
+                        dest = f"{dest}.backup"
+                        rsync_args = ["rsync", "-hvrPt", str(candidate_backup), dest]
+                        print(f"running command {' '.join(rsync_args)}")
+                        subprocess.call(rsync_args)
 
     # peace and love
     subprocess.call(["ssh", webserver, "chmod 777 -R", str(Path(web_dir).expanduser())])
