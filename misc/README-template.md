@@ -34,7 +34,7 @@ Each model is accompanied by training and evaluation logs and its mean pixel err
 
 ### Landmark Regression
 
-**Protocol Description**: To transform the learned dense embeddings into landmark predictions, we use the same approach as [3].  For each target dataset, we freeze the dense embeddings and learn to peg onto them a collection of 50 "virtual" keypoints via a spatial softmax (see the [regressor code](model/keypoint_prediction.py) for details).  These virtual keypoints are then used to regress the target keypoints of the dataset.
+**Protocol Description**: To transform the learned dense embeddings into landmark predictions, we use the same approach as [3].  For each target dataset, we freeze the dense embeddings and learn to peg onto them a collection of 50 "virtual" keypoints via a spatial softmax .  These virtual keypoints are then used to regress the target keypoints of the dataset.
 
 **MAFL landmark regression**
 
@@ -289,6 +289,8 @@ Learning a landmark regressor for a given pretrained embedding requires:
 1. The target dataset, which should be located in `<root>/data/<dataset-name>` (this will be done automatically by the [data fetching script](misc/fetch_datasets.py), or can be done manually).
 2. A `config.json` file.
 3. A `checkpoint.pth` file.
+
+See the [regressor code](model/keypoint_prediction.py) for details of how the regressor is implemented (it consists of a conv, then a spatial softmax, then a group conv).
 
 Landmark learning is then performed with the following command:
 ```
