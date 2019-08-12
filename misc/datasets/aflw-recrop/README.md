@@ -9,11 +9,11 @@ This folder contains a copy of the AFLW dataset [1], recropped and released by [
 TODO explain this split.
 
 
-The compressed tar file ( MiB) can be downloaded from:
+The compressed tar file (1.1 GiB) can be downloaded from:
 
 ```
 http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/datasets/aflw-recrop.tar.gz
-sha1sum: TODO
+sha1sum: 939fdce0e6262a14159832c71d4f84a9d516de5e
 ```
 A list of the contents of the tar file are given in [tar_include.txt](tar_include.txt).
 
