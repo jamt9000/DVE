@@ -19,7 +19,10 @@ from utils.visualization import norm_range
 import torch.nn.functional as F
 from utils.util import dict_coll
 from utils.tps import spatial_grid_unnormalized, tps_grid
-from tensorboardX import SummaryWriter
+try:
+    from tensorboardX import SummaryWriter
+except:
+    pass
 
 import sys
 import matplotlib
@@ -27,7 +30,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # NOQA
 
 sys.path.insert(0, str(Path.home() / "coding/src/zsvision/python"))
-from zsvision.zs_iterm import zs_dispFig # NOQA
+try:
+    from zsvision.zs_iterm import zs_dispFig # NOQA
+except:
+    zs_dispFig = lambda: None
 
 
 def compute_pixel_err(pred_x, pred_y, gt_x, gt_y, imwidth, crop):
