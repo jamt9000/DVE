@@ -52,7 +52,8 @@ MAFL is a dataset of over 20k faces which includes landmark annotations.  The da
 
 **300-W landmark regression**
 
-The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face.  The dataset is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
+The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face (with the split introduced [this CVPR 2014 paper](http://www.jiansun.org/papers/CVPR14_FaceAlignment.pdf)).  The dataset is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
+
 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
@@ -66,8 +67,9 @@ The 300-W This dataset contains 3,148 training images and 689 testing images wit
 
 **AFLW landmark regression**
 
-Next we evaluate the embeddings for the task of learning to regress landmarks on AFLW. There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (here we call this AFLW-recrop). The second is the MTFL train/test partition of AFLW used in the works of [2], [3] (we call this dataset split AFLW-MTFL).  
+The [original AFLW](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) contains around 25k images with up to 21 landmarks. For the purposes of evaluating five-landmark detectors, the authors of [TCDCN](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN.html) introduced a test subset of almost 3K faces, these pre-cropped images are available in the [MTFL download](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip)
 
+There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (2991 test faces with 132 duplicates, 10122 train faces) (here we call this AFLW-recrop). The second is the train/test partition of AFLW used in the works of [2,3] which used the existing crops from MTFL (2995 faces) for testing and 10122 AFLW faces for training [(download)](http://www.robots.ox.ac.uk/~jdt/aflw_10122train_cropped.zip) (we call this dataset split AFLW-MTFL).
 
 Additionally, in the tables immediately below, each embedding is further fine-tuned on the AFLW-recrop/AFLW-MTFL training sets (without annotations), as was done in [2], [3], [7], [8].  The rationale for this is that (i) it does not require any additional superviserion; (ii) it allows the model to adjust for the differences in the face crops provided by the detector.  To give an idea of how sensitive the method is to this step, we also report performance without finetuning in the ablation studies below.
 
