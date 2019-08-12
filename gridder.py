@@ -28,6 +28,13 @@ def generate_config_grid(base_config, grid_dir, grid, refresh):
             elif hparam == "upsample":
                 val = bool(val)
                 config["keypoint_regressor_upsample"] = val
+            elif hparam == "warp":
+                val = int(val)
+                if val:
+                    config["warper"] = {"type": "WarperSingle", "args": {}}
+                config["keypoint_regressor_upsample"] = val
+            elif hparam == "annos":
+                config["restrict_annos"] = int(val)
             else:
                 raise ValueError(f"unknown hparam: {hparam}")
             dest_name += f"-{hparam}-{val}"
@@ -48,12 +55,14 @@ if __name__ == "__main__":
     parser.add_argument('--bs', default="8,16")
     parser.add_argument('--smax', default="100")
     parser.add_argument('--lr', default="1E-3")
+    parser.add_argument('--annos', default="")
+    parser.add_argument('--warp', default="0")
     parser.add_argument('--upsample', default="0")
     parser.add_argument('--refresh', action="store_true")
     args = parser.parse_args()
 
     grid = OrderedDict()
-    for key in ["bs", "smax", "lr", "upsample"]:
+    for key in ["bs", "smax", "lr", "upsample", "annos", "warp"]:
         grid[key] = [float(x) for x in getattr(args, key).split(",")]
 
     generate_config_grid(
