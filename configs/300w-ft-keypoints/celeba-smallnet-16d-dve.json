@@ -1,6 +1,6 @@
 {
     "n_gpu": 1,
-    "finetune_from": "data/saved/models/300w-ft-celeba-smallnet-16d-dve/TODO/checkpoint-epoch50.pth",
+    "finetune_from": "data/saved/models/300w-ft-celeba-smallnet-16d-dve/2019-08-11_18-12-04/checkpoint-epoch50.pth",
     "batch_size": 32,
     "cache_descriptors": true,
     "keypoint_regressor_upsample": false,
