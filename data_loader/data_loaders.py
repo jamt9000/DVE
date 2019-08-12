@@ -1009,6 +1009,7 @@ if __name__ == '__main__':
     parser.add_argument("--use_ims", type=int, default=1)
     parser.add_argument("--use_minival", action="store_true")
     parser.add_argument("--break_preproc", action="store_true")
+    parser.add_argument("--pairs", action="store_true")
     parser.add_argument("--rand_in", action="store_true")
     parser.add_argument("--restrict_to", type=int, help="restrict to n images")
     parser.add_argument("--downsample_labels", type=int, default=2)
@@ -1044,7 +1045,13 @@ if __name__ == '__main__':
         "imwidth": imwidth,
         "crop": 20,
     }
-    kwargs["pair_warper"] = tps.Warper(H=imwidth, W=imwidth) if args.train else None
+    if args.train and args.pairs:
+        warper = tps.Warper(H=imwidth, W=imwidth)
+    elif args.train:
+        warper = tps.WarperSingle(H=imwidth, W=imwidth)
+    else:
+        warper = None
+    kwargs["pair_warper"] = warper
 
     show = args.show
     if args.restrict_to:
