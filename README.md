@@ -102,7 +102,7 @@ AFLW-MTFLis a dataset of faces which also includes landmark annotations. We use 
 We can study the effect of the DVE method by removing it during training and assessing the resulting embeddings for landmark regression.  The ablations are performed on the lighter SmallNet model.
 
 | Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: | :--: |
 |  3 | smallnet | :heavy_multiplication_x: / :heavy_check_mark:  | 1.33 / 1.36| 2.89 / 3.03 | ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-08-04_17-55-48/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d/2019-08-04_17-55-48/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-3d/2019-08-04_17-55-48/info.log)) / ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d-dve/2019-08-08_17-54-21/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-3d-dve/2019-08-08_17-54-21/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-3d-dve/2019-08-08_17-54-21/info.log)) |
 |  16 | smallnet | :heavy_multiplication_x: / :heavy_check_mark:  | 1.25 / 1.28| 5.65 / 2.79 | ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d/2019-08-04_17-55-52/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d/2019-08-04_17-55-52/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-16d/2019-08-04_17-55-52/info.log)) / ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d-dve/2019-08-02_06-20-13/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-16d-dve/2019-08-02_06-20-13/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-16d-dve/2019-08-02_06-20-13/info.log)) |
 |  32 | smallnet | :heavy_multiplication_x: / :heavy_check_mark:  | 1.26 / 1.29| 5.81 / 2.79 | ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-32d/2019-08-04_17-55-57/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-32d/2019-08-04_17-55-57/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-32d/2019-08-04_17-55-57/info.log)) / ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-32d-dve/2019-08-02_06-19-59/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/celeba-smallnet-32d-dve/2019-08-02_06-19-59/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/celeba-smallnet-32d-dve/2019-08-02_06-19-59/info.log)) |
@@ -225,9 +225,9 @@ For each dataset used in the paper, we provide a preprocessed copy to allow the 
 
 | Dataset   | Details and links | Archive size | sha1sum |
 |:-------------:|:-----:|:----:|:---:|
-| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| TODO | <sup><sub>TODO</sub></sup> |
-| 300w | [README](misc/datasets/300w/README.md)| 3.0 GiB | <sup><sub>885b09159c61fa29998437747d589c65cfc4ccd3</sub></sup> |
-| AFLW-mtfl | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | <sup><sub>1ff31c07cef4f2777b416d896a65f6c17d8ae2ee</sub></sup> |
+| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| TODO | TODO |
+| 300w | [README](misc/datasets/300w/README.md)| 3.0 GiB | 885b09159c61fa29998437747d589c65cfc4ccd3 |
+| AFLW-mtfl | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | 1ff31c07cef4f2777b416d896a65f6c17d8ae2ee |
 
 
 

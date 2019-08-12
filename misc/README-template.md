@@ -102,7 +102,7 @@ AFLW-MTFLis a dataset of faces which also includes landmark annotations. We use 
 We can study the effect of the DVE method by removing it during training and assessing the resulting embeddings for landmark regression.  The ablations are performed on the lighter SmallNet model.
 
 | Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
-| :-----------: | :--:  | :-: | :----: | :----: |
+| :-----------: | :--:  | :-: | :----: | :----: | :--: |
 |  3 | smallnet | :heavy_multiplication_x: / :heavy_check_mark:  | {{celeba-smallnet-3d.same-identity}} / {{celeba-smallnet-3d-dve.same-identity}}| {{celeba-smallnet-3d.different-identity}} / {{celeba-smallnet-3d-dve.different-identity}} | ([config]({{celeba-smallnet-3d.config}}), [model]({{celeba-smallnet-3d.model}}), [log]({{celeba-smallnet-3d.log}})) / ([config]({{celeba-smallnet-3d-dve.config}}), [model]({{celeba-smallnet-3d-dve.model}}), [log]({{celeba-smallnet-3d-dve.log}})) |
 |  16 | smallnet | :heavy_multiplication_x: / :heavy_check_mark:  | {{celeba-smallnet-16d.same-identity}} / {{celeba-smallnet-16d-dve.same-identity}}| {{celeba-smallnet-16d.different-identity}} / {{celeba-smallnet-16d-dve.different-identity}} | ([config]({{celeba-smallnet-16d.config}}), [model]({{celeba-smallnet-16d.model}}), [log]({{celeba-smallnet-16d.log}})) / ([config]({{celeba-smallnet-16d-dve.config}}), [model]({{celeba-smallnet-16d-dve.model}}), [log]({{celeba-smallnet-16d-dve.log}})) |
 |  32 | smallnet | :heavy_multiplication_x: / :heavy_check_mark:  | {{celeba-smallnet-32d.same-identity}} / {{celeba-smallnet-32d-dve.same-identity}}| {{celeba-smallnet-32d.different-identity}} / {{celeba-smallnet-32d-dve.different-identity}} | ([config]({{celeba-smallnet-32d.config}}), [model]({{celeba-smallnet-32d.model}}), [log]({{celeba-smallnet-32d.log}})) / ([config]({{celeba-smallnet-32d-dve.config}}), [model]({{celeba-smallnet-32d-dve.model}}), [log]({{celeba-smallnet-32d-dve.log}})) |
@@ -225,9 +225,9 @@ For each dataset used in the paper, we provide a preprocessed copy to allow the 
 
 | Dataset   | Details and links | Archive size | sha1sum |
 |:-------------:|:-----:|:----:|:---:|
-| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| TODO | <sup><sub>TODO</sub></sup> |
-| 300w | [README](misc/datasets/300w/README.md)| 3.0 GiB | <sup><sub>885b09159c61fa29998437747d589c65cfc4ccd3</sub></sup> |
-| AFLW-mtfl | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | <sup><sub>1ff31c07cef4f2777b416d896a65f6c17d8ae2ee</sub></sup> |
+| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| TODO | TODO |
+| 300w | [README](misc/datasets/300w/README.md)| 3.0 GiB | 885b09159c61fa29998437747d589c65cfc4ccd3 |
+| AFLW-mtfl | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | 1ff31c07cef4f2777b416d896a65f6c17d8ae2ee |
 
 
 
