@@ -111,7 +111,7 @@
     "300w-ft-keypoints-celeba-smallnet-3d": {"timestamp": "2019-08-12_05-20-28", "epoch": 300},
     "300w-ft-keypoints-celeba-smallnet-16d": {"timestamp": "2019-08-12_05-20-41", "epoch": 300},
     "300w-ft-keypoints-celeba-smallnet-32d": {"timestamp": "2019-08-12_05-20-47", "epoch": 300},
-    "300w-ft-keypoints-celeba-smallnet-64d": {"timestamp": "TODO:aws2-------TODO", "epoch": 300},
+    "300w-ft-keypoints-celeba-smallnet-64d": {"timestamp": "2019-08-12_09-21-04", "epoch": 300},
     "300w-ft-keypoints-celeba-smallnet-3d-dve": {"timestamp": "2019-08-12_05-21-09", "epoch": 300},
     "300w-ft-keypoints-celeba-smallnet-16d-dve": {"timestamp": "2019-08-12_05-21-17", "epoch": 300},
     "300w-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "2019-08-12_05-21-27", "epoch": 300},

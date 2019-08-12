@@ -114,7 +114,8 @@ class Trainer(BaseTrainer):
 
 
             for key, dataset in datasets.items():
-                batcher = torch.utils.data.DataLoader(dataset, batch_size=100)
+                batcher = torch.utils.data.DataLoader(dataset, batch_size=100,
+                                                       num_workers=4)
                 self.cache[key] = torch.zeros(len(dataset), *feat_shape[1:])
                 self.meta_cache[key] = {
                     "keypts": torch.zeros(len(dataset), *keypts_shape[1:]),
