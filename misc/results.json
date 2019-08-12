@@ -447,36 +447,64 @@
         "results": {}
     },
     "300w-ft-celeba-smallnet-3d": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-11-26",
+        "results": {
+            "different-identity": 7.102191580565303,
+            "same-identity": 6.282961005167175,
+            "params": 334875
+        }
     },
     "300w-ft-celeba-smallnet-16d": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-11-34",
+        "results": {
+            "different-identity": 9.085759280210473,
+            "same-identity": 1.5235623496417514,
+            "params": 338216
+        }
     },
     "300w-ft-celeba-smallnet-32d": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-11-42",
+        "results": {
+            "different-identity": 9.043625837570042,
+            "same-identity": 1.3707043010953703,
+            "params": 342328
+        }
     },
     "300w-ft-celeba-smallnet-64d": {
         "timestamp": "TODO",
         "results": {}
     },
     "300w-ft-celeba-smallnet-3d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-11-57",
+        "results": {
+            "different-identity": 6.507626411788536,
+            "same-identity": 5.211941496496377,
+            "params": 334875
+        }
     },
     "300w-ft-celeba-smallnet-16d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-12-04",
+        "results": {
+            "different-identity": 7.304073227091053,
+            "same-identity": 5.548624447910057,
+            "params": 338216
+        }
     },
     "300w-ft-celeba-smallnet-32d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-12-15",
+        "results": {
+            "different-identity": 7.472813779138904,
+            "same-identity": 5.854211794335285,
+            "params": 342328
+        }
     },
     "300w-ft-celeba-smallnet-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
+        "timestamp": "2019-08-11_18-12-24",
+        "results": {
+            "different-identity": 8.188809023354661,
+            "same-identity": 6.579024095083817,
+            "params": 350552
+        }
     },
     "300w-ft-celeba-hourglass-64d-dve": {
         "timestamp": "2019-08-11_12-57-08",
