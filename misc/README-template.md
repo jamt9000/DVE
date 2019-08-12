@@ -30,7 +30,7 @@ In this work we use the following datasets:
 
 We provide pretrained models for each dataset to reproduce the results reported in the paper [1]. Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set.  The goal of these experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  Most of the embeddings are learned with the architecture described by [3].  We also learn one larger model using the hourglass architecture described in [7] (their code is available [here](https://github.com/YutingZhang/lmdis-rep)).
 
-| Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
+| Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :--:  | :-: | :----: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{celeba-smallnet-3d.same-identity}} | {{celeba-smallnet-3d.different-identity}} | [config]({{celeba-smallnet-3d.config}}), [model]({{celeba-smallnet-3d.model}}), [log]({{celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{celeba-smallnet-16d.same-identity}} | {{celeba-smallnet-16d.different-identity}} | [config]({{celeba-smallnet-16d.config}}), [model]({{celeba-smallnet-16d.model}}), [log]({{celeba-smallnet-16d.log}}) |
@@ -52,17 +52,13 @@ We provide pretrained models for each dataset to reproduce the results reported 
 
 **MAFL landmark regression**
 
-| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
-| ------------- | :--:  | :-: | :----: | :----: |
-|  3 | smallnet | :heavy_multiplication_x: | {{mafl-keypoints-celeba-smallnet-3d.iod}} | [config]({{mafl-keypoints-celeba-smallnet-3d.config}}), [model]({{mafl-keypoints-celeba-smallnet-3d.model}}), [log]({{mafl-keypoints-celeba-smallnet-3d.log}}) |
-|  16 | smallnet | :heavy_multiplication_x: | {{mafl-keypoints-celeba-smallnet-16d.iod}}  | [config]({{mafl-keypoints-celeba-smallnet-16d.config}}), [model]({{mafl-keypoints-celeba-smallnet-16d.model}}), [log]({{mafl-keypoints-celeba-smallnet-16d.log}}) |
-|  32 | smallnet | :heavy_multiplication_x: | {{mafl-keypoints-celeba-smallnet-32d.iod}}  | [config]({{mafl-keypoints-celeba-smallnet-32d.config}}), [model]({{mafl-keypoints-celeba-smallnet-32d.model}}), [log]({{mafl-keypoints-celeba-smallnet-32d.log}}) |
-|  64 | smallnet | :heavy_multiplication_x: | {{mafl-keypoints-celeba-smallnet-64d.iod}} | [config]({{mafl-keypoints-celeba-smallnet-64d.config}}), [model]({{mafl-keypoints-celeba-smallnet-64d.model}}), [log]({{mafl-keypoints-celeba-smallnet-64d.log}}) |
-|  3 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-3d-dve.log}}) |
-|  16 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-16d-dve.log}}) |
-|  32 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-32d-dve.log}}) |
-|  64 | smallnet | :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-64d-dve.log}}) |
-|  64 | hourglass | :heavy_check_mark: | {{mafl-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{mafl-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{mafl-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{mafl-keypoints-celeba-hourglass-64d-dve.log}}) |
+| Embed. Dim | Model | Error (%IOD) | Links | 
+| ------------- | :-: | :----: | :----: |
+|  3 | smallnet | {{mafl-keypoints-celeba-smallnet-3d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-3d-dve.log}}) |
+|  16 | smallnet | {{mafl-keypoints-celeba-smallnet-16d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-16d-dve.log}}) |
+|  32 | smallnet | {{mafl-keypoints-celeba-smallnet-32d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-32d-dve.log}}) |
+|  64 | smallnet | {{mafl-keypoints-celeba-smallnet-64d-dve.iod}} | [config]({{mafl-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-64d-dve.log}}) |
+|  64 | hourglass | {{mafl-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{mafl-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{mafl-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{mafl-keypoints-celeba-hourglass-64d-dve.log}}) |
 
 **AFLW landmark regression**
 
@@ -71,7 +67,7 @@ To compare with prior work, we evaluate the learned embeddings on AFLW under two
 
 *Without finetuning on AFLW*
 
-| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-keypoints-celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{aflw-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-keypoints-celeba-smallnet-16d.log}}) |
@@ -87,7 +83,7 @@ To compare with prior work, we evaluate the learned embeddings on AFLW under two
 
 First we fine-tune the embeddings for a fixed number of epochs:
 
-| Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
+| Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :--:  | :-: | :----: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{aflw-ft-celeba-smallnet-3d.same-identity}} | {{aflw-ft-celeba-smallnet-3d.different-identity}} | [config]({{aflw-ft-celeba-smallnet-3d.config}}), [model]({{aflw-ft-celeba-smallnet-3d.model}}), [log]({{aflw-ft-celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{aflw-ft-celeba-smallnet-16d.same-identity}} | {{aflw-ft-celeba-smallnet-16d.different-identity}} | [config]({{aflw-ft-celeba-smallnet-16d.config}}), [model]({{aflw-ft-celeba-smallnet-16d.model}}), [log]({{aflw-ft-celeba-smallnet-16d.log}}) |
@@ -102,7 +98,7 @@ First we fine-tune the embeddings for a fixed number of epochs:
 
 Then re-evaluate the performance of a learned landmark regressor:
 
-| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-ft-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{aflw-ft-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-ft-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-ft-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-ft-keypoints-celeba-smallnet-16d.log}}) |
@@ -118,7 +114,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 
 *Without finetuning on AFLW-MTFL*
 
-| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-mtfl-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-mtfl-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-mtfl-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-mtfl-keypoints-celeba-smallnet-16d.log}}) |
@@ -134,7 +130,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 
 First we fine-tune the embeddings for a fixed number of epochs:
 
-| Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
+| Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :--:  | :-: | :----: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-celeba-smallnet-3d.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-3d.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-celeba-smallnet-16d.same-identity}} | {{aflw-mtfl-ft-celeba-smallnet-16d.different-identity}} | [config]({{aflw-mtfl-ft-celeba-smallnet-16d.config}}), [model]({{aflw-mtfl-ft-celeba-smallnet-16d.model}}), [log]({{aflw-mtfl-ft-celeba-smallnet-16d.log}}) |
@@ -149,7 +145,7 @@ First we fine-tune the embeddings for a fixed number of epochs:
 
 Then re-evaluate the performance of a learned landmark regressor:
 
-| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-mtfl-ft-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-ft-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-ft-keypoints-celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{aflw-mtfl-ft-keypoints-celeba-smallnet-16d.iod}}  | [config]({{aflw-mtfl-ft-keypoints-celeba-smallnet-16d.config}}), [model]({{aflw-mtfl-ft-keypoints-celeba-smallnet-16d.model}}), [log]({{aflw-mtfl-ft-keypoints-celeba-smallnet-16d.log}}) |
@@ -166,7 +162,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 
 *Without finetuning*
 
-| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-3d.iod}} | [config]({{300w-keypoints-celeba-smallnet-3d.config}}), [model]({{300w-keypoints-celeba-smallnet-3d.model}}), [log]({{300w-keypoints-celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{300w-keypoints-celeba-smallnet-16d.iod}}  | [config]({{300w-keypoints-celeba-smallnet-16d.config}}), [model]({{300w-keypoints-celeba-smallnet-16d.model}}), [log]({{300w-keypoints-celeba-smallnet-16d.log}}) |
@@ -182,7 +178,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 
 First we fine-tune the embeddings for a fixed number of epochs:
 
-| Embedding Dim | Model | DVE | Same Identity | Different Identity | Links | 
+| Embed. Dim | Model | DVE | Same Identity | Different Identity | Links | 
 | ------------- | :--:  | :-: | :----: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{300w-ft-celeba-smallnet-3d.same-identity}} | {{300w-ft-celeba-smallnet-3d.different-identity}} | [config]({{300w-ft-celeba-smallnet-3d.config}}), [model]({{300w-ft-celeba-smallnet-3d.model}}), [log]({{300w-ft-celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{300w-ft-celeba-smallnet-16d.same-identity}} | {{300w-ft-celeba-smallnet-16d.different-identity}} | [config]({{300w-ft-celeba-smallnet-16d.config}}), [model]({{300w-ft-celeba-smallnet-16d.model}}), [log]({{300w-ft-celeba-smallnet-16d.log}}) |
@@ -196,7 +192,7 @@ First we fine-tune the embeddings for a fixed number of epochs:
 
 Then re-evaluate the performance of a learned landmark regressor:
 
-| Embedding Dim | Model | DVE | Inter-ocular distance | Links | 
+| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: | {{300w-ft-keypoints-celeba-smallnet-3d.iod}} | [config]({{300w-ft-keypoints-celeba-smallnet-3d.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-3d.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-3d.log}}) |
 |  16 | smallnet | :heavy_multiplication_x: | {{300w-ft-keypoints-celeba-smallnet-16d.iod}}  | [config]({{300w-ft-keypoints-celeba-smallnet-16d.config}}), [model]({{300w-ft-keypoints-celeba-smallnet-16d.model}}), [log]({{300w-ft-keypoints-celeba-smallnet-16d.log}}) |
@@ -212,9 +208,12 @@ Then re-evaluate the performance of a learned landmark regressor:
 
 We can study the effect of the DVE method by removing it during training and assessing the resulting embeddings for landmark regression.  The ablations are performed on the SmallNet (because it's much faster to train).
 
-| Embedding Dim | Model | DVE | Error (%IOD) | Links | 
+| Embed. Dim | Model | DVE | Error (%IOD) | Links | 
 | ------------- | :--:  | :-: | :----: | :----: |
 |  3 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-3d.iod}}/{{mafl-keypoints-celeba-smallnet-3d-dve.iod}} | ([config]({{mafl-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-3d-dve.log}})) / ([config]({{mafl-keypoints-celeba-smallnet-3d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-3d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-3d-dve.log}})) |
+|  16 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-16d.iod}}/{{mafl-keypoints-celeba-smallnet-16d-dve.iod}} | ([config]({{mafl-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-16d-dve.log}})) / ([config]({{mafl-keypoints-celeba-smallnet-16d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-16d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-16d-dve.log}})) |
+|  32 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-32d.iod}}/{{mafl-keypoints-celeba-smallnet-32d-dve.iod}} | ([config]({{mafl-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-32d-dve.log}})) / ([config]({{mafl-keypoints-celeba-smallnet-32d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-32d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-32d-dve.log}})) |
+|  64 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | {{mafl-keypoints-celeba-smallnet-64d.iod}}/{{mafl-keypoints-celeba-smallnet-64d-dve.iod}} | ([config]({{mafl-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-64d-dve.log}})) / ([config]({{mafl-keypoints-celeba-smallnet-64d-dve.config}}), [model]({{mafl-keypoints-celeba-smallnet-64d-dve.model}}), [log]({{mafl-keypoints-celeba-smallnet-64d-dve.log}})) |
 
 ### Notes
 
