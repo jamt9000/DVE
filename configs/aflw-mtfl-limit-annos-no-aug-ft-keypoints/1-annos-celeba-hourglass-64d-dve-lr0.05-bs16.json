@@ -1,9 +1,9 @@
 {
     "n_gpu": 1,
-    "finetune_from": "<template>",
-    "batch_size": 32,
+    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-hourglass-64d-dve/2019-08-11_16-40-28/checkpoint-epoch50.pth",
+    "batch_size": 16,
     "cache_descriptors": true,
-    "restrict_annos": "<template>",
+    "restrict_annos": 1,
     "keypoint_regressor_upsample": false,
     "arch": {
         "type": "HourglassNet",
@@ -31,16 +31,11 @@
         },
         "softmaxarg_mul": 100.0
     },
-    "warper": {
-        "type": "WarperSingle",
-        "args": {
-        }
-    },
     "warp_val": false,
     "optimizer": {
         "type": "Adam",
         "args": {
-            "lr": 0.001,
+            "lr": 0.05,
             "weight_decay": 0.0005,
             "amsgrad": true
         }

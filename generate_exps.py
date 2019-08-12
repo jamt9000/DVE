@@ -35,6 +35,7 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
         if "-ft-keypoints" in target:
             prefix = target.replace("-keypoints", "")
             prefix = prefix.replace("-limit-annos", "")
+            prefix = prefix.replace("-no-aug", "")
             ckpt_name = f"{prefix}-{model_name}"
         else:
             ckpt_name = model_name
@@ -79,6 +80,8 @@ def generate_configs(base_config, dest_dir, embeddings, grid, refresh, ckpts_pat
                 model_name_ = model_name
             if len(grid["lr"]) > 1:
                 model_name_ = f"{model_name_}-lr{config['optimizer']['args']['lr']}"
+            if len(grid["bs"]) > 1:
+                model_name_ = f"{model_name_}-bs{config['batch_size']}"
             
             
             dest_path = Path(dest_dir) / f"{model_name_}.json"
@@ -117,6 +120,7 @@ if __name__ == "__main__":
             "aflw-mtfl-limit-annos-keypoints",
             "aflw-mtfl-limit-annos-no-cache-keypoints",
             "aflw-mtfl-limit-annos-ft-keypoints",
+            "aflw-mtfl-limit-annos-no-aug-ft-keypoints",
         ])
     args = parser.parse_args()
 
