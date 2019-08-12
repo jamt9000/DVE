@@ -57,7 +57,7 @@
     "aflw-ft-celeba-smallnet-16d-dve": {"timestamp": "2019-08-10_12-50-30", "epoch": 50},
     "aflw-ft-celeba-smallnet-32d-dve": {"timestamp": "2019-08-10_12-50-31", "epoch": 50},
     "aflw-ft-celeba-smallnet-64d-dve": {"timestamp": "2019-08-10_12-50-32", "epoch": 50},
-    "aflw-ft-celeba-hourglass-64d-dve": {"timestamp": "TODO:e8-d1", "epoch": 50},
+    "aflw-ft-celeba-hourglass-64d-dve": {"timestamp": "2019-08-11_14-43-34", "epoch": 50},
 
     "aflw-mtfl-ft-celeba-smallnet-3d": {"timestamp": "2019-08-11_08-19-48", "epoch": 50},
     "aflw-mtfl-ft-celeba-smallnet-16d": {"timestamp": "2019-08-11_08-19-50", "epoch": 50},
@@ -67,7 +67,7 @@
     "aflw-mtfl-ft-celeba-smallnet-16d-dve": {"timestamp": "2019-08-11_08-19-58", "epoch": 50},
     "aflw-mtfl-ft-celeba-smallnet-32d-dve": {"timestamp": "2019-08-11_08-19-55", "epoch": 50},
     "aflw-mtfl-ft-celeba-smallnet-64d-dve": {"timestamp": "2019-08-11_08-19-54", "epoch": 50},
-    "aflw-mtfl-ft-celeba-hourglass-64d-dve": {"timestamp": "TODO:b2:d3", "epoch": 50},
+    "aflw-mtfl-ft-celeba-hourglass-64d-dve": {"timestamp": "2019-08-11_16-40-28", "epoch": 50},
 
     "300w-ft-celeba-smallnet-3d": {"timestamp": "2019-08-11_18-11-26", "epoch": 50},
     "300w-ft-celeba-smallnet-16d": {"timestamp": "2019-08-11_18-11-34", "epoch": 50},
@@ -107,5 +107,5 @@
     "300w-ft-keypoints-celeba-smallnet-16d-dve": {"timestamp": "TODOaws1", "epoch": 300},
     "300w-ft-keypoints-celeba-smallnet-32d-dve": {"timestamp": "TODOaws1", "epoch": 300},
     "300w-ft-keypoints-celeba-smallnet-64d-dve": {"timestamp": "TODOaws1", "epoch": 300},
-    "300w-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "TODO:e8-d1", "epoch": 300}
+    "300w-ft-keypoints-celeba-hourglass-64d-dve": {"timestamp": "2019-08-11_18-42-44", "epoch": 300}
 }

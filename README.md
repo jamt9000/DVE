@@ -97,7 +97,7 @@ First we fine-tune the embeddings for a fixed number of epochs:
 |  16 | smallnet | :heavy_check_mark: | 6.34 | 8.62 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-16d-dve/2019-08-10_12-50-30/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-16d-dve/2019-08-10_12-50-30/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-16d-dve/2019-08-10_12-50-30/info.log) |
 |  32 | smallnet | :heavy_check_mark: | 8.10 | 10.11 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-32d-dve/2019-08-10_12-50-31/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-32d-dve/2019-08-10_12-50-31/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-32d-dve/2019-08-10_12-50-31/info.log) |
 |  64 | smallnet | :heavy_check_mark: | 4.08 | 5.21 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-64d-dve/2019-08-10_12-50-32/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-smallnet-64d-dve/2019-08-10_12-50-32/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-smallnet-64d-dve/2019-08-10_12-50-32/info.log) |
-|  64 | hourglass | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | 1.17 | 4.04 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-hourglass-64d-dve/2019-08-11_14-43-34/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-celeba-hourglass-64d-dve/2019-08-11_14-43-34/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-celeba-hourglass-64d-dve/2019-08-11_14-43-34/info.log) |
 
 
 Then re-evaluate the performance of a learned landmark regressor:
@@ -144,7 +144,7 @@ First we fine-tune the embeddings for a fixed number of epochs:
 |  16 | smallnet | :heavy_check_mark: | 4.72 | 7.11 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-16d-dve/2019-08-11_08-19-58/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-16d-dve/2019-08-11_08-19-58/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-16d-dve/2019-08-11_08-19-58/info.log) |
 |  32 | smallnet | :heavy_check_mark: | 6.42 | 8.71 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-32d-dve/2019-08-11_08-19-55/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-32d-dve/2019-08-11_08-19-55/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-32d-dve/2019-08-11_08-19-55/info.log) |
 |  64 | smallnet | :heavy_check_mark: | 8.07 | 10.09 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-64d-dve/2019-08-11_08-19-54/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-64d-dve/2019-08-11_08-19-54/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-64d-dve/2019-08-11_08-19-54/info.log) |
-|  64 | hourglass | :heavy_check_mark: | TODO | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | 1.53 | 3.65 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-hourglass-64d-dve/2019-08-11_16-40-28/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-hourglass-64d-dve/2019-08-11_16-40-28/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-hourglass-64d-dve/2019-08-11_16-40-28/info.log) |
 
 
 Then re-evaluate the performance of a learned landmark regressor:
@@ -206,7 +206,7 @@ Then re-evaluate the performance of a learned landmark regressor:
 |  16 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  32 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
 |  64 | smallnet | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
-|  64 | hourglass | :heavy_check_mark: | TODO | [config](TODO), [model](TODO), [log](TODO) |
+|  64 | hourglass | :heavy_check_mark: | 4.65 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-keypoints-celeba-hourglass-64d-dve/2019-08-11_18-42-44/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-keypoints-celeba-hourglass-64d-dve/2019-08-11_18-42-44/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-keypoints-celeba-hourglass-64d-dve/2019-08-11_18-42-44/info.log) |
 
 
 ### Notes
