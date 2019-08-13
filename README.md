@@ -381,7 +381,7 @@ Some other codebases you might like to check out if you are interested in self-s
 ### Acknowledgements
 
 
-We would like to thank Almut Sophia Koepke for her help.  The project structure uses the [pytorch-template](https://github.com/victoresque/pytorch-template) by @victoresque.
+We would like to thank Almut Sophia Koepke for helpful discussions.  The project structure uses the [pytorch-template](https://github.com/victoresque/pytorch-template) by @victoresque.
 
 ### References
 
