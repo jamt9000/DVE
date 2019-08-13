@@ -665,6 +665,86 @@
             "params": 12609472
         }
     },
+    "aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d": {
+        "timestamp": "2019-08-13_12-06-42",
+        "results": {
+            "mean_iod": [
+                19.866501605331596,
+                3.1049075390610863
+            ],
+            "params": 334875
+        }
+    },
+    "aflw-mtfl-limit-annos-ft-keypoints-5-annos-celeba-smallnet-3d": {
+        "timestamp": "2019-08-13_12-07-37",
+        "results": {
+            "mean_iod": [
+                16.89767294720802,
+                1.0431180615454692
+            ],
+            "params": 334875
+        }
+    },
+    "aflw-mtfl-limit-annos-ft-keypoints-10-annos-celeba-smallnet-3d": {
+        "timestamp": "2019-08-13_12-07-49",
+        "results": {
+            "mean_iod": [
+                16.117696124709973,
+                1.0680579657068237
+            ],
+            "params": 334875
+        }
+    },
+    "aflw-mtfl-limit-annos-ft-keypoints-20-annos-celeba-smallnet-3d": {
+        "timestamp": "2019-08-13_12-08-03",
+        "results": {
+            "mean_iod": [
+                15.296930744678496,
+                0.5915574179895525
+            ],
+            "params": 334875
+        }
+    },
+    "aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-64d-dve": {
+        "timestamp": "2019-08-13_12-08-14",
+        "results": {
+            "mean_iod": [
+                17.131019366842278,
+                1.7840203077023713
+            ],
+            "params": 350552
+        }
+    },
+    "aflw-mtfl-limit-annos-ft-keypoints-5-annos-celeba-smallnet-64d-dve": {
+        "timestamp": "2019-08-13_12-08-23",
+        "results": {
+            "mean_iod": [
+                13.565648091867624,
+                2.0792312282577954
+            ],
+            "params": 350552
+        }
+    },
+    "aflw-mtfl-limit-annos-ft-keypoints-10-annos-celeba-smallnet-64d-dve": {
+        "timestamp": "2019-08-13_12-08-34",
+        "results": {
+            "mean_iod": [
+                12.965453058411562,
+                2.362585305759095
+            ],
+            "params": 350552
+        }
+    },
+    "aflw-mtfl-limit-annos-ft-keypoints-20-annos-celeba-smallnet-64d-dve": {
+        "timestamp": "2019-08-13_12-08-55",
+        "results": {
+            "mean_iod": [
+                11.259274566790495,
+                0.9304902980783336
+            ],
+            "params": 350552
+        }
+    },
     "aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-hourglass-64d-dve": {
         "timestamp": "TODO",
         "results": {}
@@ -678,22 +758,6 @@
         "results": {}
     },
     "aflw-mtfl-limit-annos-ft-keypoints-20-annos-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
-    },
-    "aflw-mtfl-limit-annos-no-cache-ft-keypoints-1-annos-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
-    },
-    "aflw-mtfl-limit-annos-no-cache-ft-keypoints-5-annos-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
-    },
-    "aflw-mtfl-limit-annos-no-cache-ft-keypoints-10-annos-celeba-hourglass-64d-dve": {
-        "timestamp": "TODO",
-        "results": {}
-    },
-    "aflw-mtfl-limit-annos-no-cache-ft-keypoints-20-annos-celeba-hourglass-64d-dve": {
         "timestamp": "TODO",
         "results": {}
     },

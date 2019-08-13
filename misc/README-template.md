@@ -228,7 +228,7 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 
 | Embed. Dim | Model | Num annos. | Error (%IOD) | Links | 
 | :-----------: | :--: | :--: | :----: | :----: |
-|  3 | smallnet | 1 | {{aflw-mtfl-limit-annos-ft-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-mtfl-limit-annos-ft-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-limit-annos-ft-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-limit-annos-ft-keypoints-celeba-smallnet-3d.log}}) |
+|  3 | smallnet | 1 | {{aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d.mean_iod}} | [config]({{aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d.log}}) |
 
 
 ### Dataset mirrors

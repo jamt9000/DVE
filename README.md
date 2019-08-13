@@ -12,7 +12,7 @@ This repo provides code for learning dense landmarks without supervision.  Our a
 The embedding is learned from pairs of images (x,x′) related by a known warp v = g(u). In the image above, on the left we show the approach used by [3], which directly matches embedding Φ<sub>u</sub>(x) from the left image to embeddings Φ<sub>v</sub>(x′) in the right image to generate a loss. On the right, *DVE* replaces Φ<sub>u</sub>(x) with its reconstruction Φˆ<sub>u</sub>(x|xα) obtained from the embeddings in a third auxiliary image xα (the correspondence with xα does not need to be known). This mechanism encourages the embeddings to act consistently across different instances, even when the dimensionality is increased (see the paper for more details).
 
 
-**Requirements:** The code assumes PyTorch 1.1 and Python 3.7 (other versions may work, but have not been tested).  See the section on dependencies towards the end of this file for specific package requirements.
+**Requirements:** The code assumes PyTorch 1.1 and Python 3.6/3.7 (other versions may work, but have not been tested).  See the section on dependencies towards the end of this file for specific package requirements.
 
 
 ### Learned Embeddings
@@ -96,6 +96,7 @@ AFLW-MTFLis a dataset of faces which also includes landmark annotations. We use 
 |  32 | smallnet | 9.17 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-32d-dve/2019-08-11_18-43-30/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-32d-dve/2019-08-11_18-43-30/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-smallnet-32d-dve/2019-08-11_18-43-30/info.log) |
 |  64 | smallnet | 8.60 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-43-35/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-43-35/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-43-35/info.log) |
 |  64 | hourglass | 7.53 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-59/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-59/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-59/info.log) |
+
 
 
 ## Ablation Studies
@@ -220,6 +221,17 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 |  64 | hourglass | 1.63 | 3.82 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/info.log) |
 
 
+| Embed. Dim | Model | Same Identity | Different Identity | Links | 
+| :-----------: | :-: | :----: | :----: | :----: |
+|  3 | smallnet | 5.21 | 6.51 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-3d-dve/2019-08-11_18-11-57/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-3d-dve/2019-08-11_18-11-57/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-smallnet-3d-dve/2019-08-11_18-11-57/info.log) |
+
+**Annotation Ablation: AFLW-mtfl landmark regression**
+
+| Embed. Dim | Model | Num annos. | Error (%IOD) | Links | 
+| :-----------: | :--: | :--: | :----: | :----: |
+|  3 | smallnet | 1 | 19.87 (+/- 3.10) | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d/2019-08-13_12-06-42/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d/2019-08-13_12-06-42/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d/2019-08-13_12-06-42/info.log) |
+
+
 ### Dataset mirrors
 
 For each dataset used in the paper, we provide a preprocessed copy to allow the results described above to be reproduced directly.  These can be downloaded and unpacked with a [utility script]() (**TODO** recommended -- see example usage below), which will store them in the locations expected by the training code. Each dataset has a brief README, which also provides the citations for use with each dataset, together with a link from which it can be downloaded directly.
@@ -270,14 +282,14 @@ For example, to reproduce the `smallnet-32d-dve` results described above, run th
 python misc/fetch_datasets.py --dataset celeba
 
 # find the name of a pretrained model using the links in the tables above 
-export MODEL=data/models/celeba-smallnet-32d-dve/2019-08-08_17-56-24/checkpoint-epoch100.pth
+export MODEL=data/models/saved/celeba-smallnet-32d-dve/2019-08-02_06-19-59/checkpoint-epoch100.pth
 
 # create a local directory and download the model into it 
 mkdir -p $(dirname "${MODEL}")
 wget --output-document="${MODEL}" "http://www.robots.ox.ac.uk/~vgg/research/DVE/${MODEL}"
 
 # Evaluate the model
-python3 test.py --config configs/celeba/smallnet-32d-dve.json --resume ${MODEL} --device 0
+python3 test_matching.py --config configs/celeba/smallnet-32d-dve.json --resume ${MODEL} --device 0
 ```
 
 ### Regressing landmarks

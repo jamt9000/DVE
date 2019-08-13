@@ -67,9 +67,8 @@ def parse_log(log_path):
     results = {}
     # Keypoint regression uses a different evaluation to the standard embedding learning
     if "limit-annos" in str(log_path) and "keypoints" in str(log_path):
-        metrics = {"iod"}
-        expected_occurences = 150
-        import ipdb; ipdb.set_trace()
+        metrics = {"mean_iod"}
+        expected_occurences = 1
     elif "keypoints" in str(log_path):
         metrics = {"iod"}
         expected_occurences = 300
@@ -80,6 +79,8 @@ def parse_log(log_path):
     for metric in metrics:
         if metric == "iod":
             tag = "val_inter_ocular_error"
+        elif metric == "mean_iod":
+            tag = "val_inter_ocular_error -> mean"
         else:
             tag = f"Mean Pixel Error ({metric})"
         results[metric] = OrderedDict()
@@ -90,7 +91,13 @@ def parse_log(log_path):
         pos = np.where(presence)[0][-1]
         row = log[pos]
         tokens = row.split(" ")
-        val = float(tokens[-1])
+        if metric == "mean_iod":
+            # parse the mean and std
+            mean_str = tokens[-3][:-1]  # we strip a trailing comma here
+            std_str = tokens[-1]
+            val = (float(mean_str), float(std_str))
+        else:
+            val = float(tokens[-1])
         results[metric] = val
         print(f"{log_path.parent.parent.stem}: {metric} {val}")
     for row in log:
@@ -137,6 +144,10 @@ def generate_readme(experiments, readme_template, root_url, readme_dest, results
                 token = generate_url(root_url, target, exp_name, experiments=experiments)
             elif target in {"same-identity", "different-identity", "iod"}:
                 token = f"{results[exp_name]['results'][target]:.2f}"
+            elif target in {"mean_iod"}:
+                results[exp_name]["results"][target]
+                mean, std = results[exp_name]['results'][target]
+                token = f"{mean:.2f} (+/- {std:.2f})"
             elif target in {"params"}:
                 token = millify(results[exp_name]["results"]["params"], precision=1)
             edits.append((match.span(), token))
