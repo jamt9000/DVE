@@ -56,14 +56,13 @@
         "type": "MultiStepLR",
         "args": {
             "milestones": [
-                60,
-                80
+                40
             ],
             "gamma": 0.1
         }
     },
     "trainer": {
-        "epochs": 100,
+        "epochs": 50,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,

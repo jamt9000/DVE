@@ -13,7 +13,7 @@ from pathlib import Path
 
 def upload_to_server(web_dir, dataset, webserver, root_feat_dir, refresh):
     # NOTE: The compression step will take a while. The last runs took:
-    # celeba -> , aflw -> , aflw-mtfl -> , 300w -> 
+    # celeba -> 02h00m23s
 
     server_dir = Path(web_dir) / "data" / "datasets"
     subprocess.call(["ssh", webserver, "mkdir -p", str(server_dir)])

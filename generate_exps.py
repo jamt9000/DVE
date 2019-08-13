@@ -118,7 +118,6 @@ if __name__ == "__main__":
             "aflw-ft-keypoints",
             "aflw-mtfl-ft-keypoints",
             "aflw-mtfl-limit-annos-keypoints",
-            "aflw-mtfl-limit-annos-no-cache-keypoints",
             "aflw-mtfl-limit-annos-ft-keypoints",
             "aflw-mtfl-limit-annos-no-aug-ft-keypoints",
         ])
@@ -136,9 +135,13 @@ if __name__ == "__main__":
     dest_config_dir = Path("configs") / args.target
     base_config_path = Path("configs/templates") / f"{args.target}.json"
 
-    # For the semi-supervised experiment, we just use the strongest model
+    # For the semi-supervised experiment, we just use the strongest models
     if "limit-annos" in args.target:
-        pretrained_embeddings = ["celeba-hourglass-64d-dve"]
+        pretrained_embeddings = [
+            "celeba-smallnet-3d",
+            "celeba-smallnet-64d-dve",
+            "celeba-hourglass-64d-dve",
+        ]
     else:
         pretrained_embeddings = [
             "celeba-smallnet-3d",

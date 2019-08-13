@@ -1,22 +1,22 @@
 {
     "n_gpu": 1,
-    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-hourglass-64d-dve/2019-08-11_16-40-28/checkpoint-epoch50.pth",
+    "finetune_from": "data/saved/models/aflw-mtfl-ft-celeba-smallnet-3d/2019-08-11_08-19-48/checkpoint-epoch50.pth",
     "batch_size": 32,
     "cache_descriptors": true,
     "restrict_annos": 5,
     "keypoint_regressor_upsample": false,
     "arch": {
-        "type": "HourglassNet",
+        "type": "SmallNet",
         "args": {
-            "num_output_channels": 64
+            "num_output_channels": 3
         }
     },
     "dataset": {
         "type": "AFLW_MTFL",
         "args": {
             "root": "data/aflw-mtfl",
-            "imwidth": 136,
-            "crop": 20,
+            "imwidth": 100,
+            "crop": 15,
             "use_hq_ims": true,
             "use_keypoints": true,
             "do_augmentations": true
@@ -39,7 +39,7 @@
     "optimizer": {
         "type": "Adam",
         "args": {
-            "lr": 0.0001,
+            "lr": 0.001,
             "weight_decay": 0.0005,
             "amsgrad": true
         }
@@ -56,14 +56,13 @@
         "type": "MultiStepLR",
         "args": {
             "milestones": [
-                60,
-                80
+                40
             ],
             "gamma": 0.1
         }
     },
     "trainer": {
-        "epochs": 100,
+        "epochs": 50,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
