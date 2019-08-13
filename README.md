@@ -225,7 +225,7 @@ For each dataset used in the paper, we provide a preprocessed copy to allow the 
 
 | Dataset   | Details and links | Archive size | sha1sum |
 |:-------------:|:-----:|:----:|:---:|
-| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| TODO | `TODO` |
+| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| 9.0 GiB | `f6872ab0f2df8e5843abe99dc6d6100dd4fea29f` |
 | 300w | [README](misc/datasets/300w/README.md)| 3.0 GiB | `885b09159c61fa29998437747d589c65cfc4ccd3` |
 | AFLW-mtfl | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | `1ff31c07cef4f2777b416d896a65f6c17d8ae2ee` |
 | AFLW-recrop | [README](misc/datasets/aflw-recrop/README.md)| 1.1 GiB | `939fdce0e6262a14159832c71d4f84a9d516de5e` |
