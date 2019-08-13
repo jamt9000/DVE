@@ -97,6 +97,7 @@ AFLW-MTFLis a dataset of faces which also includes landmark annotations. We use 
 |  64 | hourglass | {{aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve.iod}} | [config]({{aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve.config}}), [model]({{aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve.model}}), [log]({{aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve.log}}) |
 
 
+
 ## Ablation Studies
 
 We can study the effect of the DVE method by removing it during training and assessing the resulting embeddings for landmark regression.  The ablations are performed on the lighter SmallNet model.
@@ -217,6 +218,17 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 |  32 | smallnet | {{300w-ft-celeba-smallnet-32d-dve.same-identity}} | {{300w-ft-celeba-smallnet-32d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-32d-dve.config}}), [model]({{300w-ft-celeba-smallnet-32d-dve.model}}), [log]({{300w-ft-celeba-smallnet-32d-dve.log}}) |
 |  64 | smallnet | {{300w-ft-celeba-smallnet-64d-dve.same-identity}} | {{300w-ft-celeba-smallnet-64d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-64d-dve.config}}), [model]({{300w-ft-celeba-smallnet-64d-dve.model}}), [log]({{300w-ft-celeba-smallnet-64d-dve.log}}) |
 |  64 | hourglass | {{300w-ft-celeba-hourglass-64d-dve.same-identity}} | {{300w-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{300w-ft-celeba-hourglass-64d-dve.config}}), [model]({{300w-ft-celeba-hourglass-64d-dve.model}}), [log]({{300w-ft-celeba-hourglass-64d-dve.log}}) |
+
+
+| Embed. Dim | Model | Same Identity | Different Identity | Links | 
+| :-----------: | :-: | :----: | :----: | :----: |
+|  3 | smallnet | {{300w-ft-celeba-smallnet-3d-dve.same-identity}} | {{300w-ft-celeba-smallnet-3d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-3d-dve.config}}), [model]({{300w-ft-celeba-smallnet-3d-dve.model}}), [log]({{300w-ft-celeba-smallnet-3d-dve.log}}) |
+
+**Annotation Ablation: AFLW-mtfl landmark regression**
+
+| Embed. Dim | Model | Num annos. | Error (%IOD) | Links | 
+| :-----------: | :--: | :--: | :----: | :----: |
+|  3 | smallnet | 1 | {{aflw-mtfl-limit-annos-ft-keypoints-celeba-smallnet-3d.iod}} | [config]({{aflw-mtfl-limit-annos-ft-keypoints-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-limit-annos-ft-keypoints-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-limit-annos-ft-keypoints-celeba-smallnet-3d.log}}) |
 
 
 ### Dataset mirrors

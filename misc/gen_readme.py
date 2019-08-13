@@ -66,7 +66,11 @@ def parse_log(log_path):
         log = f.read().splitlines()
     results = {}
     # Keypoint regression uses a different evaluation to the standard embedding learning
-    if "keypoints" in str(log_path):
+    if "limit-annos" in str(log_path) and "keypoints" in str(log_path):
+        metrics = {"iod"}
+        expected_occurences = 150
+        import ipdb; ipdb.set_trace()
+    elif "keypoints" in str(log_path):
         metrics = {"iod"}
         expected_occurences = 300
     else:
