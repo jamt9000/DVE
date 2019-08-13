@@ -1,6 +1,7 @@
 import time
 import argparse
 import numpy as np
+import copy
 import random
 import torch
 import data_loader.data_loaders as module_data
@@ -24,6 +25,9 @@ def main(config, resume):
     torch.backends.cudnn.benchmark = True
     logger.info("Launching experiment with config:")
     logger.info(config)
+
+    if len(seeds) > 1:
+        run_metrics = []
 
     for seed in seeds:
         tic = time.time()
@@ -171,6 +175,13 @@ def main(config, resume):
             config["mini_eval"] = config._args.mini_train
             evaluation(config, logger=logger)
             logger.info(f"Log written to {config.log_path}")
+        elif "keypoint_regressor" in config.keys() and len(seeds) > 1:
+            run_metrics.append(copy.deepcopy(trainer.latest_log))
+
+    if len(seeds) > 1 and "keypoint_regressor" in config.keys():
+        target = "val_inter_ocular_error"
+        errors = [x[target] for x in run_metrics]
+        logger.info(f"{target} -> mean: {np.mean(errors)}, std: {np.std(errors)}")
 
 
 if __name__ == '__main__':
