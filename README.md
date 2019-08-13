@@ -1,3 +1,4 @@
+<!-- AUTOMATICALLY GENERATED - DO NOT EDIT DIRECTLY, edit misc/README-template.md -->
 # Descriptor Vector Exchange
 
 
