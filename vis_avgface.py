@@ -19,6 +19,9 @@ from collections import defaultdict
 
 if sys.platform == 'darwin':
     matplotlib.use("macosx")
+else:
+    matplotlib.use("Qt5Agg")
+
 import matplotlib.pyplot as plt
 
 config_file = 'configs/celeba/smallnet-64d-dve.json'
@@ -91,31 +94,48 @@ i_idxs = np.arange(10, 60, 5)
 j_idxs = np.arange(15, 60, 5)
 npts = len(i_idxs) * len(j_idxs)
 
-plt.figure(figsize=(9,3))
+plt.figure(figsize=(9, 3))
 
-left = plt.subplot(1, 3, 1)
+query_ax = plt.subplot(1, 3,2)
+nodve_ax = plt.subplot(1,3,1)
+dve_ax = plt.subplot(1,3,3)
+
+plt.sca(query_ax)
 plt.imshow(norm_range(avface_tensor).permute(1, 2, 0))
 rainbow = plt.cm.Spectral(np.linspace(0, 1, npts))
 plt.title('Query')
 plt.gca().set_prop_cycle('color', rainbow)
 
+l,b,r,t = query_ax.get_position().extents
+d = 0.03
+query_ax.set_position(matplotlib.transforms.Bbox.from_extents((l+d,b+d,r-d,t-d)))
+
+fac = plt.gca().get_position().width / dve_ax.get_position().width
+
 for i in i_idxs:
     for j in j_idxs:
-        plt.scatter(j, i)
+        plt.scatter(j, i, s=(6 * fac)**2)
 plt.xticks([], [])
 plt.yticks([], [])
 
 
 def ax_reset():
     plt.cla()
-    plt.xlim(left.get_xlim())
-    plt.ylim(left.get_ylim())
+    plt.xlim(query_ax.get_xlim())
+    plt.ylim(query_ax.get_ylim())
     plt.xticks([], [])
     plt.yticks([], [])
 
 
 def tween_scatter(t, im1, im2, scatter1, scatter2, title1, title2, fade_ims=True):
     ax_reset()
+    base_subplot = plt.gca()
+
+    #inner_grid = matplotlib.gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=base_subplot, hspace=0, wspace=0)
+    inner_grid = matplotlib.gridspec.GridSpec(3,3)
+    bb=base_subplot.get_position()
+    l,b,r,t = bb.extents
+    inner_grid.update(left=l,bottom=b,right=r,top=t)
 
     if fade_ims:
         prev_alpha = np.maximum(0., 1 - 2 * t)
@@ -124,14 +144,23 @@ def tween_scatter(t, im1, im2, scatter1, scatter2, title1, title2, fade_ims=True
         prev_alpha = 0.
         cur_alpha = 1.
 
-    if prev_alpha:
-        plt.imshow(norm_range(im1).permute(1, 2, 0), alpha=prev_alpha)
-    if cur_alpha:
-        plt.imshow(norm_range(im2).permute(1, 2, 0), alpha=cur_alpha)
+    for gi in range(9):
+        gax = plt.gcf().add_subplot(inner_grid[gi])
 
-    ease = (-np.cos(np.pi*t) + 1)/2
-    scatter_tween = (1 - ease) * scatter1 + ease * scatter2
-    plt.scatter(scatter_tween[:, 0], scatter_tween[:, 1], c=rainbow)
+        ax_reset()
+
+        if prev_alpha:
+            plt.imshow(norm_range(im1).permute(1, 2, 0), alpha=prev_alpha)
+        if cur_alpha:
+            plt.imshow(norm_range(im2).permute(1, 2, 0), alpha=cur_alpha)
+
+        ease = (-np.cos(np.pi * t) + 1) / 2
+        scatter_tween = (1 - ease) * scatter1 + ease * scatter2
+
+        fac = plt.gca().get_position().width / base_subplot.get_position().width
+        plt.scatter(scatter_tween[:, 0], scatter_tween[:, 1], c=rainbow, s=(6 * fac)**2)
+
+    plt.sca(base_subplot)
     ttl1 = plt.title(title1, loc='left')
     ttl2 = plt.text(*ttl1.get_position(), title2)
     ttl2.update_from(ttl1)
@@ -148,14 +177,13 @@ def get_match_grid(src, dest, stride):
     scatter_xy = np.array(scatter_xy)
     return scatter_xy
 
+
 n_model_variations = len(model_files_all) // 2
 frame = 0
 for si in range(20):
     for mi in range(n_model_variations):
         model1 = model_files_nodve[mi]
         model2 = model_files_dve[mi]
-
-        plt.subplot(1, 3, 2)
 
         dest1 = sample_descs[model1][si]
         dest1_im = sample_ims[model1][si]
@@ -174,22 +202,22 @@ for si in range(20):
 
         if mi > 0 or si > 0:
             for t in np.linspace(0, 1, 24):
-                plt.subplot(1, 3, 2)
+                plt.sca(nodve_ax)
                 tween_scatter(t, prev_dest1_im, dest1_im, prev_scatter_xy_1, scatter_xy_1, prev_title1, title1,
                               fade_ims=new_im)
-                plt.subplot(1, 3, 3)
+                plt.sca(dve_ax)
                 tween_scatter(t, prev_dest2_im, dest2_im, prev_scatter_xy_2, scatter_xy_2, prev_title2, title2,
                               fade_ims=new_im)
                 plt.savefig('/tmp/vis%05d.png' % frame)
                 frame += 1
 
-        plt.subplot(1, 3, 2)
+        plt.sca(nodve_ax)
         ax_reset()
         plt.imshow(norm_range(dest1_im).permute(1, 2, 0))
         plt.scatter(scatter_xy_1[:, 0], scatter_xy_1[:, 1], c=rainbow)
         plt.title(title1, loc='left')
 
-        plt.subplot(1, 3, 3)
+        plt.sca(dve_ax)
         ax_reset()
         plt.imshow(norm_range(dest2_im).permute(1, 2, 0))
         plt.scatter(scatter_xy_2[:, 0], scatter_xy_2[:, 1], c=rainbow)
