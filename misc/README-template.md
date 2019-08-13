@@ -11,7 +11,7 @@ This repo provides code for learning dense landmarks without supervision.  Our a
 The embedding is learned from pairs of images (x,x′) related by a known warp v = g(u). In the image above, on the left we show the approach used by [3], which directly matches embedding Φ<sub>u</sub>(x) from the left image to embeddings Φ<sub>v</sub>(x′) in the right image to generate a loss. On the right, *DVE* replaces Φ<sub>u</sub>(x) with its reconstruction Φˆ<sub>u</sub>(x|xα) obtained from the embeddings in a third auxiliary image xα (the correspondence with xα does not need to be known). This mechanism encourages the embeddings to act consistently across different instances, even when the dimensionality is increased (see the paper for more details).
 
 
-**Requirements:** The code assumes PyTorch 1.1 and Python 3.7 (other versions may work, but have not been tested).  See the section on dependencies towards the end of this file for specific package requirements.
+**Requirements:** The code assumes PyTorch 1.1 and Python 3.6/3.7 (other versions may work, but have not been tested).  See the section on dependencies towards the end of this file for specific package requirements.
 
 
 ### Learned Embeddings

@@ -42,6 +42,7 @@ class BaseTrainer:
             self.early_stop = cfg_trainer.get('early_stop', math.inf)
 
         self.start_epoch = 1
+        self.latest_log = None
 
         # setup directory for checkpoint saving
         # if resume:
@@ -97,6 +98,8 @@ class BaseTrainer:
                     })
                 else:
                     log[key] = value
+
+            self.latest_log = log
 
             # print logged informations to the screen
             for key, value in log.items():
