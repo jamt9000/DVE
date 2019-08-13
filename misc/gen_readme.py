@@ -150,7 +150,8 @@ def generate_readme(experiments, readme_template, root_url, readme_dest, results
         generated.append(row)
 
     with open(readme_dest, "w") as f:
-        f.write("\n".join(generated))
+        warning = '<!-- AUTOMATICALLY GENERATED - DO NOT EDIT DIRECTLY, edit misc/README-template.md -->\n'
+        f.write(warning + "\n".join(generated))
 
 
 if __name__ == "__main__":

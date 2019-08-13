@@ -1,3 +1,4 @@
+<!-- AUTOMATICALLY GENERATED - DO NOT EDIT DIRECTLY, edit misc/README-template.md -->
 # Descriptor Vector Exchange
 
 
@@ -221,11 +222,11 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 
 ### Dataset mirrors
 
-For each dataset used in the paper, we provide a preprocessed copy to allow the results described above to be reproduced directly.  These can be downloaded and unpacked with a [utility script]() (recommended -- see example usage below), which will store them in the locations expected by the training code. Each dataset has a brief README, which also provides the citations for use with each dataset, together with a link from which it can be downloaded directly.
+For each dataset used in the paper, we provide a preprocessed copy to allow the results described above to be reproduced directly.  These can be downloaded and unpacked with a [utility script]() (**TODO** recommended -- see example usage below), which will store them in the locations expected by the training code. Each dataset has a brief README, which also provides the citations for use with each dataset, together with a link from which it can be downloaded directly.
 
 | Dataset   | Details and links | Archive size | sha1sum |
 |:-------------:|:-----:|:----:|:---:|
-| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| TODO | `TODO` |
+| CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| 9.0 GiB | `f6872ab0f2df8e5843abe99dc6d6100dd4fea29f` |
 | 300w | [README](misc/datasets/300w/README.md)| 3.0 GiB | `885b09159c61fa29998437747d589c65cfc4ccd3` |
 | AFLW-mtfl | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | `1ff31c07cef4f2777b416d896a65f6c17d8ae2ee` |
 | AFLW-recrop | [README](misc/datasets/aflw-recrop/README.md)| 1.1 GiB | `939fdce0e6262a14159832c71d4f84a9d516de5e` |
@@ -381,7 +382,7 @@ Some other codebases you might like to check out if you are interested in self-s
 ### Acknowledgements
 
 
-We would like to thank Almut Sophia Koepke for her help.  The project structure uses the [pytorch-template](https://github.com/victoresque/pytorch-template) by @victoresque.
+We would like to thank Almut Sophia Koepke for helpful discussions.  The project structure uses the [pytorch-template](https://github.com/victoresque/pytorch-template) by @victoresque.
 
 ### References
 

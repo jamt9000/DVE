@@ -11,11 +11,11 @@ The folder contains two forms of the CelebA images (one set of higher quality im
 one copy at slightly lower quality).  In practice, the higher image qualities made no
 discernible difference to performance for embedding learning, but they were used in one set of experiments so they are included here for completeness.
 
-The compressed tar file (TODO GiB) can be downloaded from:
+The compressed tar file (9.0 GiB) can be downloaded from:
 
 ```
 http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/datasets/celeba.tar.gz
-sha1sum: TODO
+sha1sum: f6872ab0f2df8e5843abe99dc6d6100dd4fea29f
 ```
 A list of the contents of the tar file are given in [tar_include.txt](tar_include.txt).
 
