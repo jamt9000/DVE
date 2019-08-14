@@ -280,10 +280,12 @@ def tween_scatter(t, im1, im2, scatter1, scatter2, title1, title2, fade_ims=True
     if heading2 is not None:
         h1 = plt.suptitle(heading1, x=0.5, y=0.94)
         h2 = plt.text(*h1.get_position(), heading2)
-        h2.update_from(h1)
 
         foot = plt.text(0.5, 0.08, 'DVE enables the use of higher dimensional unsupervised embeddings!')
         foot.update_from(h1)
+
+        h1.set_fontsize('x-large')
+        h2.update_from(h1)
 
         # Prevent flashing from font aliasing and alpha - brittle if not monospace and makes it too bold though
         cover = ''.join([heading1[i] if heading1[i]==heading2[i] else '\u00a0' for i in range(min(len(heading1),len(heading2)))])
