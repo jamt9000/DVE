@@ -19,6 +19,7 @@ import os
 import matplotlib
 from pathlib import Path
 from collections import defaultdict
+import shelve
 
 # matplotlib.font_manager._rebuild()
 matplotlib.rc('font', family='serif', serif='cmr10')
@@ -127,13 +128,16 @@ if args.save_hq_ims:
     plt.savefig(str(Path(args.fig_dir) / "query-face-grid.png"))
 
 imsize = 70
-n_images_to_load = 40
+n_images_to_load = 200
 dataset = data_loaders.AFLW_MTFL(args.aflw_mtfl_root, train=False, imwidth=imsize)
 
 models_dict = dict([(c, load_model_for_eval(c)) for c in model_files_all])
 
 sample_ims = defaultdict(list)
-sample_descs = defaultdict(list)
+
+# Disk backed cache
+sample_descs = shelve.open('/tmp/desccache')
+sample_descs.clear()
 for samplei in range(n_images_to_load):
     for m in model_files_all:
         model = models_dict[m]
@@ -142,7 +146,7 @@ for samplei in range(n_images_to_load):
         sample_desc = model.forward(sample_im.unsqueeze(0))[0][0]
 
         sample_ims[m].append(sample_im)
-        sample_descs[m].append(sample_desc)
+        sample_descs[m] = sample_descs.get(m,[]) + [sample_desc]
 
 normalize = transforms.Normalize(mean=[0.5084, 0.4224, 0.3769],
                                  std=[0.2599, 0.2371, 0.2323])
