@@ -23,7 +23,8 @@ import shelve
 
 # matplotlib.font_manager._rebuild()
 matplotlib.rc('font', family='serif', serif='cmr10')
-matplotlib.rc('font', monospace='Space Mono')
+# I downloaded the bold version of Space Mono to get a bold & monospace at the same time in mathtext
+matplotlib.rc('font', monospace='Space Mono, Andale Mono')
 matplotlib.rcParams['mathtext.fontset'] = 'custom'
 matplotlib.rcParams['mathtext.tt'] = 'monospace'
 matplotlib.rcParams['lines.markersize'] = 4
@@ -39,7 +40,6 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser()
 parser.add_argument("--frame_dir", default="/tmp")
 parser.add_argument("--fig_dir", default="data/figs")
-parser.add_argument("--canonical_paths", action="store_true")
 parser.add_argument("--save_hq_ims", action="store_true")
 parser.add_argument("--hq_frame_snapshot", type=int, default=96)
 parser.add_argument("--aflw_mtfl_root", default="data",
@@ -48,23 +48,16 @@ args = parser.parse_args()
 
 config_file = 'configs/celeba/smallnet-64d-dve.json'
 
-model_files_nodve = ['data/models/celeba-smallnet-3d/celeba-smallnet-3d/2019-08-04_17-55-48/checkpoint-epoch100.pth',
-                     'data/models/celeba-smallnet-16d/celeba-smallnet-16d/2019-08-04_17-55-52/checkpoint-epoch100.pth',
-                     'data/models/celeba-smallnet-32d/celeba-smallnet-32d/2019-08-04_17-55-57/checkpoint-epoch100.pth',
-                     'data/models/celeba-smallnet-64d/celeba-smallnet-64d/2019-08-04_17-56-04/checkpoint-epoch100.pth']
+model_files_nodve = ['data/models/celeba-smallnet-3d/2019-08-04_17-55-48/checkpoint-epoch100.pth',
+                     'data/models/celeba-smallnet-16d/2019-08-04_17-55-52/checkpoint-epoch100.pth',
+                     'data/models/celeba-smallnet-32d/2019-08-04_17-55-57/checkpoint-epoch100.pth',
+                     'data/models/celeba-smallnet-64d/2019-08-04_17-56-04/checkpoint-epoch100.pth']
 model_files_dve = [
-    'data/models/celeba-smallnet-3d-dve/celeba-smallnet-3d-dve/2019-08-08_17-54-21/checkpoint-epoch100.pth',
-    'data/models/celeba-smallnet-16d-dve/celeba-smallnet-16d-dve/2019-08-02_06-20-13/checkpoint-epoch100.pth',
-    'data/models/celeba-smallnet-32d-dve/celeba-smallnet-32d-dve/2019-08-02_06-19-59/checkpoint-epoch100.pth',
-    'data/models/celeba-smallnet-64d-dve/celeba-smallnet-64d-dve/2019-08-02_06-20-28/checkpoint-epoch100.pth']
+    'data/models/celeba-smallnet-3d-dve/2019-08-08_17-54-21/checkpoint-epoch100.pth',
+    'data/models/celeba-smallnet-16d-dve/2019-08-02_06-20-13/checkpoint-epoch100.pth',
+    'data/models/celeba-smallnet-32d-dve/2019-08-02_06-19-59/checkpoint-epoch100.pth',
+    'data/models/celeba-smallnet-64d-dve/2019-08-02_06-20-28/checkpoint-epoch100.pth']
 
-
-if args.canonical_paths:
-    def prune_repeated_dir(pp):
-        return [Path(x).parents[2] / Path(x).relative_to(Path(x).parents[1]) for x in pp]
-    model_files_dve = prune_repeated_dir(model_files_dve)
-    model_files_nodve = prune_repeated_dir(model_files_nodve)
-    
 
 model_files_all = model_files_nodve + model_files_dve
 
@@ -128,7 +121,7 @@ if args.save_hq_ims:
     plt.savefig(str(Path(args.fig_dir) / "query-face-grid.png"))
 
 imsize = 70
-n_images_to_load = 200
+n_images_to_load = 90
 dataset = data_loaders.AFLW_MTFL(args.aflw_mtfl_root, train=False, imwidth=imsize)
 
 models_dict = dict([(c, load_model_for_eval(c)) for c in model_files_all])
@@ -277,8 +270,12 @@ def tween_scatter(t, im1, im2, scatter1, scatter2, title1, title2, fade_ims=True
     plt.sca(base_subplot)
     ttl1 = plt.text(0.5, -.08, title1, transform=base_subplot.transAxes, horizontalalignment='center')
     ttl2 = plt.text(0.5, -.08, title2, transform=base_subplot.transAxes, horizontalalignment='center')
-    ttl1.set_alpha(1 - t)
-    ttl2.set_alpha(t)
+    if title1 == title2:
+        ttl1.set_alpha(1)
+        ttl2.set_alpha(0)
+    else:
+        ttl1.set_alpha(1 - t)
+        ttl2.set_alpha(t)
 
     if heading2 is not None:
         h1 = plt.suptitle(heading1, x=0.5, y=0.94)
@@ -288,8 +285,14 @@ def tween_scatter(t, im1, im2, scatter1, scatter2, title1, title2, fade_ims=True
         foot = plt.text(0.5, 0.08, 'DVE enables the use of higher dimensional unsupervised embeddings!')
         foot.update_from(h1)
 
+        # Prevent flashing from font aliasing and alpha - brittle if not monospace and makes it too bold though
+        cover = ''.join([heading1[i] if heading1[i]==heading2[i] else '\u00a0' for i in range(min(len(heading1),len(heading2)))])
+        hc = plt.text(*h1.get_position(),cover)
+        hc.update_from(h1)
+
         h1.set_alpha(1 - t)
         h2.set_alpha(t)
+
 
 
 def get_match_grid(src, dest, stride):
@@ -326,11 +329,12 @@ for imrangei, imrange in enumerate(tqdm.tqdm(imranges)):
         title1 = 'Without DVE - unstable at higher dims'
         title2 = 'With DVE - maintains robustness!'
 
+        # different space seems needed to make fixed-width
         dimstring = ('%2d' % dest2[0].shape[0]).replace(' ', '\u00a0')
         heading = 'Matching Unsupervised Dense Embeddings with $\mathtt{%s}$ Dimensions' % dimstring
 
         if mi > 0 or imrangei > 0:
-            for t in np.linspace(0, 1, 24):
+            for t in np.linspace(0, 1, 36 if new_im else 24):
                 plt.sca(nodve_ax)
                 tween_scatter(t, prev_dest1_im, dest1_im, prev_scatter_xy_1, scatter_xy_1, prev_title1, title1,
                               fade_ims=new_im, heading1=heading_prev, heading2=heading,
@@ -349,7 +353,7 @@ for imrangei, imrange in enumerate(tqdm.tqdm(imranges)):
         tween_scatter(1, dest2_im, dest2_im, scatter_xy_2, scatter_xy_2, title2, title2,
                       fade_ims=new_im, frame=frame, is_dve=True)
 
-        delay_len = 24 if (new_im or last_model_variation) else 1
+        delay_len = 24 if (new_im or last_model_variation) else 5
 
         for delay in range(delay_len):
             plt.savefig(str(Path(args.frame_dir) / f"vis{frame:05d}.png"))
