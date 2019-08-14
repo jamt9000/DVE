@@ -17,6 +17,14 @@ import matplotlib
 from pathlib import Path
 from collections import defaultdict
 
+# matplotlib.font_manager._rebuild()
+matplotlib.rc('font', family='serif', serif='cmr10')
+matplotlib.rc('font', monospace='Space Mono')
+matplotlib.rcParams['mathtext.fontset'] = 'custom'
+matplotlib.rcParams['mathtext.tt'] = 'monospace'
+matplotlib.rcParams['lines.markersize'] = 4
+
+
 if sys.platform == 'darwin':
     matplotlib.use("macosx")
 else:
@@ -59,11 +67,12 @@ avface = skimage.io.imread('https://www.uni-regensburg.de/Fakultaeten/phil_Fak_I
 avface = Image.fromarray(avface)
 
 imsize = 70
+n_images_to_load = 40
 dataset = data_loaders.AFLW_MTFL('data', train=False, imwidth=imsize)
 
 sample_ims = defaultdict(list)
 sample_descs = defaultdict(list)
-for samplei in range(20):
+for samplei in range(n_images_to_load):
     for m in model_files_all:
         model = models_dict[m]
         item = dataset[samplei]
@@ -94,48 +103,67 @@ i_idxs = np.arange(10, 60, 5)
 j_idxs = np.arange(15, 60, 5)
 npts = len(i_idxs) * len(j_idxs)
 
-plt.figure(figsize=(9, 3))
 
-query_ax = plt.subplot(1, 3,2)
-nodve_ax = plt.subplot(1,3,1)
-dve_ax = plt.subplot(1,3,3)
+def grow_axis(ax, d):
+    l, b, r, t = ax.get_position().extents
+    ax.set_position(matplotlib.transforms.Bbox.from_extents((l - d, b - d, r + d, t + d)))
+
+
+def nudge_axis(ax, d):
+    l, b, r, t = ax.get_position().extents
+    ax.set_position(matplotlib.transforms.Bbox.from_extents((l + d, b, r + d, t)))
+
+
+plt.figure(figsize=(7, 3))
+
+query_ax = plt.subplot(1, 3, 2)
+nodve_ax = plt.subplot(1, 3, 1, frameon=False)
+dve_ax = plt.subplot(1, 3, 3, frameon=False)
+
+nodve_ax.axis('square')
+grow_axis(nodve_ax, 0.05)
+nudge_axis(nodve_ax, 0.03)
+
+dve_ax.axis('square')
+grow_axis(dve_ax, 0.05)
+nudge_axis(dve_ax, -0.03)
 
 plt.sca(query_ax)
 plt.imshow(norm_range(avface_tensor).permute(1, 2, 0))
 rainbow = plt.cm.Spectral(np.linspace(0, 1, npts))
-plt.title('Query')
+plt.xlabel('Query')
 plt.gca().set_prop_cycle('color', rainbow)
-
-l,b,r,t = query_ax.get_position().extents
-d = 0.03
-query_ax.set_position(matplotlib.transforms.Bbox.from_extents((l+d,b+d,r-d,t-d)))
+grow_axis(query_ax, -0.05)
+plt.xticks([], [])
+plt.yticks([], [])
 
 fac = plt.gca().get_position().width / dve_ax.get_position().width
 
 for i in i_idxs:
     for j in j_idxs:
-        plt.scatter(j, i, s=(6 * fac)**2)
-plt.xticks([], [])
-plt.yticks([], [])
+        plt.scatter(j, i, s=(matplotlib.rcParams['lines.markersize'] * fac) ** 2)
 
 
 def ax_reset():
     plt.cla()
+    plt.axis('square')
     plt.xlim(query_ax.get_xlim())
     plt.ylim(query_ax.get_ylim())
     plt.xticks([], [])
     plt.yticks([], [])
 
 
-def tween_scatter(t, im1, im2, scatter1, scatter2, title1, title2, fade_ims=True):
+def tween_scatter(t, im1, im2, scatter1, scatter2, title1, title2, fade_ims=True, heading1=None, heading2=None):
     ax_reset()
     base_subplot = plt.gca()
+    plt.subplot(base_subplot)
 
-    #inner_grid = matplotlib.gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=base_subplot, hspace=0, wspace=0)
-    inner_grid = matplotlib.gridspec.GridSpec(3,3)
-    bb=base_subplot.get_position()
-    l,b,r,t = bb.extents
-    inner_grid.update(left=l,bottom=b,right=r,top=t)
+    gridsize = int(np.sqrt(len(im1)))
+
+    inner_grid = matplotlib.gridspec.GridSpec(gridsize, gridsize, hspace=0.05, wspace=0.05)
+    bb = base_subplot.get_position()
+    l, b, r, tp = bb.extents
+    inner_grid.update(left=l, bottom=b, right=r, top=tp)
 
     if fade_ims:
         prev_alpha = np.maximum(0., 1 - 2 * t)
@@ -144,28 +172,38 @@ def tween_scatter(t, im1, im2, scatter1, scatter2, title1, title2, fade_ims=True
         prev_alpha = 0.
         cur_alpha = 1.
 
-    for gi in range(9):
+    for gi in range(gridsize ** 2):
         gax = plt.gcf().add_subplot(inner_grid[gi])
 
         ax_reset()
 
         if prev_alpha:
-            plt.imshow(norm_range(im1).permute(1, 2, 0), alpha=prev_alpha)
+            plt.imshow(norm_range(im1[gi]).permute(1, 2, 0), alpha=prev_alpha)
         if cur_alpha:
-            plt.imshow(norm_range(im2).permute(1, 2, 0), alpha=cur_alpha)
+            plt.imshow(norm_range(im2[gi]).permute(1, 2, 0), alpha=cur_alpha)
 
         ease = (-np.cos(np.pi * t) + 1) / 2
-        scatter_tween = (1 - ease) * scatter1 + ease * scatter2
+        scatter_tween = (1 - ease) * scatter1[gi] + ease * scatter2[gi]
 
         fac = plt.gca().get_position().width / base_subplot.get_position().width
-        plt.scatter(scatter_tween[:, 0], scatter_tween[:, 1], c=rainbow, s=(6 * fac)**2)
+        plt.scatter(scatter_tween[:, 0], scatter_tween[:, 1], c=rainbow, s=(matplotlib.rcParams['lines.markersize'] * fac) ** 2)
 
     plt.sca(base_subplot)
-    ttl1 = plt.title(title1, loc='left')
-    ttl2 = plt.text(*ttl1.get_position(), title2)
-    ttl2.update_from(ttl1)
+    ttl1 = plt.text(0.5, -.08, title1, transform=base_subplot.transAxes, horizontalalignment='center')
+    ttl2 = plt.text(0.5, -.08, title2, transform=base_subplot.transAxes, horizontalalignment='center')
     ttl1.set_alpha(1 - t)
     ttl2.set_alpha(t)
+
+    if heading2 is not None:
+        h1 = plt.suptitle(heading1, x=0.5, y=0.94)
+        h2 = plt.text(*h1.get_position(), heading2)
+        h2.update_from(h1)
+
+        foot = plt.text(0.5, 0.08, 'DVE enables the use of higher dimensional embeddings!')
+        foot.update_from(h1)
+
+        h1.set_alpha(1 - t)
+        h2.set_alpha(t)
 
 
 def get_match_grid(src, dest, stride):
@@ -180,31 +218,36 @@ def get_match_grid(src, dest, stride):
 
 n_model_variations = len(model_files_all) // 2
 frame = 0
-for si in range(20):
+
+imranges = [range(i, i+9) for i in range(0,n_images_to_load,9)]
+for imrangei, imrange in enumerate(imranges):
     for mi in range(n_model_variations):
         model1 = model_files_nodve[mi]
         model2 = model_files_dve[mi]
 
-        dest1 = sample_descs[model1][si]
-        dest1_im = sample_ims[model1][si]
+        dest1 = [sample_descs[model1][si] for si in imrange]
+        dest1_im = [sample_ims[model1][si] for si in imrange]
 
-        dest2 = sample_descs[model2][si]
-        dest2_im = sample_ims[model2][si]
+        dest2 = [sample_descs[model2][si] for si in imrange]
+        dest2_im = [sample_ims[model2][si] for si in imrange]
 
-        scatter_xy_1 = get_match_grid(descs[model1], dest1, stride)
-        scatter_xy_2 = get_match_grid(descs[model2], dest2, stride)
+        scatter_xy_1 = [get_match_grid(descs[model1], dest1i, stride) for dest1i in dest1]
+        scatter_xy_2 = [get_match_grid(descs[model2], dest2i, stride) for dest2i in dest2]
 
         last_model_variation = mi == (n_model_variations - 1)
         new_im = mi == 0
 
-        title1 = ('              %dD' % dest1.shape[0]).replace('3D', '  3D')
-        title2 = ('         %dD + DVE' % dest2.shape[0]).replace('3D', '  3D')
+        title1 = 'Without DVE'
+        title2 = 'With DVE'
 
-        if mi > 0 or si > 0:
+        dimstring = ('%2d' % dest2[0].shape[0]).replace(' ', '\u00a0')
+        heading = 'Matching Unsupervised Dense Embeddings with $\mathtt{%s}$ Dimensions' % dimstring
+
+        if mi > 0 or imrangei > 0:
             for t in np.linspace(0, 1, 24):
                 plt.sca(nodve_ax)
                 tween_scatter(t, prev_dest1_im, dest1_im, prev_scatter_xy_1, scatter_xy_1, prev_title1, title1,
-                              fade_ims=new_im)
+                              fade_ims=new_im, heading1=heading_prev, heading2=heading)
                 plt.sca(dve_ax)
                 tween_scatter(t, prev_dest2_im, dest2_im, prev_scatter_xy_2, scatter_xy_2, prev_title2, title2,
                               fade_ims=new_im)
@@ -212,16 +255,11 @@ for si in range(20):
                 frame += 1
 
         plt.sca(nodve_ax)
-        ax_reset()
-        plt.imshow(norm_range(dest1_im).permute(1, 2, 0))
-        plt.scatter(scatter_xy_1[:, 0], scatter_xy_1[:, 1], c=rainbow)
-        plt.title(title1, loc='left')
-
+        tween_scatter(1, dest1_im, dest1_im, scatter_xy_1, scatter_xy_1, title1, title1,
+                      fade_ims=new_im, heading1=heading, heading2=heading)
         plt.sca(dve_ax)
-        ax_reset()
-        plt.imshow(norm_range(dest2_im).permute(1, 2, 0))
-        plt.scatter(scatter_xy_2[:, 0], scatter_xy_2[:, 1], c=rainbow)
-        plt.title(title2, loc='left')
+        tween_scatter(1, dest2_im, dest2_im, scatter_xy_2, scatter_xy_2, title2, title2,
+                      fade_ims=new_im)
 
         delay_len = 24 if (new_im or last_model_variation) else 1
 
@@ -237,6 +275,8 @@ for si in range(20):
 
         prev_title1 = title1
         prev_title2 = title2
+
+        heading_prev = heading
 
         print(frame)
 
