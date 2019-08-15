@@ -187,26 +187,28 @@ for i in i_idxs:
         dest2_im = sample_ims[model2][si]
         dest2_im_numpy = norm_range(dest2_im).permute(1, 2, 0).numpy()
 
+        jj, ii = find_descriptor(j, i, descs[model1], dest1, stride)
+        jj = int(jj)
+        ii = int(ii)
+
+        jj2, ii2 = find_descriptor(j, i, descs[model2], dest2, stride)
+        jj2 = int(jj2)
+        ii2 = int(ii2)
+
 
         ctx = 15
         sz = 2.5
 
         plt.sca(nodve_ax)
-        jj, ii = find_descriptor(j, i, descs[model1], dest1, stride)
-        jj = int(jj)
-        ii = int(ii)
-
         imcrop1 = pad_and_crop(dest1_im_numpy, [ii - ctx, ii + ctx, jj - ctx, jj + ctx])
         plt.imshow(imcrop1, extent=[j - sz, j + sz, i + sz, i - sz])  # lrbt
+        if np.sqrt((ii-ii2)**2+(jj-jj2)**2) > 8:
+            plt.gca().add_patch(plt.Rectangle((j-sz,i-sz),sz*2,sz*2,linewidth=2,edgecolor='r',facecolor='none'))
         fac = plt.gca().get_position().width / nodve_ax.get_position().width
         plt.scatter(j, i, s=(matplotlib.rcParams['lines.markersize'] * fac) ** 2)
 
         plt.sca(dve_ax)
-        jj, ii = find_descriptor(j, i, descs[model2], dest2, stride)
-        jj = int(jj)
-        ii = int(ii)
-
-        imcrop2 = pad_and_crop(dest2_im_numpy, [ii - ctx, ii + ctx, jj - ctx, jj + ctx])
+        imcrop2 = pad_and_crop(dest2_im_numpy, [ii2 - ctx, ii2 + ctx, jj2 - ctx, jj2 + ctx])
         plt.imshow(imcrop2, extent=[j - sz, j + sz, i + sz, i - sz])  # lrbt
         fac = plt.gca().get_position().width / nodve_ax.get_position().width
         plt.scatter(j, i, s=(matplotlib.rcParams['lines.markersize'] * fac) ** 2)
@@ -215,3 +217,4 @@ for i in i_idxs:
 
         si += 1
 plt.show()
+print('done')
