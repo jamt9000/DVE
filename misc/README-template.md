@@ -246,7 +246,7 @@ We perform a final ablation to investigate how well the regressors are able to p
 
 ### Dataset mirrors
 
-For each dataset used in the paper, we provide a preprocessed copy to allow the results described above to be reproduced directly.  These can be downloaded and unpacked with a [utility script](misc/sync_datasets.py) (**TODO** recommended -- see example usage below), which will store them in the locations expected by the training code. Each dataset has a brief README, which also provides the citations for use with each dataset, together with a link from which it can be downloaded directly.
+For each dataset used in the paper, we provide a preprocessed copy to allow the results described above to be reproduced directly.  These can be downloaded and unpacked with a [utility script](misc/sync_datasets.py), which will store them in the locations expected by the training code. Each dataset has a brief README, which also provides the citations for use with each dataset, together with a link from which it can be downloaded directly.
 
 | Dataset   | Details and links | Archive size | sha1sum |
 |:-------------:|:-----:|:----:|:---:|
