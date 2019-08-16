@@ -53,7 +53,7 @@ The goal of these initial experiments is to demonstrate that DVE allows models t
 
 **300-W landmark regression**
 
-The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face (with the split introduced [this CVPR 2014 paper](http://www.jiansun.org/papers/CVPR14_FaceAlignment.pdf)).  The dataset is described in this [2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
+The 300-W This dataset contains 3,148 training images and 689 testing images with 68 facial landmark annotations for each face (with the split introduced this [this CVPR 2014 paper](http://www.jiansun.org/papers/CVPR14_FaceAlignment.pdf)).  The dataset is described in [this 2013 ICCV workshop paper](https://www.cv-foundation.org/openaccess/content_iccv_workshops_2013/W11/papers/Sagonas_300_Faces_in-the-Wild_2013_ICCV_paper.pdf). 
 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
@@ -67,7 +67,7 @@ The 300-W This dataset contains 3,148 training images and 689 testing images wit
 
 **AFLW landmark regression**
 
-The [original AFLW](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) contains around 25k images with up to 21 landmarks. For the purposes of evaluating five-landmark detectors, the authors of [TCDCN](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN.html) introduced a test subset of almost 3K faces, these pre-cropped images are available in the [MTFL download](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip)
+The [original AFLW](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) contains around 25k images with up to 21 landmarks. For the purposes of evaluating five-landmark detectors, the authors of [TCDCN](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN.html) introduced a test subset of almost 3K faces (for convenience, we include a mirror version of these images, but you can obtain the originals [here](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip))
 
 There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (2991 test faces with 132 duplicates, 10122 train faces) (here we call this AFLW<sub>R</sub>). The second is the train/test partition of AFLW used in the works of [2,3] which used the existing crops from MTFL (2995 faces) for testing and 10122 AFLW faces for training (we call this dataset split AFLW<sub>M</sub>).
 
@@ -133,7 +133,7 @@ We see that without DVE, the learned embedding performs reasonably when the dime
 |  64 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | 9.33/5.75 | ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-64d/2019-08-11_14-50-48/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-64d/2019-08-11_14-50-48/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-64d/2019-08-11_14-50-48/info.log)) / ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-64d-dve/2019-08-11_14-50-54/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-keypoints-celeba-smallnet-64d-dve/2019-08-11_14-50-54/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-keypoints-celeba-smallnet-64d-dve/2019-08-11_14-50-54/info.log)) |
 
 
-**DVE Ablation: AFLW-mtfl landmark regression**
+**DVE Ablation: AFLW<sub>M</sub> landmark regression**
 
 | Embed. Dim | Model | DVE | Error (%IOD) | Links | 
 | :-----------: | :--:  | :-: | :----: | :----: |
@@ -153,9 +153,9 @@ We see that without DVE, the learned embedding performs reasonably when the dime
 |  64 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | 11.43/7.79 | ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-64d/2019-08-11_07-56-52/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-64d/2019-08-11_07-56-52/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-keypoints-celeba-smallnet-64d/2019-08-11_07-56-52/info.log)) / ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-53-30/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-53-30/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-53-30/info.log)) |
 
 
-Next we investigate how sensitive our approach is to finetuning on the target dataset (this is done for the AFLW<sub>R</sub> and AFLW-mtfl landmark regressions).   We do two sets of experiments.  First we, remove the finetuning for both the AFLW dataset variants and re-evaluate on the landmark regression tasks.  Second, we add in a finetuning step for a different dataset, 300w, to see how the method is affected on a different benchmark. Note that all models for these experiments use DVE, and the finetuning consists of training the embeddings for an additional 50 epochs without annotations.  We see that for the AFLW datasets, it makes a reasonable difference to performance.  However, for 300w, particularly for stronger models, it adds little benefit (for this reason we do not use finetuning on 300w for the results reported in the paper).
+Next we investigate how sensitive our approach is to finetuning on the target dataset (this is done for the AFLW<sub>R</sub> and AFLW<sub>M</sub> landmark regressions).   We do two sets of experiments.  First we, remove the finetuning for both the AFLW dataset variants and re-evaluate on the landmark regression tasks.  Second, we add in a finetuning step for a different dataset, 300w, to see how the method is affected on a different benchmark. Note that all models for these experiments use DVE, and the finetuning consists of training the embeddings for an additional 50 epochs without annotations.  We see that for the AFLW datasets, it makes a reasonable difference to performance.  However, for 300w, particularly for stronger models, it adds little benefit (for this reason we do not use finetuning on 300w for the results reported in the paper).
 
-**Finetuning Ablation: AFLW-mtfl landmark regression**
+**Finetuning Ablation: AFLW<sub>M</sub> landmark regression**
 
 | Embed. Dim | Model | Finetune | Error (%IOD) | Links | 
 | :-----------: | :--:  | :-: | :----: | :----: |
@@ -190,7 +190,7 @@ Next we investigate how sensitive our approach is to finetuning on the target da
 
 To enable the finetuning experiments to be reproduced, the training logs for each of the three datasets are provided below, together with their performance on the matching task.
 
-**Finetuning on AFLW-mtfl**
+**Finetuning on AFLW<sub>M</sub>**
 
 | Embed. Dim | Model | Same Identity | Different Identity | Links | 
 | :-----------: | :-: | :----: | :----: | :----: |
@@ -225,7 +225,7 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 | :-----------: | :-: | :----: | :----: | :----: |
 |  3 | smallnet | 5.21 | 6.51 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-3d-dve/2019-08-11_18-11-57/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-3d-dve/2019-08-11_18-11-57/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-smallnet-3d-dve/2019-08-11_18-11-57/info.log) |
 
-**Annotation Ablation: AFLW-mtfl landmark regression with limited labels**
+**Annotation Ablation: AFLW<sub>M</sub> landmark regression with limited labels**
 
 | Embed. Dim | Model | DVE | Num annos. | Error (%IOD) | Links | 
 | :-----------: | :--: | :--: | :--: | :----: | :----: |
@@ -251,7 +251,7 @@ For each dataset used in the paper, we provide a preprocessed copy to allow the 
 |:-------------:|:-----:|:----:|:---:|
 | CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| 9.0 GiB | `f6872ab0f2df8e5843abe99dc6d6100dd4fea29f` |
 | 300w | [README](misc/datasets/300w/README.md)| 3.0 GiB | `885b09159c61fa29998437747d589c65cfc4ccd3` |
-| AFLW-mtfl | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | `1ff31c07cef4f2777b416d896a65f6c17d8ae2ee` |
+| AFLW<sub>M</sub> | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | `1ff31c07cef4f2777b416d896a65f6c17d8ae2ee` |
 | AFLW<sub>R</sub> | [README](misc/datasets/aflw-recrop/README.md)| 1.1 GiB | `939fdce0e6262a14159832c71d4f84a9d516de5e` |
 
 
