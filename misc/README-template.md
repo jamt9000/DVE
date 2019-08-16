@@ -257,20 +257,10 @@ For each dataset used in the paper, we provide a preprocessed copy to allow the 
 
 
 
-### Notes
+### Additional Notes
 
 
-**Metrics**
-TODO(Samuuel): Explain why some logs are v. slow compared to others, why some are generated. 
-TODO(Samuuel): Explain the definition of Inter-ocular distance on each dataset.  
-300w can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and   
-For 300w, we compute the inter-ocular distance according to the definition given by the dataset organizers [here](https://ibug.doc.ic.ac.uk/resources/300-W/).
-TODO(Samuuel): `AFLW<sub>R</sub>` is simply referred to as `AFLW` in the codebase.  
-The regressor is learned for a fixed number of epochs for all models with the Adam solver.
-The AFLW<sub>R</sub> dataset is implemented in the `AFLW` class in [data_loaders.py](data_loader/data_loaders.py).
-
-**Explain logs:** Some of the logs are generated from existing logfiles that were created with a slightly older version of the codebase (these differences only affect the log format, rather than the training code itself - the log generator can be found [here](misc/update_deprecated_exps.py).) TODO(Samuel): Explain why IOD isn't used as a metric here.
-
+In the codebase `AFLW<sub>R</sub>` is simply referred to as `AFLW`, while `AFLW<sub>M</sub>` is referred to as `AFLW-MTFL`. For 300w, we compute the inter-ocular distance according to the definition given by the dataset organizers [here](https://ibug.doc.ic.ac.uk/resources/300-W/).  Some of the logs are generated from existing logfiles that were created with a slightly older version of the codebase (these differences only affect the log format, rather than the training code itself - the log generator can be found [here](misc/update_deprecated_exps.py).)
 
 
 
