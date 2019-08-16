@@ -32,6 +32,8 @@ matplotlib.rcParams['lines.markersize'] = 4
 
 if sys.platform == 'darwin':
     matplotlib.use("macosx")
+elif getpass.getuser() == "albanie":
+    matplotlib.use("Agg")
 else:
     matplotlib.use("Qt5Agg")
 
@@ -92,13 +94,13 @@ if args.save_hq_ims:
     plt.sca(query_ax)
     # mimic crop
     w, h = avface.size
-    cropped = avface.crop((15, 15, w - 15, h - 15))
-    plt.imshow(cropped)
+    # cropped = avface.crop((15, 15, w - 15, h - 15))
+    plt.imshow(avface)
     plt.xticks([], [])
     plt.yticks([], [])
     plt.savefig(str(Path(args.fig_dir) / "query-face.png"))
     expected_width, expected_height = 70, 70
-    w_crop, h_crop = cropped.size 
+    w_crop, h_crop = avface.size 
     h_ratio = h_crop / expected_height
     w_ratio = w_crop / expected_width
     hq_i_idxs = np.arange(10, 60, 5) * h_ratio
@@ -116,9 +118,10 @@ if args.save_hq_ims:
     for i in hq_i_idxs:
         for j in hq_j_idxs:
             plt.scatter(j, i, s=(matplotlib.rcParams['lines.markersize']) * 10 ** 2)
-    zs_dispFig()
+    # zs_dispFig()
     Path(args.fig_dir).mkdir(exist_ok=True, parents=True)
     plt.savefig(str(Path(args.fig_dir) / "query-face-grid.png"))
+    import ipdb; ipdb.set_trace()
 
 imsize = 70
 n_images_to_load = 90
