@@ -1,8 +1,19 @@
 """A small utility for transferring features to/from the webserver.
 
+
+NOTE: The dataset names are slightly different from the readme when using the tool. The
+name map is given below:
+
+README -> tool
+-----------------
+celeba -> celeba
+AFLW_R -> aflw
+AFLW_M -> aflw-mtfl
+300w -> 300w
+
 Example usage:
-To fetch features for LSMDC, run the following in the project root folder:
-python misc/sync_experts.py --dataset LSMDC
+To fetch the 300w dataset, run the following in the project root folder:
+python misc/sync_datasets.py --dataset 300w
 """
 import os
 import time

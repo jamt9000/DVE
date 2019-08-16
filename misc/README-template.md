@@ -226,6 +226,8 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 
 **Annotation Ablation: AFLW<sub>M</sub> landmark regression with limited labels**
 
+We perform a final ablation to investigate how well the regressors are able to perform when their access to annotation is further reduced, and they are simply provided with a few images.   The results, shown below, are reported as mean/std over three runs (because when there is only a single annotation, the performance is quite sensitive to which particular annotation is selected).  Particularly for the stronger models, reasonable performance can be obtained with a small number of annotated images.
+
 | Embed. Dim | Model | DVE | Num annos. | Error (%IOD) | Links | 
 | :-----------: | :--: | :--: | :--: | :----: | :----: |
 |  3 | smallnet | 1 | :heavy_multiplication_x: | {{aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d.mean_iod}} | [config]({{aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d.config}}), [model]({{aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d.model}}), [log]({{aflw-mtfl-limit-annos-ft-keypoints-1-annos-celeba-smallnet-3d.log}}) |
@@ -244,7 +246,7 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 
 ### Dataset mirrors
 
-For each dataset used in the paper, we provide a preprocessed copy to allow the results described above to be reproduced directly.  These can be downloaded and unpacked with a [utility script]() (**TODO** recommended -- see example usage below), which will store them in the locations expected by the training code. Each dataset has a brief README, which also provides the citations for use with each dataset, together with a link from which it can be downloaded directly.
+For each dataset used in the paper, we provide a preprocessed copy to allow the results described above to be reproduced directly.  These can be downloaded and unpacked with a [utility script](misc/sync_datasets.py) (**TODO** recommended -- see example usage below), which will store them in the locations expected by the training code. Each dataset has a brief README, which also provides the citations for use with each dataset, together with a link from which it can be downloaded directly.
 
 | Dataset   | Details and links | Archive size | sha1sum |
 |:-------------:|:-----:|:----:|:---:|
