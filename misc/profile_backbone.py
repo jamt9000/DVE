@@ -18,7 +18,7 @@ import model.model as module_arch
 
 
 def get_profile_name(model_type, keypoint_reg, imwidth, upsample):
-    name_map = {"SmallNet": "Ours", "HourglassNet": "Hourglass"}
+    name_map = {"SmallNet": "SmallNet", "HourglassNet": "Hourglass"}
     for key, val in name_map.items():
         model_type = model_type.replace(key, val)
     model_name = "{}, image size {},".format(model_type, imwidth)
