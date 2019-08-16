@@ -2,12 +2,12 @@
 # Descriptor Vector Exchange
 
 
-This repo provides code for learning dense landmarks without supervision.  Our approach is described in the ICCV 2019 [paper](TODO-update-link) "Unsupervised learning of landmarks by exchanging descriptor vectors".
+This repo provides code for learning dense landmarks without supervision.  Our approach is described in the ICCV 2019 [paper](http://www.robots.ox.ac.uk/~vgg/research/DVE/) "Unsupervised learning of landmarks by exchanging descriptor vectors".
 
 
 ![DVE diagram](figs/cycle-dve.png)
 
-**High level Overview:** The goal of this work is to learn a dense embedding Φ<sub>u</sub>(x) ∈ R<sup>d</sup> of image pixels without annotation. Our starting point was the *Dense Equivariant Labelling* approach of [3] (references follow at the end of the README), which similarly tackles the same problem, but is restricted to learning low-dimensional embeddings to achieve the key objective of generalisation *across different identities*.  The key focus of *Descriptor Vector Exchange* (DVE) is to address this dimensionality issue to enable the learning of more powerful, higher dimensional embeddings while still preserving their generalisation ability. To do so, we take inspiration from methods which enforce transitive/cyclic consistency constraints [4, 5, 6].
+**High level Overview:** The goal of this work is to learn a dense embedding Φ<sub>u</sub>(x) ∈ R<sup>C</sup> of image pixels without annotation. Our starting point was the *Dense Equivariant Labelling* approach of [3] (references follow at the end of the README), which similarly tackles the same problem, but is restricted to learning low-dimensional embeddings to achieve the key objective of generalisation *across different identities*.  The key focus of *Descriptor Vector Exchange* (DVE) is to address this dimensionality issue to enable the learning of more powerful, higher dimensional embeddings while still preserving their generalisation ability. To do so, we take inspiration from methods which enforce transitive/cyclic consistency constraints [4, 5, 6].
 
 The embedding is learned from pairs of images (x,x′) related by a known warp v = g(u). In the image above, on the left we show the approach used by [3], which directly matches embedding Φ<sub>u</sub>(x) from the left image to embeddings Φ<sub>v</sub>(x′) in the right image to generate a loss. On the right, *DVE* replaces Φ<sub>u</sub>(x) with its reconstruction Φˆ<sub>u</sub>(x|xα) obtained from the embeddings in a third auxiliary image xα (the correspondence with xα does not need to be known). This mechanism encourages the embeddings to act consistently across different instances, even when the dimensionality is increased (see the paper for more details).
 
@@ -19,7 +19,7 @@ The embedding is learned from pairs of images (x,x′) related by a known warp v
 
 We provide pretrained models for each dataset to reproduce the results reported in the paper [1]. The training is performed with **CelebA**, a dataset of over 200k faces of celebrities that was originally described in [this paper](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf).  We use this dataset to train our embedding function without annotations. 
 
-Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set (described in more detail below). We use two architectures: the *smallnet* model of [3] and the more powerful *hourglass* model used in [7].
+Each model is accompanied by training and evaluation logs and its mean pixel error performance on the task of matching annotated landmarks across the MAFL test set (described in more detail below). We use two architectures: the *smallnet* model of [3] and the more powerful *hourglass* model, inspired by its effectiveness in [7].
 
 The goal of these initial experiments is to demonstrate that DVE allows models to generalise across identities even when using higher dimensional embeddings (e.g. 64d rather than 3d).  By contrast, this does not occur when DVE is removed (see the ablation section below).
 
@@ -69,11 +69,11 @@ The 300-W This dataset contains 3,148 training images and 689 testing images wit
 
 The [original AFLW](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) contains around 25k images with up to 21 landmarks. For the purposes of evaluating five-landmark detectors, the authors of [TCDCN](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN.html) introduced a test subset of almost 3K faces, these pre-cropped images are available in the [MTFL download](http://mmlab.ie.cuhk.edu.hk/projects/TCDCN/data/MTFL.zip)
 
-There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (2991 test faces with 132 duplicates, 10122 train faces) (here we call this AFLW-recrop). The second is the train/test partition of AFLW used in the works of [2,3] which used the existing crops from MTFL (2995 faces) for testing and 10122 AFLW faces for training [(download)](http://www.robots.ox.ac.uk/~jdt/aflw_10122train_cropped.zip) (we call this dataset split AFLW-MTFL).
+There are two slightly different partitions of AFLW that have been used in prior work (we report numbers on both to allow for comparison).  One is a set of recropped faces released by [7] (2991 test faces with 132 duplicates, 10122 train faces) (here we call this AFLW<sub>R</sub>). The second is the train/test partition of AFLW used in the works of [2,3] which used the existing crops from MTFL (2995 faces) for testing and 10122 AFLW faces for training (we call this dataset split AFLW<sub>M</sub>).
 
-Additionally, in the tables immediately below, each embedding is further fine-tuned on the AFLW-recrop/AFLW-MTFL training sets (without annotations), as was done in [2], [3], [7], [8].  The rationale for this is that (i) it does not require any additional superviserion; (ii) it allows the model to adjust for the differences in the face crops provided by the detector.  To give an idea of how sensitive the method is to this step, we also report performance without finetuning in the ablation studies below.
+Additionally, in the tables immediately below, each embedding is further fine-tuned on the AFLW<sub>R</sub>/AFLW<sub>M</sub> training sets (without annotations), as was done in [2], [3], [7], [8].  The rationale for this is that (i) it does not require any additional superviserion; (ii) it allows the model to adjust for the differences in the face crops provided by the detector.  To give an idea of how sensitive the method is to this step, we also report performance without finetuning in the ablation studies below.
 
-*AFLW-recrop landmark regression*
+*AFLW<sub>R</sub> landmark regression*
 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
@@ -85,9 +85,9 @@ Additionally, in the tables immediately below, each embedding is further fine-tu
 |  64 | hourglass | 6.54 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-52/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-52/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-52/info.log) |
 
 
-*AFLW-MTFL landmark regression*
+*AFLW<sub>M</sub> landmark regression*
 
-AFLW-MTFLis a dataset of faces which also includes landmark annotations. We use the P = 5 landmark test split (10,122 training images and 2,991 test images). The dataset can be obtained [here](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) and is described in this [2011 ICCV workshop paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.2988&rep=rep1&type=pdf). 
+AFLW<sub>M</sub>is a dataset of faces which also includes landmark annotations. We use the P = 5 landmark test split (10,122 training images and 2,991 test images). The dataset can be obtained [here](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) and is described in this [2011 ICCV workshop paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.2988&rep=rep1&type=pdf). 
 
 | Embed. Dim | Model | Error (%IOD) | Links | 
 | :-----------: | :--: | :----: | :----: |
@@ -143,7 +143,7 @@ We see that without DVE, the learned embedding performs reasonably when the dime
 |  64 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | 12.92/8.60 | ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-64d/2019-08-11_18-43-14/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-64d/2019-08-11_18-43-14/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-smallnet-64d/2019-08-11_18-43-14/info.log)) / ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-43-35/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-43-35/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-43-35/info.log)) |
 
 
-**DVE Ablation: AFLW-recrop landmark regression**
+**DVE Ablation: AFLW<sub>R</sub> landmark regression**
 
 | Embed. Dim | Model | DVE | Error (%IOD) | Links | 
 | :-----------: | :--:  | :-: | :----: | :----: |
@@ -153,7 +153,7 @@ We see that without DVE, the learned embedding performs reasonably when the dime
 |  64 | smallnet | :heavy_multiplication_x: / :heavy_check_mark: | 11.43/7.79 | ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-64d/2019-08-11_07-56-52/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-64d/2019-08-11_07-56-52/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-keypoints-celeba-smallnet-64d/2019-08-11_07-56-52/info.log)) / ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-53-30/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-53-30/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-ft-keypoints-celeba-smallnet-64d-dve/2019-08-11_18-53-30/info.log)) |
 
 
-Next we investigate how sensitive our approach is to finetuning on the target dataset (this is done for the AFLW-recrop and AFLW-mtfl landmark regressions).   We do two sets of experiments.  First we, remove the finetuning for both the AFLW dataset variants and re-evaluate on the landmark regression tasks.  Second, we add in a finetuning step for a different dataset, 300w, to see how the method is affected on a different benchmark. Note that all models for these experiments use DVE, and the finetuning consists of training the embeddings for an additional 50 epochs without annotations.  We see that for the AFLW datasets, it makes a reasonable difference to performance.  However, for 300w, particularly for stronger models, it adds little benefit (for this reason we do not use finetuning on 300w for the results reported in the paper).
+Next we investigate how sensitive our approach is to finetuning on the target dataset (this is done for the AFLW<sub>R</sub> and AFLW-mtfl landmark regressions).   We do two sets of experiments.  First we, remove the finetuning for both the AFLW dataset variants and re-evaluate on the landmark regression tasks.  Second, we add in a finetuning step for a different dataset, 300w, to see how the method is affected on a different benchmark. Note that all models for these experiments use DVE, and the finetuning consists of training the embeddings for an additional 50 epochs without annotations.  We see that for the AFLW datasets, it makes a reasonable difference to performance.  However, for 300w, particularly for stronger models, it adds little benefit (for this reason we do not use finetuning on 300w for the results reported in the paper).
 
 **Finetuning Ablation: AFLW-mtfl landmark regression**
 
@@ -166,7 +166,7 @@ Next we investigate how sensitive our approach is to finetuning on the target da
 |  64 | hourglass | :heavy_multiplication_x: / :heavy_check_mark: | 8.15/7.53 | ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-hourglass-64d-dve/2019-08-11_18-49-34/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-keypoints-celeba-hourglass-64d-dve/2019-08-11_18-49-34/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-keypoints-celeba-hourglass-64d-dve/2019-08-11_18-49-34/info.log)) / ([config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-59/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-59/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-keypoints-celeba-hourglass-64d-dve/2019-08-12_06-00-59/info.log)) |
 
 
-**Finetuning Ablation: AFLW-recrop landmark regression**
+**Finetuning Ablation: AFLW<sub>R</sub> landmark regression**
 
 | Embed. Dim | Model | Finetune | Error (%IOD) | Links | 
 | :-----------: | :--:  | :-: | :----: | :----: |
@@ -200,7 +200,7 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 |  64 | smallnet | 8.07 | 10.09 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-64d-dve/2019-08-11_08-19-54/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-smallnet-64d-dve/2019-08-11_08-19-54/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-smallnet-64d-dve/2019-08-11_08-19-54/info.log) |
 |  64 | hourglass | 1.53 | 3.65 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-hourglass-64d-dve/2019-08-11_16-40-28/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/aflw-mtfl-ft-celeba-hourglass-64d-dve/2019-08-11_16-40-28/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/aflw-mtfl-ft-celeba-hourglass-64d-dve/2019-08-11_16-40-28/info.log) |
 
-**Finetuning on AFLW-recrop**
+**Finetuning on AFLW<sub>R</sub>**
 
 | Embed. Dim | Model | Same Identity | Different Identity | Links | 
 | :-----------: | :-: | :----: | :----: | :----: |
@@ -252,7 +252,7 @@ For each dataset used in the paper, we provide a preprocessed copy to allow the 
 | CelebA (+ MAFL) | [README](misc/datasets/celeba/README.md)| 9.0 GiB | `f6872ab0f2df8e5843abe99dc6d6100dd4fea29f` |
 | 300w | [README](misc/datasets/300w/README.md)| 3.0 GiB | `885b09159c61fa29998437747d589c65cfc4ccd3` |
 | AFLW-mtfl | [README](misc/datasets/aflw-mtfl/README.md)| 252 MiB | `1ff31c07cef4f2777b416d896a65f6c17d8ae2ee` |
-| AFLW-recrop | [README](misc/datasets/aflw-recrop/README.md)| 1.1 GiB | `939fdce0e6262a14159832c71d4f84a9d516de5e` |
+| AFLW<sub>R</sub> | [README](misc/datasets/aflw-recrop/README.md)| 1.1 GiB | `939fdce0e6262a14159832c71d4f84a9d516de5e` |
 
 
 
@@ -264,9 +264,9 @@ TODO(Samuuel): Explain why some logs are v. slow compared to others, why some ar
 TODO(Samuuel): Explain the definition of Inter-ocular distance on each dataset.  
 300w can be obtained [here](https://ibug.doc.ic.ac.uk/resources/300-W/) and   
 For 300w, we compute the inter-ocular distance according to the definition given by the dataset organizers [here](https://ibug.doc.ic.ac.uk/resources/300-W/).
-TODO(Samuuel): `AFLW-recrop` is simply referred to as `AFLW` in the codebase.  
+TODO(Samuuel): `AFLW<sub>R</sub>` is simply referred to as `AFLW` in the codebase.  
 The regressor is learned for a fixed number of epochs for all models with the Adam solver.
-The AFLW-recrop dataset is implemented in the `AFLW` class in [data_loaders.py](data_loader/data_loaders.py).
+The AFLW<sub>R</sub> dataset is implemented in the `AFLW` class in [data_loaders.py](data_loader/data_loaders.py).
 
 **Explain logs:** Some of the logs are generated from existing logfiles that were created with a slightly older version of the codebase (these differences only affect the log format, rather than the training code itself - the log generator can be found [here](misc/update_deprecated_exps.py).) TODO(Samuel): Explain why IOD isn't used as a metric here.
 
