@@ -3,8 +3,10 @@ import torch
 import time
 import datetime
 from torchvision.utils import make_grid
+from pkg_resources import parse_version
 from base import BaseTrainer
 from torch.nn.modules.batchnorm import _BatchNorm
+from model.metric import runningIOU
 
 
 class AverageMeter(object):
@@ -34,18 +36,32 @@ class Trainer(BaseTrainer):
         Inherited from BaseTrainer.
     """
 
-    def __init__(self, model, loss, metrics, optimizer, resume, config,
-                 data_loader, valid_data_loader=None, lr_scheduler=None,
-                 train_logger=None, visualizations=None):
-        super(Trainer, self).__init__(model, loss, metrics, optimizer, resume,
-                                      config, train_logger)
+    def __init__(
+            self,
+            model,
+            loss,
+            metrics,
+            optimizer,
+            resume,
+            config,
+            data_loader,
+            valid_data_loader=None,
+            lr_scheduler=None,
+            visualizations=None,
+            mini_train=False,
+            check_bn_working=False,
+            **kwargs,
+    ):
+        super().__init__(model, loss, metrics, optimizer, resume, config)
         self.config = config
         self.data_loader = data_loader
         self.valid_data_loader = valid_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = max(1, int(len(self.data_loader)/5.))
+        self.log_step = max(1, int(len(self.data_loader) / 5.))
         self.visualizations = visualizations if visualizations is not None else []
+        self.mini_train = mini_train
+        self.check_bn_working = check_bn_working
         self.loss_args = config.get('loss_args', {})
 
         assert self.lr_scheduler.optimizer is self.optimizer
@@ -57,43 +73,92 @@ class Trainer(BaseTrainer):
             # NB stateful schedulers eg based on loss won't be restored properly
             self.lr_scheduler.step(self.start_epoch - 2)
 
-        assert self.lr_scheduler.last_epoch == self.start_epoch - 2
+        # only perform last epoch check for older PyTorch, current versions
+        # immediately set the `last_epoch` attribute to 0.
+        if parse_version(torch.__version__) <= parse_version("1.0.0"):
+            assert self.lr_scheduler.last_epoch == self.start_epoch - 2
 
         print('Loss args', self.loss_args)
 
         class LossWrapper(torch.nn.Module):
             def __init__(self, fn):
-                super(LossWrapper, self).__init__()
+                super().__init__()
                 self.fn = fn
 
             def __call__(self, *a, **kw):
                 return self.fn(*a, **kw)
 
         if isinstance(self.model, torch.nn.DataParallel):
-            self.loss_wrapper = torch.nn.DataParallel(LossWrapper(self.loss), device_ids=self.model.device_ids)
+            self.loss_wrapper = torch.nn.DataParallel(
+                LossWrapper(self.loss),
+                device_ids=self.model.device_ids
+            )
 
         if self.config.get('cache_descriptors', False):
-            self.cache = [None] * len(self.data_loader.dataset)
+            cache_tic = time.time()
             self.model.eval()
-            batcher = torch.utils.data.DataLoader(self.data_loader.dataset, batch_size=100)
-            for ii, (dd,mm) in enumerate(batcher):
-                with torch.no_grad():
-                    fw = self.model[0].forward(dd.to(self.device))[0].to('cpu')
-                    for fi in range(len(fw)):
-                        self.cache[mm['index'][fi]] = fw[fi]
-                print('cache', ii,'/',len(batcher))
-            self.cache = torch.stack(self.cache, 0).half().to(self.device)
+            datasets = {
+                "train": self.data_loader.dataset,
+                "val": self.valid_data_loader.dataset,
+            }
+            self.cache = {}
+            self.meta_cache = {}
+            # First determine the spatial/depth dimensions of the tensor cache to enable
+            # preallocation of the tensor caches
+            init_batcher = torch.utils.data.DataLoader(datasets["train"], batch_size=1)
+            with torch.no_grad():
+                batch = next(iter(init_batcher))
+                dd, mm = batch["data"], batch["meta"]
+                feat_shape = self.model[0].forward(dd.to(self.device))[0].shape
+                keypts_shape = mm["keypts"].shape
+
+
+            for key, dataset in datasets.items():
+                batcher = torch.utils.data.DataLoader(dataset, batch_size=100,
+                                                       num_workers=4)
+                self.cache[key] = torch.zeros(len(dataset), *feat_shape[1:])
+                self.meta_cache[key] = {
+                    "keypts": torch.zeros(len(dataset), *keypts_shape[1:]),
+                    "keypts_normalized": torch.zeros(len(dataset), *keypts_shape[1:]),
+                }
+                for ii, batch in enumerate(batcher):
+                    with torch.no_grad():
+                        dd, mm = batch["data"], batch["meta"]
+                        fw = self.model[0].forward(dd.to(self.device))[0].to('cpu')
+                        self.cache[key][mm["index"]] = fw
+                        kp, kpn = mm["keypts"], mm["keypts_normalized"]
+                        self.meta_cache[key]["keypts"][mm["index"]] = kp
+                        self.meta_cache[key]["keypts_normalized"][mm["index"]] = kpn
+                    self.logger.info(f"caching {key} descriptors {ii}/{len(batcher)}")
+
+            duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - cache_tic))
+            self.logger.info(f"Descriptor caching took {duration}")
             self.model.train()
+            # Fetching of images and keypoints is no longer needed
+            self.data_loader.dataset.use_ims = False
+            self.valid_data_loader.dataset.use_ims = False
+            self.data_loader.dataset.use_keypoints = False
+            self.valid_data_loader.dataset.use_keypoints = False
+
+
+        # Handle segmentation metrics separately, since the accumulation cannot be
+        # done directly via an AverageMeter
+        self.log_miou = self.config["trainer"].get("log_miou", False)
 
     def _eval_metrics(self, output, target):
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
-            acc_metrics[i] += metric(output, target, self.data_loader.dataset, self.config)
+            acc_metrics[i] += metric(
+                output,
+                target,
+                self.data_loader.dataset,
+                self.config
+            )
             self.writer.add_scalar(f'{metric.__name__}', acc_metrics[i])
         return acc_metrics
 
-    def printer(self, msg):
-        print("{:.3f} >>> {}".format(time.time() - self.tic, msg))
+    # def printer(self, msg):
+    #     print("{:.3f} >>> {}".format(time.time() - self.tic, msg))
 
     def _train_epoch(self, epoch):
         """
@@ -113,28 +178,39 @@ class Trainer(BaseTrainer):
         """
         self.model.train()
 
+        train_tic = time.time()
         avg_loss = AverageMeter()
         total_metrics = [AverageMeter() for a in range(len(self.metrics))]
         seen_tic = time.time()
         seen = 0
         profile = self.config["profile"]
         totaL_batches = len(self.data_loader)
-        for batch_idx, (data, meta) in enumerate(self.data_loader):
+
+        if profile:
+            batch_tic = time.time()
+        for batch_idx, batch in enumerate(self.data_loader):
+            data, meta = batch["data"], batch["meta"]
+            data = data.to(self.device)
+            seen_batch = data.shape[0]
+
+            # discount the fact that warps produce pairs of images
+            if self.data_loader.dataset.warper is not None:
+                seen_batch = seen_batch // 2
+            seen += seen_batch
+
             if profile:
                 timings = {}
-                batch_tic = time.time()
-
-            data = data.to(self.device)
-            seen += data.shape[0] // 2
-
-            if profile:
                 timings["data transfer"] = time.time() - batch_tic
                 tic = time.time()
 
             self.optimizer.zero_grad()
             if self.config.get('cache_descriptors', False):
                 assert isinstance(self.model, torch.nn.Sequential)
-                descs = self.cache[meta['index']].to(self.device).float()
+                # inflate meta from cache
+                meta_cache = self.meta_cache["train"]
+                meta["keypts"] = meta_cache["keypts"][meta["index"]]
+                meta["keypts_normalized"] = meta_cache["keypts_normalized"][meta["index"]]
+                descs = self.cache["train"][meta['index']].to(self.device).float()
                 output = self.model[1:]([descs])
             else:
                 output = self.model(data)
@@ -144,11 +220,10 @@ class Trainer(BaseTrainer):
                 tic = time.time()
 
             if isinstance(self.model, torch.nn.DataParallel):
-                loss = self.loss_wrapper(output, meta, fold_corr=self.config["fold_corr"], **self.loss_args)
+                loss = self.loss_wrapper(output, meta, **self.loss_args)
                 loss = loss.mean()
             else:
-                loss = self.loss(output, meta,
-                                 fold_corr=self.config["fold_corr"], **self.loss_args)
+                loss = self.loss(output, meta, **self.loss_args)
             if profile:
                 timings["loss-fwd"] = time.time() - tic
                 tic = time.time()
@@ -176,39 +251,50 @@ class Trainer(BaseTrainer):
 
             if self.verbosity >= 2 and batch_idx % self.log_step == 0:
                 toc = time.time() - seen_tic
-                rate = seen / max(toc, 1E-5)
+                rate = max(seen / toc, 1E-5)
                 tic = time.time()
                 msg = "Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f} "
                 msg += "Hz: {:.2f}, ETA: {}"
                 batches_left = totaL_batches - batch_idx
                 remaining = batches_left * self.data_loader.batch_size / rate
                 eta_str = str(datetime.timedelta(seconds=remaining))
-                self.logger.info(msg.format(
-                    epoch,
-                    batch_idx * self.data_loader.batch_size,
-                    len(self.data_loader.dataset),
-                    100.0 * batch_idx / len(self.data_loader),
-                    loss.item(),
-                    rate,
-                    eta_str))
-                im = make_grid(data.cpu(), nrow=8, normalize=True)
-                self.writer.add_image('input', im)
-                for v in self.visualizations:
-                    v(self.writer, data.cpu(), output, meta)
+                self.logger.info(
+                    msg.format(
+                        epoch,
+                        batch_idx * self.data_loader.batch_size,
+                        len(self.data_loader.dataset),
+                        100.0 * batch_idx / len(self.data_loader),
+                        loss.item(),
+                        rate,
+                        eta_str
+                    )
+                )
+
+                # Use key check for backward compat
+                if "im_data" in batch:
+                    im_data = batch["im_data"]
+                else:
+                    im_data = data
+                if len(im_data) and self.visualizations:
+                    im = make_grid(im_data.cpu(), nrow=8, normalize=True)
+                    self.writer.add_image('input', im)
+                    for v in self.visualizations:
+                        v(self.writer, im_data.cpu(), output, meta)
                 seen_tic = time.time()
                 seen = 0
                 if profile:
                     timings["vis"] = time.time() - tic
 
-            """Do some aggressive reference clearning to ensure that we don't
-            hang onto memory while fetching the next minibatch."""
-            #  For safety, disabling this for now
+            # Do some aggressive reference clearning to ensure that we don't
+            # hang onto memory while fetching the next minibatch (for safety, disabling
+            # this for now)
             # del data
             # del loss
             # del output
 
             if profile:
                 timings["minibatch"] = time.time() - batch_tic
+                batch_tic = time.time()
 
                 print("==============")
                 for key in timings:
@@ -217,24 +303,29 @@ class Trainer(BaseTrainer):
                     print(msg.format(timings[key], ratio, key))
                 print("==============")
 
-        log = {
-            'loss': avg_loss.avg,
-            'metrics': [a.avg for a in total_metrics]
-        }
+            if self.mini_train and batch_idx > 3:
+                self.logger.info("Mini training: exiting epoch early...")
+                break
 
+        log = {'loss': avg_loss.avg, 'metrics': [a.avg for a in total_metrics]}
         self.writer.set_step(epoch, 'train_epoch')
         self.writer.add_scalar('loss', log['loss'])
 
         for i, metric in enumerate(self.metrics):
             self.writer.add_scalar(f'{metric.__name__}', log['metrics'][i])
 
+        duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - train_tic))
+        print(f"training epoch took {duration}")
+
+        val_tic = time.time()
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
             log = {**log, **val_log}
+        duration = time.strftime('%Hh%Mm%Ss', time.gmtime(time.time() - val_tic))
+        print(f"validation epoch took {duration}")
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step(epoch - 1)
-
         return log
 
     def _valid_epoch(self, epoch):
@@ -247,15 +338,32 @@ class Trainer(BaseTrainer):
             The validation metrics in log must have the key 'val_metrics'.
         """
         cached_state = torch.get_rng_state()
+        self.logger.info(f"Running validation for epoch {epoch}")
         self.model.eval()
         avg_val_loss = AverageMeter()
         total_val_metrics = [AverageMeter() for a in range(len(self.metrics))]
+
+        if self.log_miou:
+            nclass = self.config["segmentation_head"]["args"]["num_classes"]
+            running_metrics_val = runningIOU(nclass)
+
         with torch.no_grad():
             torch.manual_seed(0)
-            for batch_idx, (data, meta) in enumerate(self.valid_data_loader):
+            for batch_idx, batch in enumerate(self.valid_data_loader):
+                data, meta = batch["data"], batch["meta"]
                 data = data.to(self.device)
 
-                output = self.model(data)
+                if self.config.get('cache_descriptors', False):
+                    assert isinstance(self.model, torch.nn.Sequential)
+                    # inflate meta from cache
+                    meta_cache = self.meta_cache["val"]
+                    meta["keypts"] = meta_cache["keypts"][meta["index"]]
+                    meta["keypts_normalized"] = meta_cache["keypts_normalized"][meta["index"]]
+                    descs = self.cache["val"][meta['index']].to(self.device).float()
+                    output = self.model[1:]([descs])
+                else:
+                    output = self.model(data)
+                # output = self.model(data)
 
                 if isinstance(self.model, torch.nn.DataParallel):
                     loss = self.loss_wrapper(output, meta, **self.loss_args)
@@ -263,49 +371,77 @@ class Trainer(BaseTrainer):
                 else:
                     loss = self.loss(output, meta, **self.loss_args)
 
-                self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
+                self.writer.set_step((epoch - 1) * len(self.valid_data_loader)
+                                     + batch_idx,
+                                     'valid')
                 self.writer.add_scalar('loss', loss.item())
                 avg_val_loss.update(loss.item(), data.size(0))
                 for i, m in enumerate(self._eval_metrics(output, meta)):
                     total_val_metrics[i].update(m, data.size(0))
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
-                for v in self.visualizations:
-                    v(self.writer, data.cpu(), output, meta)
 
-        # Run without using saved batchnorm statistics, to check bn is working
-        for md in self.model.modules():
-            if isinstance(md, _BatchNorm):
-                md.track_running_stats = False
-
-        avg_val_loss_trainbn = AverageMeter()
-        with torch.no_grad():
-            torch.manual_seed(0)
-            for batch_idx, (data, meta) in enumerate(self.valid_data_loader):
-                data = data.to(self.device)
-
-                output = self.model(data)
-
-                if isinstance(self.model, torch.nn.DataParallel):
-                    loss = self.loss_wrapper(output, meta, **self.loss_args)
-                    loss = loss.mean()
+                # Use key check for backward compat
+                if "im_data" in batch:
+                    im_data = batch["im_data"]
                 else:
-                    loss = self.loss(output, meta, **self.loss_args)
+                    im_data = data
+                if len(im_data) and self.visualizations:
+                    im_grid = make_grid(im_data.cpu(), nrow=8, normalize=True)
+                    self.writer.add_image('input', im_grid)
+                    for v in self.visualizations:
+                        v(self.writer, im_data.cpu(), output, meta)
 
-                avg_val_loss_trainbn.update(loss.item(), data.size(0))
-
-        for md in self.model.modules():
-            if isinstance(md, _BatchNorm):
-                md.track_running_stats = True
+                if self.mini_train and batch_idx > 3:
+                    self.logger.info("Mini training: exiting validation epoch early...")
+                    break
 
         val_log = {
             'val_loss': avg_val_loss.avg,
-            'val_loss_trainbn': avg_val_loss_trainbn.avg,
             'val_metrics': [a.avg for a in total_val_metrics]
         }
 
         self.writer.set_step(epoch, 'val_epoch')
         self.writer.add_scalar('val_loss', val_log['val_loss'])
-        self.writer.add_scalar('val_loss_trainbn', val_log['val_loss_trainbn'])
+
+        if self.check_bn_working:
+            # Run without using saved batchnorm statistics, to check bn is working
+            for md in self.model.modules():
+                if isinstance(md, _BatchNorm):
+                    md.track_running_stats = False
+
+            avg_val_loss_trainbn = AverageMeter()
+            with torch.no_grad():
+                torch.manual_seed(0)
+                for batch_idx, batch in enumerate(self.valid_data_loader):
+                    data, meta = batch["data"], batch["meta"]
+                    data = data.to(self.device)
+
+                    output = self.model(data)
+
+                    if isinstance(self.model, torch.nn.DataParallel):
+                        loss = self.loss_wrapper(output, meta, **self.loss_args)
+                        loss = loss.mean()
+                    else:
+                        loss = self.loss(output, meta, **self.loss_args)
+
+                    avg_val_loss_trainbn.update(loss.item(), data.size(0))
+
+                    if self.log_miou:
+                        running_metrics_val.update(output, meta)
+
+            for md in self.model.modules():
+                if isinstance(md, _BatchNorm):
+                    md.track_running_stats = True
+            self.writer.add_scalar('val_loss_trainbn', val_log['val_loss_trainbn'])
+            val_log['val_loss_trainbn'] = avg_val_loss_trainbn.avg
+
+        if self.log_miou:
+            summary, cliu = running_metrics_val.get_scores()
+            for key, val in summary.items():
+                self.writer.add_scalar('seg/{}'.format(key), val)
+                print("{}: {}".format(key, val))
+            for cls, val in cliu.items():
+                clsname = self.valid_data_loader.dataset.classnames[cls]
+                self.writer.add_scalar('seg/cliu-{}'.format(clsname), val)
 
         for i, metric in enumerate(self.metrics):
             self.writer.add_scalar(f'{metric.__name__}', val_log['val_metrics'][i])

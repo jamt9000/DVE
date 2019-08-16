@@ -1,0 +1,71 @@
+{
+    "n_gpu": 1,
+    "finetune_from": "data/saved/models/celeba-smallnet-16d-dve/2019-08-02_06-20-13/checkpoint-epoch100.pth",
+    "batch_size": 32,
+    "cache_descriptors": true,
+    "keypoint_regressor_upsample": false,
+    "arch": {
+        "type": "SmallNet",
+        "args": {
+            "num_output_channels": 16
+        }
+    },
+    "dataset": {
+        "type": "ThreeHundredW",
+        "args": {
+            "root": "data/300w/300w",
+            "imwidth": 100,
+            "crop": 15,
+            "use_keypoints": true,
+            "do_augmentations": false
+        }
+    },
+    "keypoint_regressor": {
+        "type": "IntermediateKeypointPredictor",
+        "args": {
+            "num_annotated_points": 68,
+            "num_intermediate_points": 50,
+            "softargmax_mul": 100.0
+        },
+        "softmaxarg_mul": 100.0
+    },
+    "warp_val": false,
+    "optimizer": {
+        "type": "Adam",
+        "args": {
+            "lr": 0.001,
+            "weight_decay": 0.0005,
+            "amsgrad": true
+        }
+    },
+    "loss": "regression_loss",
+    "loss_args": {
+        "alpha": 10.0
+    },
+    "metrics": [
+        "inter_ocular_error"
+    ],
+    "visualizations": [
+        "keypoints_intermediate"
+    ],
+    "lr_scheduler": {
+        "type": "MultiStepLR",
+        "args": {
+            "milestones": [
+                100,
+                250
+            ],
+            "gamma": 0.1
+        }
+    },
+    "trainer": {
+        "epochs": 300,
+        "save_dir": "saved/",
+        "save_period": 100,
+        "verbosity": 2,
+        "monitor": "off",
+        "early_stop": 300,
+        "tensorboardX": true,
+        "log_dir": "saved/"
+    }
+}

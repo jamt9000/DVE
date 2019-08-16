@@ -1,20 +1,17 @@
 import os
 import math
-import json
-import logging
-import datetime
 import torch
-from utils.util import ensure_dir
 from utils.visualization import WriterTensorboardX
 
 
 class BaseTrainer:
+    """ Base class for all trainers
     """
-    Base class for all trainers
-    """
-    def __init__(self, model, loss, metrics, optimizer, resume, config, train_logger=None):
+    def __init__(self, model, loss, metrics, optimizer, resume, config):
+
         self.config = config
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = config.get_logger(
+            'trainer', config['trainer']['verbosity'])
 
         # setup GPU device if available, move model into configured device
         self.device, device_ids = self._prepare_device(config['n_gpu'])
@@ -26,7 +23,6 @@ class BaseTrainer:
         self.loss = loss
         self.metrics = metrics
         self.optimizer = optimizer
-        self.train_logger = train_logger
 
         cfg_trainer = config['trainer']
         self.epochs = cfg_trainer['epochs']
@@ -46,22 +42,19 @@ class BaseTrainer:
             self.early_stop = cfg_trainer.get('early_stop', math.inf)
 
         self.start_epoch = 1
+        self.latest_log = None
 
         # setup directory for checkpoint saving
-        if resume:
-            start_time = os.path.split(os.path.split(resume)[0])[1]
-        else:
-            start_time = datetime.datetime.now().strftime('%m%d_%H%M%S')
-        self.checkpoint_dir = os.path.join(cfg_trainer['save_dir'], config['name'], start_time)
-        # setup visualization writer instance
-        writer_dir = os.path.join(cfg_trainer['log_dir'], config['name'], start_time)
-        self.writer = WriterTensorboardX(writer_dir, self.logger, cfg_trainer['tensorboardX'])
+        # if resume:
+        #     start_time = os.path.split(os.path.split(resume)[0])[1]
+        # else:
+        #     start_time = datetime.datetime.now().strftime('%m%d_%H%M%S')
+        self.checkpoint_dir = config.save_dir
 
-        # Save configuration file into checkpoint directory:
-        ensure_dir(self.checkpoint_dir)
-        config_save_path = os.path.join(self.checkpoint_dir, 'config.json')
-        with open(config_save_path, 'w') as handle:
-            json.dump(config, handle, indent=4, sort_keys=False)
+        # setup visualization writer instance
+        # writer_dir = os.path.join(cfg_trainer['log_dir'], config['name'], start_time)
+        self.writer = WriterTensorboardX(
+            config.log_dir, self.logger, cfg_trainer['tensorboardX'])
 
         if resume:
             self._resume_checkpoint(resume)
@@ -72,10 +65,13 @@ class BaseTrainer:
         """
         n_gpu = torch.cuda.device_count()
         if n_gpu_use > 0 and n_gpu == 0:
-            self.logger.warning("Warning: There\'s no GPU available on this machine, training will be performed on CPU.")
+            self.logger.warning("Warning: There\'s no GPU available on this machine,"
+                                "training will be performed on CPU.")
             n_gpu_use = 0
         if n_gpu_use > n_gpu:
-            self.logger.warning("Warning: The number of GPU\'s configured to use is {}, but only {} are available on this machine.".format(n_gpu_use, n_gpu))
+            self.logger.warning("Warning: The number of GPU\'s configured to use is {}"
+                                ", but only {} are available "
+                                "on this machine.".format(n_gpu_use, n_gpu))
             n_gpu_use = n_gpu
         device = torch.device('cuda:0' if n_gpu_use > 0 else 'cpu')
         list_ids = list(range(n_gpu_use))
@@ -93,28 +89,41 @@ class BaseTrainer:
             log = {'epoch': epoch}
             for key, value in result.items():
                 if key == 'metrics':
-                    log.update({mtr.__name__ : value[i] for i, mtr in enumerate(self.metrics)})
+                    log.update(
+                        {mtr.__name__: value[i] for i, mtr in enumerate(self.metrics)})
                 elif key == 'val_metrics':
-                    log.update({'val_' + mtr.__name__ : value[i] for i, mtr in enumerate(self.metrics)})
+                    log.update({
+                        'val_' + mtr.__name__: value[i] for i,
+                        mtr in enumerate(self.metrics)
+                    })
                 else:
                     log[key] = value
 
-            # print logged informations to the screen
-            if self.train_logger is not None:
-                self.train_logger.add_entry(log)
-                if self.verbosity >= 1:
-                    for key, value in log.items():
-                        self.logger.info('    {:15s}: {}'.format(str(key), value))
+            self.latest_log = log
 
-            # evaluate model performance according to configured metric, save best checkpoint as model_best
+            # print logged informations to the screen
+            for key, value in log.items():
+                self.logger.info('    {:15s}: {}'.format(str(key), value))
+            # if self.logger is not None:
+            #     self.logger.add_entry(log)
+            #     if self.verbosity >= 1:
+            #         for key, value in log.items():
+            #             self.logger.info('    {:15s}: {}'.format(str(key), value))
+
+            # evaluate model performance according to configured metric, save best
+            # checkpoint as model_best
             best = False
             if self.mnt_mode != 'off':
                 try:
-                    # check whether model performance improved or not, according to specified metric(mnt_metric)
-                    improved = (self.mnt_mode == 'min' and log[self.mnt_metric] < self.mnt_best) or \
-                               (self.mnt_mode == 'max' and log[self.mnt_metric] > self.mnt_best)
+                    # check whether model performance improved or not, according to
+                    # specified metric(mnt_metric)
+                    lower = log[self.mnt_metric] <= self.mnt_best
+                    higher = log[self.mnt_metric] >= self.mnt_best
+                    improved = (self.mnt_mode == 'min' and lower) or \
+                               (self.mnt_mode == 'max' and higher)
                 except KeyError:
-                    self.logger.warning("Warning: Metric '{}' is not found. Model performance monitoring is disabled.".format(self.mnt_metric))
+                    msg = "Warning: Metric '{}' not found, perf monitoring is disabled."
+                    self.logger.warning(msg.format(self.mnt_metric))
                     self.mnt_mode = 'off'
                     improved = False
                     not_improved_count = 0
@@ -127,12 +136,13 @@ class BaseTrainer:
                     not_improved_count += 1
 
                 if not_improved_count > self.early_stop:
-                    self.logger.info("Validation performance didn\'t improve for {} epochs. Training stops.".format(self.early_stop))
-                    #break
+                    self.logger.info("Val performance didn\'t improve for {} epochs. "
+                                     "Training stops.".format(self.early_stop))
+                    break
 
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
-
+        self.writer.writer.close()
 
     def _train_epoch(self, epoch):
         """
@@ -154,13 +164,15 @@ class BaseTrainer:
         state = {
             'arch': arch,
             'epoch': epoch,
-            'logger': self.train_logger,
             'state_dict': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
             'monitor_best': self.mnt_best,
             'config': self.config
         }
-        filename = os.path.join(self.checkpoint_dir, 'checkpoint-epoch{}.pth'.format(epoch))
+        filename = os.path.join(
+            self.checkpoint_dir,
+            'checkpoint-epoch{}.pth'.format(epoch)
+        )
         torch.save(state, filename)
         self.logger.info("Saving checkpoint: {} ...".format(filename))
         if save_best:
@@ -181,16 +193,21 @@ class BaseTrainer:
 
         # load architecture params from checkpoint.
         if checkpoint['config']['arch'] != self.config['arch']:
-            self.logger.warning('Warning: Architecture configuration given in config file is different from that of checkpoint. ' + \
-                                'This may yield an exception while state_dict is being loaded.')
+            msg = ("Warning: Architecture configuration given in config file is"
+                   " different from that of checkpoint."
+                   " This may yield an exception while state_dict is being loaded.")
+            self.logger.warning(msg)
         self.model.load_state_dict(checkpoint['state_dict'])
 
         # load optimizer state from checkpoint only when optimizer type is not changed.
-        if checkpoint['config']['optimizer']['type'] != self.config['optimizer']['type']:
-            self.logger.warning('Warning: Optimizer type given in config file is different from that of checkpoint. ' + \
-                                'Optimizer parameters not being resumed.')
+        ckpt_opt_type = checkpoint['config']['optimizer']['type']
+        if ckpt_opt_type != self.config['optimizer']['type']:
+            msg = ("Warning: Optimizer type given in config file is different from"
+                   "that of checkpoint.  Optimizer parameters not being resumed.")
+            self.logger.warning(msg)
         else:
             self.optimizer.load_state_dict(checkpoint['optimizer'])
 
-        self.train_logger = checkpoint['logger']
-        self.logger.info("Checkpoint '{}' (epoch {}) loaded".format(resume_path, self.start_epoch))
+        # self.logger = checkpoint['logger']
+        msg = "Checkpoint '{}' (epoch {}) loaded"
+        self.logger.info(msg .format(resume_path, self.start_epoch))

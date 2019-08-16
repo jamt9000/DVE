@@ -104,15 +104,16 @@ ENV/
 data/
 input/
 saved/
-datasets/
 
 # editor, os cache directory
 .vscode/
 .idea/
 __MACOSX/
 data
-dev
 
-# ignore symlinks
-saved
+dev
 aws-saved
+saved
+
+.DS_Store
+._.DS_Store

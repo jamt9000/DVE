@@ -20,6 +20,7 @@ def sync_between_servers(save_dir, src_server, dest_server, refresh, ckpt_list):
             "log": ["info.log"],
             "models": [f"checkpoint-epoch{epoch}.pth", "config.json"]
         }
+        # TODO(Samuel): cleanup code mess
 
         # copy experiment artifacts
         for filetype, fnames in filetypes.items():
@@ -31,21 +32,43 @@ def sync_between_servers(save_dir, src_server, dest_server, refresh, ckpt_list):
                 abs_path = Path(save_dir) / filetype / key / rel_path
                 print(f"{key} -> {abs_path} [{src_server} -> {dest_server}]")
                 # check if destination exists
-                exists = not os.system(f'ssh {dest_server} "test -f {str(abs_path)}"')
+                if not dest_server == "localhost":
+                    cmd = f'ssh {dest_server} "test -f {str(abs_path)}"'
+                    exists = not os.system(cmd)
+                else:
+                    exists = abs_path.exists()
                 if exists and not refresh:
                     print(f"found {abs_path} on dest server, skipping")
                     continue
 
-                subprocess.call(["ssh", dest_server, "mkdir -p", str(abs_path.parent)])
-                sync_cmd = f"scp -3 {src_server}:{abs_path} {dest_server}:{abs_path}"
+                if not dest_server == "localhost":
+                    subprocess.call(["ssh", dest_server, "mkdir -p", str(abs_path.parent)])
+                else:
+                    os.system(f"mkdir -p {str(abs_path.parent)}")
+
+                cmd = "scp"
+                if not src_server == "localhost":
+                    src_path = f"{src_server}:{abs_path}"
+                else:
+                    src_path = abs_path
+
+                if not dest_server == "localhost":
+                    dest_path = f"{dest_server}:{abs_path}"
+                else:
+                    dest_path = abs_path
+
+                if not (src_server == "localhost" or dest_server == "localhost"):
+                    cmd += " -3"
+
+                sync_cmd = f"{cmd} {src_path} {dest_path}"
                 print(f"running command {sync_cmd}")
-                os.system(sync_cmd)
+
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--action", default="sync", choices=["sync", "fetch"])
-    parser.add_argument("--ckpt_list", default="misc/server_checkpoints.json")
+    parser.add_argument("--ckpt_list", default="misc/server-checkpoints.json")
     parser.add_argument("--src_server", default="aws-albanie")
     parser.add_argument("--dest_server", default="gnodeb2")
     parser.add_argument("--refresh", action="store_true")
