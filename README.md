@@ -221,10 +221,6 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 |  64 | hourglass | 1.63 | 3.82 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-hourglass-64d-dve/2019-08-11_12-57-08/info.log) |
 
 
-| Embed. Dim | Model | Same Identity | Different Identity | Links | 
-| :-----------: | :-: | :----: | :----: | :----: |
-|  3 | smallnet | 5.21 | 6.51 | [config](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-3d-dve/2019-08-11_18-11-57/config.json), [model](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/models/300w-ft-celeba-smallnet-3d-dve/2019-08-11_18-11-57/model_best.pth), [log](http:/www.robots.ox.ac.uk/~vgg/research/DVE/data/log/300w-ft-celeba-smallnet-3d-dve/2019-08-11_18-11-57/info.log) |
-
 **Annotation Ablation: AFLW<sub>M</sub> landmark regression with limited labels**
 
 We perform a final ablation to investigate how well the regressors are able to perform when their access to annotation is further reduced, and they are simply provided with a few images.   The results, shown below, are reported as mean/std over three runs (because when there is only a single annotation, the performance is quite sensitive to which particular annotation is selected).  Particularly for the stronger models, reasonable performance can be obtained with a small number of annotated images.

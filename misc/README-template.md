@@ -220,10 +220,6 @@ To enable the finetuning experiments to be reproduced, the training logs for eac
 |  64 | hourglass | {{300w-ft-celeba-hourglass-64d-dve.same-identity}} | {{300w-ft-celeba-hourglass-64d-dve.different-identity}} | [config]({{300w-ft-celeba-hourglass-64d-dve.config}}), [model]({{300w-ft-celeba-hourglass-64d-dve.model}}), [log]({{300w-ft-celeba-hourglass-64d-dve.log}}) |
 
 
-| Embed. Dim | Model | Same Identity | Different Identity | Links | 
-| :-----------: | :-: | :----: | :----: | :----: |
-|  3 | smallnet | {{300w-ft-celeba-smallnet-3d-dve.same-identity}} | {{300w-ft-celeba-smallnet-3d-dve.different-identity}} | [config]({{300w-ft-celeba-smallnet-3d-dve.config}}), [model]({{300w-ft-celeba-smallnet-3d-dve.model}}), [log]({{300w-ft-celeba-smallnet-3d-dve.log}}) |
-
 **Annotation Ablation: AFLW<sub>M</sub> landmark regression with limited labels**
 
 We perform a final ablation to investigate how well the regressors are able to perform when their access to annotation is further reduced, and they are simply provided with a few images.   The results, shown below, are reported as mean/std over three runs (because when there is only a single annotation, the performance is quite sensitive to which particular annotation is selected).  Particularly for the stronger models, reasonable performance can be obtained with a small number of annotated images.
