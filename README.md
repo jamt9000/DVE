@@ -282,7 +282,7 @@ For example, to reproduce the `smallnet-32d-dve` results described above, run th
 
 ```
 # fetch the mafl dataset (contained with celeba) 
-python misc/fetch_datasets.py --dataset celeba
+python misc/sync_datasets.py --dataset celeba
 
 # find the name of a pretrained model using the links in the tables above 
 export MODEL=data/models/saved/celeba-smallnet-32d-dve/2019-08-02_06-19-59/checkpoint-epoch100.pth
@@ -314,7 +314,7 @@ For example, to reproduce the `smallnet-32d-dve` landmark regression results des
 
 ```
 # fetch the mafl dataset (contained with celeba) 
-python misc/fetch_datasets.py --dataset celeba
+python misc/sync_datasets.py --dataset celeba
 
 # find the name of a pretrained model using the links in the tables above 
 export MODEL=data/models/celeba-smallnet-32d-dve/2019-08-08_17-56-24/checkpoint-epoch100.pth
@@ -328,11 +328,6 @@ python3 test.py --config configs/celeba/smallnet-32d-dve.json --resume ${MODEL} 
 ```
 
 ### Learning new embeddings
-
-TODO (add automatic setup scripts for users to reproduce numbers)
-
-Requires CelebA.
-The dataset can be obtained [here](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).  This dataset is implemented in the `CelebABase` class in [data_loaders.py](data_loader/data_loaders.py).
 
 Learning a new embedding requires:
 1. The dataset used for training, which should be located in `<root>/data/<dataset-name>` (this will be done automatically by the [data fetching script](misc/sync_datasets.py), or can be done manually).
@@ -348,7 +343,7 @@ For example, to train a `16d-dve` embedding on `celeba`, run the following seque
 
 ```
 # fetch the celeba dataset 
-python misc/fetch_datasets.py --dataset celeba
+python misc/sync_datasets.py --dataset celeba
 
 # Train the model
 python3 train.py --config configs/celeba/smallnet-16d-dve.json --device 0
