@@ -268,7 +268,7 @@ In the codebase `AFLW<sub>R</sub>` is simply referred to as `AFLW`, while `AFLW<
 ### Evaluating a pretrained embedding
 
 Evaluting a pretrained model for a given dataset requires:
-1. The target dataset, which should be located in `<root>/data/<dataset-name>` (this will be done automatically by the [data fetching script](misc/fetch_datasets.py), or can be done manually).
+1. The target dataset, which should be located in `<root>/data/<dataset-name>` (this will be done automatically by the [data fetching script](misc/sync_datasets.py), or can be done manually).
 2. A `config.json` file.
 3. A `checkpoint.pth` file.
 
@@ -298,7 +298,7 @@ python3 test_matching.py --config configs/celeba/smallnet-32d-dve.json --resume 
 ### Regressing landmarks
 
 Learning a landmark regressor for a given pretrained embedding requires:
-1. The target dataset, which should be located in `<root>/data/<dataset-name>` (this will be done automatically by the [data fetching script](misc/fetch_datasets.py), or can be done manually).
+1. The target dataset, which should be located in `<root>/data/<dataset-name>` (this will be done automatically by the [data fetching script](misc/sync_datasets.py), or can be done manually).
 2. A `config.json` file.
 3. A `checkpoint.pth` file.
 
@@ -335,7 +335,7 @@ Requires CelebA.
 The dataset can be obtained [here](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).  This dataset is implemented in the `CelebABase` class in [data_loaders.py](data_loader/data_loaders.py).
 
 Learning a new embedding requires:
-1. The dataset used for training, which should be located in `<root>/data/<dataset-name>` (this will be done automatically by the [data fetching script](misc/fetch_datasets.py), or can be done manually).
+1. The dataset used for training, which should be located in `<root>/data/<dataset-name>` (this will be done automatically by the [data fetching script](misc/sync_datasets.py), or can be done manually).
 2. A `config.json` file.  You can define your own, or use one of the provided configs in the [configs](configs) directory.
 
 Training is then performed with the following command:
@@ -358,9 +358,7 @@ python3 train.py --config configs/celeba/smallnet-16d-dve.json --device 0
 
 ### Dependencies
 
-If you have enough disk space, the recommended approach to installing the dependencies for this project is to create a conda enviroment via the `requirements/conda-requirements.txt`:
-
-TODO(Samuel)
+If you have enough disk space, the recommended approach to installing the dependencies for this project is to create a conda enviroment via the `requirements/conda-freeze.txt`:
 
 ```
 conda env create -f requirements/conda-freeze.yml
