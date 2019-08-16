@@ -280,7 +280,7 @@ For example, to reproduce the `smallnet-32d-dve` results described above, run th
 python misc/sync_datasets.py --dataset celeba
 
 # find the name of a pretrained model using the links in the tables above 
-export MODEL=data/models/saved/celeba-smallnet-32d-dve/2019-08-02_06-19-59/checkpoint-epoch100.pth
+export MODEL=data/models/celeba-smallnet-32d-dve/2019-08-02_06-19-59/checkpoint-epoch100.pth
 
 # create a local directory and download the model into it 
 mkdir -p $(dirname "${MODEL}")

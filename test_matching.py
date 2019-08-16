@@ -215,7 +215,6 @@ def evaluation(config, logger=None, eval_data=None):
             descs2 = descs[1::2]  # 2nd in pair
             ims1 = data[0::2].cpu()
             ims2 = data[1::2].cpu()
-            import ipdb; ipdb.set_trace()
 
             im_source = ims1[0]
             im_same = ims2[0]

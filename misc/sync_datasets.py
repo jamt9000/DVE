@@ -59,13 +59,12 @@ def upload_to_server(web_dir, dataset, webserver, root_feat_dir, refresh):
 
 def fetch_from_server(dataset, root_url, refresh, purge_tar_file):
     local_data_dir = Path("data") / dataset
-    symlinked_feats_dir = local_data_dir / "symlinked-feats"
-    if symlinked_feats_dir.exists() and not refresh["symlinked-feats"]:
-        print(f"Found symlinked feats at {symlinked_feats_dir}, skipping")
+    if local_data_dir.exists() and not refresh["data"]:
+        print(f"Found dataset directory at {str(local_data_dir)}, skipping")
         return
 
     local_data_dir.mkdir(exist_ok=True, parents=True)
-    archive_name = f"{dataset}-experts.tar.gz"
+    archive_name = f"{dataset}.tar.gz"
     local_archive = local_data_dir / archive_name
     if not local_archive.exists():
         src_url = f"{root_url}/datasets/{archive_name}"
@@ -80,6 +79,7 @@ def fetch_from_server(dataset, root_url, refresh, purge_tar_file):
     subprocess.call(untar_args)
     if purge_tar_file:
         local_archive.unlink()
+    import ipdb; ipdb.set_trace()
 
 
 if __name__ == "__main__":
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     parser.add_argument("--webserver", default="login.robots.ox.ac.uk")
     parser.add_argument("--refresh_compression", action="store_true")
     parser.add_argument("--refresh_server", action="store_true")
-    parser.add_argument("--refresh_symlinked_feats", action="store_true")
+    parser.add_argument("--refresh_data", action="store_true")
     parser.add_argument("--purge_tar_file", action="store_true")
     parser.add_argument("--web_dir", default="/projects/vgg/vgg/WWW/research/DVE")
     parser.add_argument(
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     refresh_targets = {
         "server": args.refresh_server,
         "compression": args.refresh_compression,
-        "symlinked-feats": args.refresh_symlinked_feats,
+        "data": args.refresh_data,
     }
 
     if args.action == "upload":
