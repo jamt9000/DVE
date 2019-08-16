@@ -388,7 +388,7 @@ Some other codebases you might like to check out if you are interested in self-s
 
 * [LMDIS-REP](https://github.com/YutingZhang/lmdis-rep) [7]
 * [IMM](https://github.com/tomasjakab/imm) [8]
-* [FabNet](https://github.com/oawiles/FAb-Net) [9]
+* [Fab-Net](https://github.com/oawiles/FAb-Net) [9]
 
 
 ### Acknowledgements
