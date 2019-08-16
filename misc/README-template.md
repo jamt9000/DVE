@@ -4,7 +4,7 @@
 This repo provides code for learning dense landmarks without supervision.  Our approach is described in the ICCV 2019 [paper](TODO-update-link) "Unsupervised learning of landmarks by exchanging descriptor vectors".
 
 
-![DVE diagram](figs/DVE.png)
+![DVE diagram](figs/cycle-dve.png)
 
 **High level Overview:** The goal of this work is to learn a dense embedding Φ<sub>u</sub>(x) ∈ R<sup>d</sup> of image pixels without annotation. Our starting point was the *Dense Equivariant Labelling* approach of [3] (references follow at the end of the README), which similarly tackles the same problem, but is restricted to learning low-dimensional embeddings to achieve the key objective of generalisation *across different identities*.  The key focus of *Descriptor Vector Exchange* (DVE) is to address this dimensionality issue to enable the learning of more powerful, higher dimensional embeddings while still preserving their generalisation ability. To do so, we take inspiration from methods which enforce transitive/cyclic consistency constraints [4, 5, 6].
 
