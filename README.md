@@ -15,6 +15,9 @@ The embedding is learned from pairs of images (x,x′) related by a known warp v
 **Requirements:** The code assumes PyTorch 1.1 and Python 3.6/3.7 (other versions may work, but have not been tested).  See the section on dependencies towards the end of this file for specific package requirements.
 
 
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/unsupervised-learning-of-landmarks-by/unsupervised-facial-landmark-detection-on)](https://paperswithcode.com/sota/unsupervised-facial-landmark-detection-on?p=unsupervised-learning-of-landmarks-by)
+
+
 ### Learned Embeddings
 
 We provide pretrained models for each dataset to reproduce the results reported in the paper [1]. The training is performed with **CelebA**, a dataset of over 200k faces of celebrities that was originally described in [this paper](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf).  We use this dataset to train our embedding function without annotations. 
