@@ -585,10 +585,12 @@ class CelebAPrunedAligned_MAFLVal(CelebABase):
 
     def __init__(self, root, train=True, pair_warper=None, imwidth=100, crop=18,
                  do_augmentations=True, use_keypoints=False, use_hq_ims=True,
-                 visualize=False, val_split="celeba", val_size=2000, **kwargs):
+                 visualize=False, use_ims=True, val_split="celeba", val_size=2000,
+                 **kwargs):
         self.root = root
         self.imwidth = imwidth
         self.train = train
+        self.use_ims = use_ims
         self.warper = pair_warper
         self.visualize = visualize
         self.crop = crop
