@@ -15,13 +15,14 @@ from collections import OrderedDict
 
 
 def generate_url(root_url, target, exp_name, experiments):
+    exp = experiments[exp_name]
+    timestamp, epoch = exp["timestamp"], exp["epoch"]
     path_store = {
         "log": {"parent": "log", "fname": "info.log"},
         "config": {"parent": "models", "fname": "config.json"},
-        "model": {"parent": "models", "fname": "model_best.pth"}
+        "model": {"parent": "models", "fname": f"checkpoint-epoch{epoch}.pth"}
     }
     paths = path_store[target]
-    timestamp = experiments[exp_name]["timestamp"]
     return str(Path(root_url) / paths["parent"] / exp_name / timestamp / paths["fname"])
 
 
