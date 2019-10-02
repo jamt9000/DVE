@@ -37,9 +37,13 @@ class BaseTrainer:
         else:
             self.mnt_mode, self.mnt_metric = self.monitor.split()
             assert self.mnt_mode in ['min', 'max']
-
             self.mnt_best = math.inf if self.mnt_mode == 'min' else -math.inf
-            self.early_stop = cfg_trainer.get('early_stop', math.inf)
+
+            # Since early stopping was not available in earlier versions of the codebase
+            # we disable it completely (this allows previous experiments to be reproduced
+            # without modifying configs)
+            # self.early_stop = cfg_trainer.get('early_stop', math.inf)
+            self.early_stop = math.inf
 
         self.start_epoch = 1
         self.latest_log = None
