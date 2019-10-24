@@ -318,8 +318,8 @@ export MODEL=data/models/celeba-smallnet-32d-dve/2019-08-08_17-56-24/checkpoint-
 mkdir -p $(dirname "${MODEL}")
 wget --output-document="${MODEL}" "http://www.robots.ox.ac.uk/~vgg/research/DVE/${MODEL}"
 
-# Evaluate the model
-python3 test.py --config configs/celeba/smallnet-32d-dve.json --resume ${MODEL} --device 0
+# Evaluate the features by training a keypoint regressor 
+python3 train.py --config configs/aflw-keypoints/celeba-smallnet-32d-dve.json --device 0
 ```
 
 ### Learning new embeddings
