@@ -124,8 +124,6 @@ def main(config, resume):
                 getattr(module_visualization, vis) for vis in config['visualizations']
             ]
 
-        # build optimizer, learning rate scheduler. delete every lines containing
-        # lr_scheduler for disabling scheduler
         trainable_params = list(filter(lambda p: p.requires_grad, model.parameters()))
 
         if 'keypoint_regressor' in config.keys():
@@ -207,18 +205,6 @@ if __name__ == '__main__':
     parser.add_argument('--check_bn_working', action="store_true")
     parser.add_argument('--vis', action="store_true")
     config = ConfigParser(parser)
-
-    # if args.config:
-    #     # load config file
-    #     config = json.load(open(args.config))
-    #     path = os.path.join(config['trainer']['save_dir'], config['name'])
-    # elif args.resume:
-    #     # load config file from checkpoint, in case new config file is not given.
-    #     # Use '--config' and '--resume' arguments together to load trained model and
-    #     # train more with changed config.
-    #     config = torch.load(args.resume)['config']
-    # else:
-    #     raise AssertionError("config file needs to be specified. Add '-c config.json'")
 
     # We allow a small number of cmd-line overrides for fast dev
     args = config._args

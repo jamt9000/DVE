@@ -146,7 +146,9 @@ class BaseTrainer:
 
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
-        self.writer.writer.close()
+
+        if self.writer.writer:
+            self.writer.writer.close()
 
     def _train_epoch(self, epoch):
         """
